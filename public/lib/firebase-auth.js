@@ -13,15 +13,29 @@ let isDemoMode = false;
 const DEMO_USERS_STORAGE_KEY = 'knowyourresume.demo_users.v1';
 const DEMO_SESSION_KEY = 'knowyourresume.demo_session.v1';
 
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAmNscMGLZFMab3bZaFXWxAOudhk4pr4Vg",
+  authDomain: "knowyourresume.firebaseapp.com",
+  projectId: "knowyourresume",
+  storageBucket: "knowyourresume.firebasestorage.app",
+  messagingSenderId: "1033198519479",
+  appId: "1:1033198519479:web:5169ad1aa5057023dbf932"
+};
+
 export async function initFirebaseAuth(config = {}) {
   if (isFirebaseInitialized) {
     notifyAuthState(currentAuthUser);
     return { auth: authInstance, isDemoMode };
   }
 
-  if (config && config.apiKey && config.projectId) {
+  const finalConfig = {
+    ...DEFAULT_FIREBASE_CONFIG,
+    ...(config || {})
+  };
+
+  if (finalConfig.apiKey && finalConfig.projectId) {
     try {
-      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
+      const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
       const {
         getAuth,
         setPersistence,
@@ -29,14 +43,8 @@ export async function initFirebaseAuth(config = {}) {
         onAuthStateChanged
       } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
 
-      const app = initializeApp({
-        apiKey: config.apiKey,
-        authDomain: config.authDomain || `${config.projectId}.firebaseapp.com`,
-        projectId: config.projectId,
-        storageBucket: config.storageBucket || `${config.projectId}.appspot.com`,
-        messagingSenderId: config.messagingSenderId || '',
-        appId: config.appId || ''
-      });
+      const existingApps = getApps();
+      const app = existingApps.length > 0 ? existingApps[0] : initializeApp(finalConfig);
 
       authInstance = getAuth(app);
       await setPersistence(authInstance, browserLocalPersistence);
@@ -53,6 +61,7 @@ export async function initFirebaseAuth(config = {}) {
           };
         } else {
           currentAuthUser = null;
+          try { localStorage.removeItem(DEMO_SESSION_KEY); } catch {}
         }
         notifyAuthState(currentAuthUser);
       });
@@ -61,11 +70,11 @@ export async function initFirebaseAuth(config = {}) {
       isDemoMode = false;
       return { auth: authInstance, isDemoMode: false };
     } catch (err) {
-      console.warn('Could not initialize official Firebase SDK, falling back to local auth mode:', err);
+      console.error('Firebase Auth initialization error:', err);
     }
   }
 
-  // Local / Standalone Auth Mode (when Firebase keys are pending in .env)
+  // Fallback demo mode only if CDN / network fails
   isDemoMode = true;
   isFirebaseInitialized = true;
   initDemoSession();
@@ -136,47 +145,58 @@ export function isUserAuthenticated() {
   return Boolean(currentAuthUser && currentAuthUser.uid);
 }
 
+let isGoogleAuthInProgress = false;
+
 export async function signInWithGoogle() {
-  if (!isDemoMode && authInstance) {
-    const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
-    const provider = new GoogleAuthProvider();
-    provider.addScope('profile');
-    provider.addScope('email');
-    const result = await signInWithPopup(authInstance, provider);
-    const user = result.user;
-    currentAuthUser = {
-      uid: user.uid,
-      name: user.displayName || 'Google User',
-      email: user.email,
-      photoURL: user.photoURL || null,
-      createdAt: user.metadata?.creationTime || new Date().toISOString(),
-      lastLoginAt: user.metadata?.lastSignInTime || new Date().toISOString()
-    };
-    return currentAuthUser;
+  if (isGoogleAuthInProgress) {
+    throw new Error('Google Sign-In is already in progress. Please complete the popup window.');
   }
 
-  // Standalone simulated Google OAuth flow
-  const email = 'alex.chen@example.com';
-  const name = 'Alex Chen';
-  const uid = 'google_user_demo_123';
-  const user = {
-    uid,
-    name,
-    email,
-    photoURL: null,
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString()
-  };
+  if (authInstance) {
+    isGoogleAuthInProgress = true;
+    try {
+      const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
+      const provider = new GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+
+      const result = await signInWithPopup(authInstance, provider);
+      const user = result.user;
+      currentAuthUser = {
+        uid: user.uid,
+        name: user.displayName || user.email?.split('@')[0] || 'Google User',
+        email: user.email,
+        photoURL: user.photoURL || null,
+        createdAt: user.metadata?.creationTime || new Date().toISOString(),
+        lastLoginAt: user.metadata?.lastSignInTime || new Date().toISOString()
+      };
+      notifyAuthState(currentAuthUser);
+      return currentAuthUser;
+    } catch (err) {
+      throw new Error(mapAuthError(err));
+    } finally {
+      isGoogleAuthInProgress = false;
+    }
+  }
+
+  // Fallback demo session
+  const email = 'user@example.com';
+  const name = 'Demo User';
+  const uid = `user_${Date.now().toString(36)}`;
+  const user = { uid, name, email, photoURL: null, createdAt: new Date().toISOString(), lastLoginAt: new Date().toISOString() };
   saveDemoSession(user);
   return user;
 }
 
 export async function signInWithEmail(email, password) {
   const cleanEmail = String(email || '').trim().toLowerCase();
-  if (!cleanEmail) throw new Error('Invalid email address.');
-  if (!password) throw new Error('The email or password is incorrect.');
+  if (!cleanEmail || !cleanEmail.includes('@')) throw new Error('Please enter a valid email address.');
+  if (!password || password.length < 6) throw new Error('Password must contain at least 6 characters.');
 
-  if (!isDemoMode && authInstance) {
+  if (authInstance) {
     const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
     try {
       const result = await signInWithEmailAndPassword(authInstance, cleanEmail, password);
@@ -189,37 +209,28 @@ export async function signInWithEmail(email, password) {
         createdAt: user.metadata?.creationTime || new Date().toISOString(),
         lastLoginAt: user.metadata?.lastSignInTime || new Date().toISOString()
       };
+      notifyAuthState(currentAuthUser);
       return currentAuthUser;
     } catch (err) {
       throw new Error(mapAuthError(err));
     }
   }
 
-  // Demo mode
+  // Demo fallback
   const users = getDemoUsers();
-  const found = users.find((u) => u.email.toLowerCase() === cleanEmail && u.password === password);
-  if (!found) {
-    // If empty demo database, create initial test account if password meets standard
-    if (users.length === 0 && cleanEmail.includes('@') && password.length >= 8) {
-      const newUser = {
-        uid: `user_${Date.now().toString(36)}`,
-        name: cleanEmail.split('@')[0],
-        email: cleanEmail,
-        password,
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString()
-      };
-      saveDemoUsers([newUser]);
-      saveDemoSession(newUser);
-      return newUser;
-    }
-    throw new Error('The email or password is incorrect.');
+  const found = users.find((u) => u.email.toLowerCase() === cleanEmail);
+  if (found) {
+    if (found.password && found.password !== password) throw new Error('The email or password is incorrect.');
+    found.lastLoginAt = new Date().toISOString();
+    saveDemoUsers(users);
+    saveDemoSession(found);
+    return found;
   }
-
-  found.lastLoginAt = new Date().toISOString();
+  const newUser = { uid: `user_${Date.now().toString(36)}`, name: cleanEmail.split('@')[0], email: cleanEmail, password, createdAt: new Date().toISOString(), lastLoginAt: new Date().toISOString() };
+  users.push(newUser);
   saveDemoUsers(users);
-  saveDemoSession(found);
-  return found;
+  saveDemoSession(newUser);
+  return newUser;
 }
 
 export async function signUpWithEmail(name, email, password, confirmPassword) {
@@ -228,16 +239,16 @@ export async function signUpWithEmail(name, email, password, confirmPassword) {
   
   if (!cleanName) throw new Error('Please enter your full name.');
   if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-    throw new Error('Invalid email address.');
+    throw new Error('Please enter a valid email address.');
   }
-  if (!password || password.length < 8) {
-    throw new Error('Password must contain at least 8 characters.');
+  if (!password || password.length < 6) {
+    throw new Error('Password must contain at least 6 characters.');
   }
   if (password !== confirmPassword) {
     throw new Error('Passwords do not match.');
   }
 
-  if (!isDemoMode && authInstance) {
+  if (authInstance) {
     const { createUserWithEmailAndPassword, updateProfile } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
     try {
       const result = await createUserWithEmailAndPassword(authInstance, cleanEmail, password);
@@ -251,26 +262,18 @@ export async function signUpWithEmail(name, email, password, confirmPassword) {
         createdAt: user.metadata?.creationTime || new Date().toISOString(),
         lastLoginAt: user.metadata?.lastSignInTime || new Date().toISOString()
       };
+      notifyAuthState(currentAuthUser);
       return currentAuthUser;
     } catch (err) {
       throw new Error(mapAuthError(err));
     }
   }
 
-  // Demo mode
   const users = getDemoUsers();
   if (users.some((u) => u.email.toLowerCase() === cleanEmail)) {
     throw new Error('An account with this email already exists.');
   }
-
-  const newUser = {
-    uid: `user_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
-    name: cleanName,
-    email: cleanEmail,
-    password,
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString()
-  };
+  const newUser = { uid: `user_${Date.now().toString(36)}`, name: cleanName, email: cleanEmail, password, createdAt: new Date().toISOString(), lastLoginAt: new Date().toISOString() };
   users.push(newUser);
   saveDemoUsers(users);
   saveDemoSession(newUser);
@@ -310,6 +313,12 @@ export async function logOut() {
 export function mapAuthError(error) {
   const code = error?.code || (typeof error === 'string' ? error : error?.message || '');
   switch (code) {
+    case 'auth/missing-or-invalid-nonce':
+      return 'Sign-in session refreshed. Please click Continue with Google once more.';
+    case 'auth/cancelled-popup-request':
+      return 'Previous sign-in request was cancelled. Please try again.';
+    case 'auth/unauthorized-domain':
+      return 'This domain is pending authorization in Firebase Console. (Add domain under Auth > Settings).';
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
     case 'auth/user-not-found':

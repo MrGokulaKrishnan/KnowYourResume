@@ -1,628 +1,963 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#09090b" />
-    <meta name="description" content="KnowYourResume — Build, analyze, and optimize ATS-compatible resumes with Gemini AI." />
-    <title>KnowYourResume — Build. Analyze. Optimize. Get Hired.</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <!-- TOP NAVIGATION BAR -->
-    <header class="navbar">
-      <div class="nav-left">
-        <a class="brand" href="#resume" aria-label="KnowYourResume">
-          <img src="./assets/kr-logo.jpeg" alt="KnowYourResume logo" width="36" height="36" class="brand-logo" />
-          <span class="brand-text">KnowYour<b>Resume</b></span>
-        </a>
-        <nav class="nav-links" id="main-nav">
-          <button class="nav-btn active" data-route="resume"><span class="icon">▤</span> Resume Builder</button>
-          <button class="nav-btn" data-route="ats"><span class="icon">◎</span> ATS Analyzer</button>
-          <button class="nav-btn" data-route="templates"><span class="icon">▧</span> Templates</button>
-          <button class="nav-btn" data-route="ai"><span class="icon">✦</span> AI Tools</button>
-          <button class="nav-btn" data-route="applications"><span class="icon">▣</span> Applications</button>
-          <button class="nav-btn" data-route="dashboard"><span class="icon">⌂</span> Dashboard</button>
-        </nav>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KnowYourResume — AI Career Operating System</title>
+  <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
+  <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
+  <link rel="stylesheet" href="/styles.css?v=4.4" />
+</head>
+<body>
+  <!-- Ambient background glow for liquid depth -->
+  <div class="ambient-bg-glow" aria-hidden="true"></div>
+  <div class="ambient-bg-secondary" aria-hidden="true"></div>
+
+  <!-- SVG Gradient Definitions for Circular Progress -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+    <defs>
+      <linearGradient id="scoreGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#fff200" />
+        <stop offset="50%" stop-color="#ffc400" />
+        <stop offset="100%" stop-color="#ff9d00" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- ========================================================================
+       TOPBAR NAVIGATION
+       ======================================================================== -->
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="#dashboard" class="brand" data-route="dashboard">
+        <img src="/assets/kr-logo.jpeg" alt="KnowYourResume Logo" class="brand-logo" width="34" height="34" />
+        <span class="brand-text">KnowYour<b>Resume</b></span>
+      </a>
+
+      <nav class="nav-links" id="main-nav" aria-label="Main Navigation">
+        <button type="button" class="nav-btn active" data-route="dashboard">
+          <span class="icon">⌂</span> Dashboard
+        </button>
+        <button type="button" class="nav-btn" data-route="resume">
+          <span class="icon">▤</span> Resume Builder
+        </button>
+        <button type="button" class="nav-btn" data-route="ats">
+          <span class="icon">◎</span> ATS Analyzer
+        </button>
+        <button type="button" class="nav-btn" data-route="templates">
+          <span class="icon">▧</span> Templates
+        </button>
+        <button type="button" class="nav-btn" data-route="ai">
+          <span class="icon">✦</span> AI Tools
+        </button>
+        <button type="button" class="nav-btn" data-route="applications">
+          <span class="icon">▣</span> Applications
+        </button>
+        <button type="button" class="nav-btn" data-route="settings">
+          <span class="icon">⚙</span> Settings
+        </button>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <button type="button" class="btn btn-secondary btn-sm nav-action-btn import-resume-special-btn" id="import-resume-btn" title="Import existing resume from PDF, Word, or TXT">
+        <span class="btn-icon-wrap import-glow-badge">
+          <svg class="unique-import-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-body" />
+            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-corner" />
+            <line x1="8" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity="0.65" />
+            <line x1="8" y1="16" x2="11" y2="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity="0.45" />
+            <path d="M15 17L18.5 13.5M18.5 13.5L15 10M18.5 13.5H12" stroke="var(--gold-start, #fff200)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="import-arrow" />
+          </svg>
+        </span>
+        <span class="import-btn-text">Import Resume</span>
+        <input type="file" id="import-resume-file-input" accept=".pdf,.docx,.txt" style="display: none;" />
+      </button>
+
+      <button type="button" class="btn btn-primary btn-sm nav-action-btn" id="top-export-pdf-btn" title="Export high-resolution ATS PDF">
+        <svg class="nav-action-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Export PDF</span>
+      </button>
+
+      <div class="user-menu-wrap" id="user-menu-wrap">
+        <button type="button" class="btn btn-auth-pill" id="auth-trigger-btn" title="Sign In or Create Account">
+          <svg class="nav-action-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="auth-btn-label">Sign In / Log In</span>
+        </button>
+        <div class="user-badge" id="user-badge" style="display: none;">
+          <div class="user-avatar" id="nav-user-avatar">AM</div>
+          <span class="user-name" id="nav-user-name">Alex Morgan</span>
+          <button type="button" class="btn-logout-pill" id="nav-logout-btn" title="Sign Out of Account">Sign Out ✕</button>
+        </div>
       </div>
 
-      <div class="nav-right">
-        <span class="save-status" id="save-status"><i></i> Saved</span>
-        <button class="btn btn-ghost btn-sm" id="load-sample-btn" title="Load sample data to test layout">Sample Data</button>
-        <button class="btn btn-primary btn-sm" id="top-export-pdf-btn">Export PDF <span>↗</span></button>
-        <div class="user-menu-wrap">
-          <button class="btn btn-secondary btn-sm" id="auth-trigger-btn">Sign In</button>
-          <div class="user-badge" id="user-badge" style="display: none;" title="Account settings">
-            <span class="user-avatar" id="nav-user-avatar">KR</span>
-            <span class="user-name" id="nav-user-name">User</span>
-            <button class="btn-logout-icon" id="nav-logout-btn" title="Sign out">⇥</button>
+      <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle-btn" aria-label="Toggle Navigation Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN APP CONTAINER & VIEW PANELS
+       ======================================================================== -->
+  <main class="app-container" id="app-views">
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 1: DASHBOARD (CAREER INTELLIGENCE CENTER)
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel active" id="view-dashboard" aria-label="Dashboard Overview">
+      <div class="dashboard-hero-section">
+        <div class="dashboard-greeting-card">
+          <span class="eyebrow-badge"><i></i> Career Operating System</span>
+          <h1 style="margin-top: 14px;">Good morning.<br>Ready to improve your next application?</h1>
+          <p>Build ATS-optimized resumes, analyze target job compatibility with deterministic scoring, and tailor your background using Gemini AI.</p>
+          <div class="dash-actions-row">
+            <button type="button" class="btn btn-primary btn-lg" data-route="resume">
+              <span>＋ Open Resume Builder</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" data-route="ats">
+              <span>◎ Run ATS Match Scan</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" id="dash-auth-btn">
+              <span id="dash-auth-btn-text">🔐 Sign In / Cloud Account</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dashboard-ats-hero-card">
+          <div class="score-ring-wrap">
+            <svg class="score-ring-svg" viewBox="0 0 100 100">
+              <circle class="score-ring-bg" cx="50" cy="50" r="45" />
+              <circle class="score-ring-fill" id="dash-score-ring" cx="50" cy="50" r="45" style="stroke-dashoffset: 283;" />
+            </svg>
+            <div class="score-ring-text">
+              <span class="num" id="dash-score-num">—</span>
+              <span class="unit" id="dash-score-unit">READY</span>
+            </div>
+          </div>
+          <div class="dash-ats-info">
+            <span class="eyebrow-badge" style="margin-bottom: 6px;">Live ATS Status</span>
+            <h3 id="dash-score-level">Scan Ready</h3>
+            <p id="dash-score-desc">Upload or build a resume and run an ATS scan against any target Job Description.</p>
+            <button type="button" class="btn btn-ai btn-sm" data-route="ats">
+              <span>✦ Run ATS Scan →</span>
+            </button>
           </div>
         </div>
       </div>
-    </header>
 
-    <!-- MAIN APP CONTAINER -->
-    <main class="app-container">
+      <!-- 4 High-Impact Metric Cards -->
+      <div class="dashboard-stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap">▤</div>
+          <div class="stat-info">
+            <span class="stat-label">Active Resume Drafts</span>
+            <span class="stat-value" id="stat-resumes">1 Active</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">◎</div>
+          <div class="stat-info">
+            <span class="stat-label">ATS Scans Completed</span>
+            <span class="stat-value" id="stat-scans">0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">★</div>
+          <div class="stat-info">
+            <span class="stat-label">Average Match Score</span>
+            <span class="stat-value" id="stat-avg-score">—</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap">▣</div>
+          <div class="stat-info">
+            <span class="stat-label">Tracked Opportunities</span>
+            <span class="stat-value" id="stat-applications">0</span>
+          </div>
+        </div>
+      </div>
 
-      <!-- =========================================================================
-           1. RESUME BUILDER VIEW (DEFAULT WORKSPACE)
-           ========================================================================= -->
-      <section class="view-panel active" id="view-resume">
-        <div class="builder-layout">
+      <!-- Detail Showcase: Versions & Market Skill Trends -->
+      <div class="dashboard-details-grid">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3>Recent Resume Drafts</h3>
+            <button type="button" class="btn btn-secondary btn-sm" data-route="resume">Open Builder →</button>
+          </div>
+          <div class="dash-versions" id="dash-versions-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
 
-          <!-- Left Column: Form Editor -->
-          <div class="builder-editor-wrap">
-            <!-- Section Sticky Navigation Pills -->
-            <div class="section-nav-pills">
-              <a href="#sec-personal" class="pill active">Personal</a>
-              <a href="#sec-summary" class="pill">Summary</a>
-              <a href="#sec-experience" class="pill">Experience</a>
-              <a href="#sec-education" class="pill">Education</a>
-              <a href="#sec-skills" class="pill">Skills</a>
-              <a href="#sec-projects" class="pill">Projects</a>
-              <a href="#sec-certs" class="pill">Certifications</a>
-              <a href="#sec-languages" class="pill">Languages</a>
-              <a href="#sec-custom" class="pill">Custom</a>
-            </div>
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3>Market Skills &amp; Missing Trends</h3>
+            <span style="font-size: 11.5px; color: var(--text-muted);">Across your ATS scans</span>
+          </div>
+          <div class="dash-trends" id="dash-skill-trends">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <form id="resume-form" class="editor-form" novalidate>
+    <!-- ----------------------------------------------------------------------
+         VIEW 2: RESUME BUILDER (3-ZONE DOCUMENT WORKSPACE)
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel" id="view-resume" aria-label="Resume Builder Workspace">
+      <div class="builder-layout">
+        <!-- Zone 1 & 2: Form Editor Column -->
+        <div class="builder-editor-wrap">
+          <!-- Sticky Section Navigator Bar with Autosave Status -->
+          <div class="section-nav-bar">
+            <nav class="section-nav-pills" aria-label="Resume Sections">
+              <a href="#sec-personal" class="pill active">👤 Personal</a>
+              <a href="#sec-summary" class="pill">📝 Summary</a>
+              <a href="#sec-experience" class="pill">💼 Experience</a>
+              <a href="#sec-education" class="pill">🎓 Education</a>
+              <a href="#sec-skills" class="pill">⚡ Skills</a>
+              <a href="#sec-projects" class="pill">🚀 Projects</a>
+              <a href="#sec-certs" class="pill">📜 Certs</a>
+              <a href="#sec-languages" class="pill">🌐 Languages</a>
+              <a href="#sec-custom" class="pill">＋ Custom</a>
+            </nav>
+            <span class="save-status" id="save-status">
+              <i></i> Saved
+            </span>
+          </div>
 
-              <!-- Personal Information -->
-              <fieldset class="form-card" id="sec-personal">
-                <legend class="card-legend">
-                  <span class="legend-icon">👤</span>
-                  <div>
-                    <h3>Personal Information</h3>
-                    <p>Contact details and header positioning</p>
-                  </div>
-                </legend>
-                <div class="form-grid cols-2">
-                  <label class="form-field">
-                    <span>Full Name *</span>
-                    <input data-bind="personal.name" autocomplete="name" placeholder="e.g. Alex Morgan" required />
-                  </label>
-                  <label class="form-field">
-                    <span>Professional Title</span>
-                    <input data-bind="personal.title" placeholder="e.g. Senior Software Engineer" />
-                  </label>
-                  <label class="form-field">
-                    <span>Email Address</span>
-                    <input data-bind="personal.email" type="email" autocomplete="email" placeholder="alex.morgan@example.com" />
-                  </label>
-                  <label class="form-field">
-                    <span>Phone Number</span>
-                    <input data-bind="personal.phone" type="tel" autocomplete="tel" placeholder="+1 (555) 234-5678" />
-                  </label>
-                  <label class="form-field">
-                    <span>Location</span>
-                    <input data-bind="personal.location" placeholder="City, State / Remote" />
-                  </label>
-                  <label class="form-field">
-                    <span>LinkedIn Profile</span>
-                    <input data-bind="personal.linkedin" placeholder="linkedin.com/in/alexmorgan" />
-                  </label>
-                  <label class="form-field">
-                    <span>GitHub / Code Portfolio</span>
-                    <input data-bind="personal.github" placeholder="github.com/alexmorgan" />
-                  </label>
-                  <label class="form-field">
-                    <span>Website / Portfolio</span>
-                    <input data-bind="personal.portfolio" placeholder="alexmorgan.dev" />
-                  </label>
+          <form class="editor-form" id="resume-editor-form" onsubmit="return false;">
+            <!-- Personal Information -->
+            <fieldset class="form-card" id="sec-personal">
+              <legend class="card-legend">
+                <span class="legend-icon">👤</span>
+                <div>
+                  <h3>Personal Information</h3>
+                  <p>Contact details and portfolio links</p>
                 </div>
-              </fieldset>
-
-              <!-- Professional Summary -->
-              <fieldset class="form-card" id="sec-summary">
-                <legend class="card-legend">
-                  <span class="legend-icon">📝</span>
-                  <div>
-                    <h3>Professional Summary</h3>
-                    <p>Concise summary highlighting your strengths and target value</p>
-                  </div>
-                  <button type="button" class="btn btn-ai btn-sm" id="ai-summary-btn">✦ AI Generate</button>
-                </legend>
+              </legend>
+              <div class="form-grid cols-2">
                 <label class="form-field">
-                  <textarea data-bind="summary" rows="4" maxlength="1000" placeholder="Write a focused 2-4 sentence overview of your domain expertise, key accomplishments, and target technical roles."></textarea>
-                  <div class="field-meta">
-                    <span id="summary-char-count">0 / 1000 characters</span>
-                  </div>
+                  <span>Full Name</span>
+                  <input type="text" data-bind="personal.name" placeholder="e.g. Alex Morgan" autocomplete="name" />
                 </label>
-              </fieldset>
+                <label class="form-field">
+                  <span>Professional Title</span>
+                  <input type="text" data-bind="personal.title" placeholder="e.g. Senior Full-Stack Engineer" />
+                </label>
+                <label class="form-field">
+                  <span>Email Address</span>
+                  <input type="email" data-bind="personal.email" placeholder="alex@example.com" autocomplete="email" />
+                </label>
+                <label class="form-field">
+                  <span>Phone Number</span>
+                  <input type="tel" data-bind="personal.phone" placeholder="+1 (555) 000-0000" autocomplete="tel" />
+                </label>
+                <label class="form-field">
+                  <span>Location</span>
+                  <input type="text" data-bind="personal.location" placeholder="City, State / Remote" />
+                </label>
+                <label class="form-field">
+                  <span>LinkedIn URL</span>
+                  <input type="text" data-bind="personal.linkedin" placeholder="linkedin.com/in/username" />
+                </label>
+                <label class="form-field">
+                  <span>GitHub URL</span>
+                  <input type="text" data-bind="personal.github" placeholder="github.com/username" />
+                </label>
+                <label class="form-field">
+                  <span>Portfolio / Website</span>
+                  <input type="text" data-bind="personal.portfolio" placeholder="yourportfolio.dev" />
+                </label>
+              </div>
+            </fieldset>
 
-              <!-- Work Experience -->
-              <fieldset class="form-card" id="sec-experience">
-                <legend class="card-legend">
-                  <span class="legend-icon">💼</span>
-                  <div>
-                    <h3>Work Experience</h3>
-                    <p>Chronological career history with measurable impact</p>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-experience-btn">＋ Add Position</button>
-                </legend>
-                <div id="experience-list" class="dynamic-list"></div>
-              </fieldset>
-
-              <!-- Education -->
-              <fieldset class="form-card" id="sec-education">
-                <legend class="card-legend">
-                  <span class="legend-icon">🎓</span>
-                  <div>
-                    <h3>Education</h3>
-                    <p>Degrees, universities, and academic credentials</p>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-education-btn">＋ Add Education</button>
-                </legend>
-                <div id="education-list" class="dynamic-list"></div>
-              </fieldset>
-
-              <!-- Skills -->
-              <fieldset class="form-card" id="sec-skills">
-                <legend class="card-legend">
-                  <span class="legend-icon">⚡</span>
-                  <div>
-                    <h3>Skills & Competencies</h3>
-                    <p>Technical proficiencies, frameworks, tools, and methodologies</p>
-                  </div>
-                </legend>
-                <div class="skill-input-row">
-                  <input type="text" id="skill-text-input" placeholder="Type a skill (e.g. React, Node.js, AWS, PostgreSQL) and press Enter" />
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-skill-btn">Add</button>
+            <!-- Professional Summary -->
+            <fieldset class="form-card" id="sec-summary">
+              <legend class="card-legend">
+                <span class="legend-icon">📝</span>
+                <div>
+                  <h3>Professional Summary</h3>
+                  <p>High-impact executive overview</p>
                 </div>
-                <div id="skill-chips" class="chips-container"></div>
-              </fieldset>
-
-              <!-- Projects -->
-              <fieldset class="form-card" id="sec-projects">
-                <legend class="card-legend">
-                  <span class="legend-icon">🚀</span>
-                  <div>
-                    <h3>Projects & Open Source</h3>
-                    <p>Standout engineering projects, architectures, and links</p>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-project-btn">＋ Add Project</button>
-                </legend>
-                <div id="projects-list" class="dynamic-list"></div>
-              </fieldset>
-
-              <!-- Certifications -->
-              <fieldset class="form-card" id="sec-certs">
-                <legend class="card-legend">
-                  <span class="legend-icon">📜</span>
-                  <div>
-                    <h3>Certifications & Licenses</h3>
-                    <p>Industry certifications (e.g. AWS, CKA, PMP)</p>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-cert-btn">＋ Add Certification</button>
-                </legend>
-                <div id="certifications-list" class="dynamic-list"></div>
-              </fieldset>
-
-              <!-- Languages -->
-              <fieldset class="form-card" id="sec-languages">
-                <legend class="card-legend">
-                  <span class="legend-icon">🌐</span>
-                  <div>
-                    <h3>Languages</h3>
-                    <p>Spoken languages and fluency levels</p>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-language-btn">＋ Add Language</button>
-                </legend>
-                <div id="languages-list" class="dynamic-list"></div>
-              </fieldset>
-
-              <!-- Custom Sections -->
-              <fieldset class="form-card" id="sec-custom">
-                <legend class="card-legend">
-                  <span class="legend-icon">➕</span>
-                  <div>
-                    <h3>Custom Sections</h3>
-                    <p>Publications, volunteer work, awards, or patents</p>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="add-custom-btn">＋ Add Section</button>
-                </legend>
-                <div id="custom-sections-list" class="dynamic-list"></div>
-              </fieldset>
-
-            </form>
-          </div>
-
-          <!-- Right Column: Live Paper Preview -->
-          <div class="builder-preview-wrap">
-            <div class="preview-header">
-              <div class="preview-controls-left">
-                <div class="seg-btn-group">
-                  <button type="button" class="seg-btn active" id="paper-a4-btn">A4</button>
-                  <button type="button" class="seg-btn" id="paper-letter-btn">Letter</button>
+                <button type="button" class="btn btn-ai btn-sm" id="ai-summary-btn">
+                  <span>✦ AI Synthesize Summary</span>
+                </button>
+              </legend>
+              <div class="form-field full-width">
+                <textarea data-bind="summary" rows="4" placeholder="Write a concise 3-sentence summary of your technical depth, leadership, and quantifiable business outcomes..."></textarea>
+                <div class="field-meta">
+                  <span id="summary-char-count">0 / 1000 characters</span>
                 </div>
-                <select id="template-select-inline" class="template-select">
-                  <option value="classic">ATS Classic</option>
-                  <option value="modern">Modern Accent</option>
-                  <option value="executive">Executive</option>
-                  <option value="tech">Tech Focused</option>
-                  <option value="minimal">Minimalist</option>
-                  <option value="corporate">Corporate</option>
-                  <option value="creative">Creative</option>
-                  <option value="compact">Compact</option>
-                </select>
               </div>
+            </fieldset>
 
-              <div class="preview-controls-right">
-                <button type="button" class="zoom-btn" id="zoom-out-btn" title="Zoom out">−</button>
-                <span class="zoom-text" id="zoom-value">80%</span>
-                <button type="button" class="zoom-btn" id="zoom-in-btn" title="Zoom in">＋</button>
-                <button type="button" class="btn btn-primary btn-sm" id="print-resume-btn">Print / PDF</button>
+            <!-- Work Experience -->
+            <fieldset class="form-card" id="sec-experience">
+              <legend class="card-legend">
+                <span class="legend-icon">💼</span>
+                <div>
+                  <h3>Work Experience</h3>
+                  <p>Quantifiable achievements and roles</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-experience-btn">
+                  <span>＋ Add Position</span>
+                </button>
+              </legend>
+              <div class="dynamic-list" id="experience-list">
+                <!-- Rendered dynamically -->
               </div>
-            </div>
+            </fieldset>
 
-            <!-- Scrollable Preview Viewport -->
-            <div class="preview-viewport">
-              <div class="paper-stage">
-                <article id="resume-preview" class="resume-paper template-classic paper-a4" aria-label="Live Resume Preview">
-                  <!-- Rendered dynamically -->
-                </article>
+            <!-- Education -->
+            <fieldset class="form-card" id="sec-education">
+              <legend class="card-legend">
+                <span class="legend-icon">🎓</span>
+                <div>
+                  <h3>Education</h3>
+                  <p>Degrees and academic credentials</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-education-btn">
+                  <span>＋ Add Education</span>
+                </button>
+              </legend>
+              <div class="dynamic-list" id="education-list">
+                <!-- Rendered dynamically -->
               </div>
-            </div>
-          </div>
+            </fieldset>
 
+            <!-- Skills & Competencies -->
+            <fieldset class="form-card" id="sec-skills">
+              <legend class="card-legend">
+                <span class="legend-icon">⚡</span>
+                <div>
+                  <h3>Skills &amp; Competencies</h3>
+                  <p>ATS keywords, tools, and frameworks</p>
+                </div>
+              </legend>
+              <div class="skill-input-row">
+                <input type="text" id="skill-text-input" placeholder="Type a skill and press Enter (e.g. TypeScript, AWS, Kubernetes)..." />
+                <button type="button" class="btn btn-secondary btn-sm" id="add-skill-btn">Add Skill</button>
+              </div>
+              <div class="chips-container" id="skill-chips">
+                <!-- Rendered dynamically -->
+              </div>
+            </fieldset>
+
+            <!-- Projects & Open Source -->
+            <fieldset class="form-card" id="sec-projects">
+              <legend class="card-legend">
+                <span class="legend-icon">🚀</span>
+                <div>
+                  <h3>Projects &amp; Open Source</h3>
+                  <p>Key technical builds and repositories</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-project-btn">
+                  <span>＋ Add Project</span>
+                </button>
+              </legend>
+              <div class="dynamic-list" id="projects-list">
+                <!-- Rendered dynamically -->
+              </div>
+            </fieldset>
+
+            <!-- Certifications -->
+            <fieldset class="form-card" id="sec-certs">
+              <legend class="card-legend">
+                <span class="legend-icon">📜</span>
+                <div>
+                  <h3>Certifications &amp; Licenses</h3>
+                  <p>Industry qualifications and cloud credentials</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-cert-btn">
+                  <span>＋ Add Certification</span>
+                </button>
+              </legend>
+              <div class="dynamic-list" id="certifications-list">
+                <!-- Rendered dynamically -->
+              </div>
+            </fieldset>
+
+            <!-- Languages -->
+            <fieldset class="form-card" id="sec-languages">
+              <legend class="card-legend">
+                <span class="legend-icon">🌐</span>
+                <div>
+                  <h3>Languages</h3>
+                  <p>Spoken languages and proficiencies</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-language-btn">
+                  <span>＋ Add Language</span>
+                </button>
+              </legend>
+              <div class="dynamic-list" id="languages-list">
+                <!-- Rendered dynamically -->
+              </div>
+            </fieldset>
+
+            <!-- Custom Sections -->
+            <fieldset class="form-card" id="sec-custom">
+              <legend class="card-legend">
+                <span class="legend-icon">＋</span>
+                <div>
+                  <h3>Custom Sections</h3>
+                  <p>Publications, patents, volunteering, awards</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-custom-btn">
+                  <span>＋ Add Section</span>
+                </button>
+              </legend>
+              <div class="dynamic-list" id="custom-sections-list">
+                <!-- Rendered dynamically -->
+              </div>
+            </fieldset>
+          </form>
         </div>
-      </section>
 
-      <!-- =========================================================================
-           2. ATS ANALYZER VIEW
-           ========================================================================= -->
-      <section class="view-panel" id="view-ats">
-        <div class="ats-layout">
-          <!-- Left: Input Pane -->
+        <!-- Zone 3: Live Floating Paper Preview Column -->
+        <div class="builder-preview-wrap">
+          <div class="preview-header">
+            <div class="preview-controls-left">
+              <div class="seg-btn-group">
+                <button type="button" class="seg-btn active" id="paper-a4-btn">A4</button>
+                <button type="button" class="seg-btn" id="paper-letter-btn">US Letter</button>
+              </div>
+
+              <select class="template-select" id="template-select-inline" aria-label="Resume Template">
+                <option value="classic">ATS Classic</option>
+                <option value="modern">Modern Accent</option>
+                <option value="executive">Executive</option>
+                <option value="tech">Tech Focused</option>
+                <option value="minimal">Minimalist</option>
+                <option value="corporate">Corporate</option>
+                <option value="creative">Creative</option>
+                <option value="compact">Compact</option>
+              </select>
+            </div>
+
+            <div class="preview-controls-right">
+              <button type="button" class="zoom-btn" id="zoom-out-btn" title="Zoom Out">−</button>
+              <span class="zoom-text" id="zoom-value">80%</span>
+              <button type="button" class="zoom-btn" id="zoom-in-btn" title="Zoom In">＋</button>
+
+              <button type="button" class="btn btn-secondary btn-sm" id="print-resume-btn">
+                <span>Print / PDF ↗</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- AMOLED Viewport with Floating White Paper -->
+          <div class="preview-viewport" id="preview-viewport">
+            <div class="paper-stage">
+              <article class="resume-paper template-classic paper-a4" id="resume-preview">
+                <!-- Rendered live via app.js -->
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 3: ATS ANALYZER (2-COLUMN INTELLIGENCE WORKSPACE)
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel" id="view-ats" aria-label="ATS Compatibility Analyzer">
+      <div class="section-intro">
+        <div>
+          <h2>Deterministic ATS Match Engine</h2>
+          <p>Evaluate exact keyword frequency, categorized skill coverage, completeness, and recruiter readability against any Job Description.</p>
+        </div>
+        <button type="button" class="btn btn-ai btn-sm" id="ats-optimize-ai-btn">
+          <span>✦ AI Full Tailoring Plan</span>
+        </button>
+      </div>
+
+      <div class="ats-layout">
+        <!-- Left: Resume & Job Description Inputs -->
+        <div class="ats-inputs-column">
+          <!-- Resume Selection & Upload Card -->
           <div class="ats-input-card">
             <div class="card-heading-row">
               <div>
-                <h2>Target Job Description</h2>
-                <p>Paste job posting text or upload a .PDF / .DOCX / .TXT file.</p>
+                <h2>1. Resume Source</h2>
+                <p>Choose active builder resume or upload a document</p>
               </div>
-              <label class="btn btn-secondary btn-sm file-upload-label">
-                Upload File
-                <input type="file" id="job-file-input" accept=".txt,.pdf,.docx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+            </div>
+
+            <div class="ats-source-toggle">
+              <label class="source-radio-pill active" id="source-pill-builder">
+                <input type="radio" name="ats-resume-source" value="builder" checked style="display:none;" />
+                <span class="pill-icon-inline">▤</span>
+                <span>Active Builder Resume</span>
+              </label>
+              <label class="source-radio-pill" id="source-pill-upload">
+                <input type="radio" name="ats-resume-source" value="upload" style="display:none;" />
+                <span class="pill-icon-inline unique-pill-svg-wrap">
+                  <svg class="unique-import-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M15 17L18.5 13.5M18.5 13.5L15 10M18.5 13.5H12" stroke="var(--gold-start, #fff200)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <span>Upload Resume File</span>
               </label>
             </div>
 
-            <textarea id="job-description-input" rows="12" placeholder="Paste the complete job description here to check keyword alignment, skills match, and experience relevance..."></textarea>
+            <!-- Active Builder Resume Details -->
+            <div class="active-resume-badge" id="ats-builder-source-details">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <strong id="ats-active-name">Alex Morgan</strong>
+                  <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;" id="ats-active-meta">Senior Full-Stack Engineer · 18 skills listed</div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" data-route="resume">Edit in Builder →</button>
+              </div>
+            </div>
+
+            <!-- Upload Resume Dropzone -->
+            <div class="resume-upload-dropzone" id="ats-resume-upload-zone" style="display: none;">
+              <label class="dropzone-box" for="ats-resume-file-input">
+                <div class="dropzone-icon unique-dropzone-icon">
+                  <div class="dropzone-pulse-ring"></div>
+                  <svg class="unique-dropzone-svg" width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    <line x1="8" y1="12" x2="13" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+                    <line x1="8" y1="16" x2="12" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4" />
+                    <path d="M15 17L18.5 13.5M18.5 13.5L15 10M18.5 13.5H12" stroke="var(--gold-start, #fff200)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <p><b>Click to select</b> or drag and drop your resume file</p>
+                <span>Supports PDF (.pdf), Word (.docx), or Text (.txt) up to 5MB</span>
+                <input type="file" id="ats-resume-file-input" accept=".pdf,.docx,.txt" style="display: none;" />
+              </label>
+              <div class="file-status" id="ats-resume-file-status" style="margin-top: 8px;">No resume file selected</div>
+            </div>
+          </div>
+
+          <!-- Job Description Input Card -->
+          <div class="ats-input-card" style="margin-top: 20px;">
+            <div class="card-heading-row">
+              <div>
+                <h2>2. Target Job Description</h2>
+                <p>Paste the job post or upload a document (.pdf, .docx, .txt)</p>
+              </div>
+            </div>
+
+            <textarea id="job-description-input" rows="8" placeholder="Paste full Job Description here including Required Qualifications, Technical Stack, and Responsibilities..."></textarea>
 
             <div class="ats-input-actions">
-              <span class="file-status" id="job-file-status">No file uploaded</span>
+              <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
+                <span>📁 Upload JD File</span>
+                <input type="file" id="job-file-input" accept=".pdf,.docx,.txt" style="display: none;" />
+              </label>
+              <span class="file-status" id="job-file-status">No JD file uploaded</span>
+
               <div class="action-btn-row">
-                <button type="button" class="btn btn-secondary" id="ats-optimize-ai-btn">✦ AI Tailor Resume</button>
-                <button type="button" class="btn btn-primary" id="run-ats-btn">Calculate ATS Compatibility <span>→</span></button>
+                <button type="button" class="btn btn-primary" id="run-ats-btn">
+                  <span>Calculate Compatibility →</span>
+                </button>
               </div>
             </div>
           </div>
-
-          <!-- Right: Analysis Results Display -->
-          <div class="ats-results-card" id="ats-results-container">
-            <div class="empty-state">
-              <div class="empty-icon">◎</div>
-              <h3>Deterministic ATS Compatibility Report</h3>
-              <p>Add your resume content and a target job description, then click <b>Calculate ATS Compatibility</b> to see exact keyword breakdown and missing skills.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================================================
-           3. TEMPLATES VIEW
-           ========================================================================= -->
-      <section class="view-panel" id="view-templates">
-        <div class="section-intro">
-          <h2>Executive ATS-Safe Templates</h2>
-          <p>Carefully engineered for maximum readability, clean text extraction, and professional visual hierarchy.</p>
-        </div>
-        <div class="templates-grid" id="templates-grid-cards">
-          <!-- Rendered dynamically -->
-        </div>
-      </section>
-
-      <!-- =========================================================================
-           4. AI TOOLS SUITE VIEW
-           ========================================================================= -->
-      <section class="view-panel" id="view-ai">
-        <div class="section-intro">
-          <h2>Gemini AI Career Suite</h2>
-          <p>Strictly evidence-led career tools. Gemini works only with your verified accomplishments — zero hallucinations.</p>
-        </div>
-        <div class="ai-cards-grid">
-          <div class="ai-tool-card" data-ai-tool="summary">
-            <div class="tool-icon">📝</div>
-            <h3>Summary Generator</h3>
-            <p>Generate a punchy 3-sentence executive summary highlighting your real career milestones.</p>
-            <button class="btn btn-secondary btn-sm" data-ai-action="summary">Open Generator →</button>
-          </div>
-
-          <div class="ai-tool-card" data-ai-tool="bullet">
-            <div class="tool-icon">⚡</div>
-            <h3>Bullet Point Optimizer</h3>
-            <p>Transform passive duty descriptions into high-impact, action-verb driven accomplishment bullets.</p>
-            <button class="btn btn-secondary btn-sm" data-ai-action="bullet">Optimize Bullets →</button>
-          </div>
-
-          <div class="ai-tool-card" data-ai-tool="optimize">
-            <div class="tool-icon">🎯</div>
-            <h3>Full Resume Tailor</h3>
-            <p>Compare your draft against the target job description with an interactive before/after diff.</p>
-            <button class="btn btn-secondary btn-sm" data-ai-action="optimize">Tailor for Role →</button>
-          </div>
-
-          <div class="ai-tool-card" data-ai-tool="cover">
-            <div class="tool-icon">✉️</div>
-            <h3>Tailored Cover Letter</h3>
-            <p>Draft a compelling cover letter anchored strictly in your experience and target role keywords.</p>
-            <button class="btn btn-secondary btn-sm" data-ai-action="cover">Draft Cover Letter →</button>
-          </div>
-
-          <div class="ai-tool-card" data-ai-tool="interview">
-            <div class="tool-icon">🎤</div>
-            <h3>STAR Interview Prep</h3>
-            <p>Generate custom behavioral & technical interview questions with recommended STAR answer frameworks.</p>
-            <button class="btn btn-secondary btn-sm" data-ai-action="interview">Generate Questions →</button>
-          </div>
-
-          <div class="ai-tool-card" data-ai-tool="gap">
-            <div class="tool-icon">📈</div>
-            <h3>Skill Gap Analyzer</h3>
-            <p>Identify missing domain skills and get actionable recommendations for your next role.</p>
-            <button class="btn btn-secondary btn-sm" data-ai-action="gap">Analyze Gaps →</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- =========================================================================
-           5. APPLICATIONS TRACKER VIEW
-           ========================================================================= -->
-      <section class="view-panel" id="view-applications">
-        <div class="section-intro">
-          <h2>Application Tracker</h2>
-          <p>Organize your job hunt pipeline with linked resume versions and ATS compatibility scores.</p>
         </div>
 
-        <div class="app-tracker-layout">
-          <!-- Add Application Form -->
-          <div class="tracker-form-card">
-            <h3>Add New Opportunity</h3>
-            <div class="form-grid cols-2">
-              <label class="form-field">
-                <span>Company Name *</span>
-                <input id="app-company" placeholder="e.g. Google, Stripe" required />
-              </label>
-              <label class="form-field">
-                <span>Role Title *</span>
-                <input id="app-position" placeholder="e.g. Senior Frontend Engineer" required />
-              </label>
-              <label class="form-field">
-                <span>Job URL</span>
-                <input id="app-url" type="url" placeholder="https://careers.company.com/job/..." />
-              </label>
-              <label class="form-field">
-                <span>Application Date</span>
-                <input id="app-date" type="date" />
-              </label>
-              <label class="form-field">
-                <span>Resume Version Used</span>
-                <input id="app-version" placeholder="e.g. Tech Lead - Master" />
-              </label>
-              <label class="form-field">
-                <span>Status</span>
-                <select id="app-status">
-                  <option value="Applied">Applied</option>
-                  <option value="Screening">Screening / Recruiter Call</option>
-                  <option value="Interview">Technical Interview</option>
-                  <option value="Offer">Offer Received 🎉</option>
-                  <option value="Rejected">Archived / Rejected</option>
-                </select>
-              </label>
-              <label class="form-field full-width">
-                <span>Notes & Follow-ups</span>
-                <input id="app-notes" placeholder="e.g. Referral from Sarah, interviewed with Eng Director" />
-              </label>
-            </div>
-            <div class="form-actions end">
-              <button type="button" class="btn btn-primary" id="save-app-btn">Save Opportunity</button>
-            </div>
-          </div>
-
-          <!-- Opportunities Table -->
-          <div class="tracker-table-card">
-            <div class="table-scroll">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Company</th>
-                    <th>Role</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>ATS Score</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="applications-table-body">
-                  <!-- Rendered dynamically -->
-                </tbody>
-              </table>
-            </div>
-            <div id="applications-empty-msg" class="empty-inline">
-              <p>No applications logged yet. Track your first opportunity above.</p>
-            </div>
+        <!-- Right: Interactive Results Launchpad -->
+        <div class="ats-results-card" id="ats-results-container">
+          <div class="empty-state">
+            <div class="empty-icon">◎</div>
+            <h3>Ready for Compatibility Scan</h3>
+            <p>Paste a job description on the left and click "Calculate Compatibility" to compute your 6-category weighted ATS match score.</p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- =========================================================================
-           6. DASHBOARD VIEW
-           ========================================================================= -->
-      <section class="view-panel" id="view-dashboard">
-        <div class="section-intro">
-          <h2>Workspace Overview</h2>
-          <p>Real-time analytics on your resumes, score progression, and skill gap patterns.</p>
+    <!-- ----------------------------------------------------------------------
+         VIEW 4: TEMPLATES GALLERY
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel" id="view-templates" aria-label="Resume Templates Gallery">
+      <div class="section-intro">
+        <div>
+          <h2>8 ATS-Engineered Templates</h2>
+          <p>Single-column and modular layouts designed for seamless ATS parsing and executive readability.</p>
+        </div>
+      </div>
+
+      <div class="templates-grid" id="templates-grid-cards">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 5: AI CAREER COMMAND CENTER
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel" id="view-ai" aria-label="AI Career Suite">
+      <div class="section-intro">
+        <div>
+          <h2>AI Career Intelligence Suite</h2>
+          <p>Powered by Gemini AI with anti-hallucination safeguards and strict prompt boundaries.</p>
+        </div>
+      </div>
+
+      <div class="ai-cards-grid">
+        <div class="ai-tool-card" data-ai-action="summary">
+          <div class="tool-icon-wrap">📝</div>
+          <h3>Executive Summary Synthesizer</h3>
+          <p>Generate a punchy, 3-sentence summary tailored to your strongest accomplishments and target role.</p>
+          <button type="button" class="btn btn-ai btn-sm">✦ Synthesize Summary</button>
         </div>
 
-        <div class="dashboard-stats-grid">
-          <div class="stat-card">
-            <span class="stat-icon">📄</span>
-            <div class="stat-info">
-              <span class="stat-label">Saved Drafts</span>
-              <strong class="stat-value" id="stat-resumes">1</strong>
-            </div>
+        <div class="ai-tool-card" data-ai-action="bullet">
+          <div class="tool-icon-wrap">⚡</div>
+          <h3>Bullet Point Quantifier &amp; Optimizer</h3>
+          <p>Enhance weak job bullet points with action verbs, metric-driven frameworks, and high-impact phrasing.</p>
+          <button type="button" class="btn btn-ai btn-sm">✦ Optimize Bullets</button>
+        </div>
+
+        <div class="ai-tool-card" data-ai-action="optimize">
+          <div class="tool-icon-wrap">🎯</div>
+          <h3>Full Role Tailoring Engine</h3>
+          <p>Perform an end-to-end alignment comparison against your target job description and generate an interactive diff.</p>
+          <button type="button" class="btn btn-ai btn-sm">✦ Tailor Full Resume</button>
+        </div>
+
+        <div class="ai-tool-card" data-ai-action="cover">
+          <div class="tool-icon-wrap">✉️</div>
+          <h3>Contextual Cover Letter Architect</h3>
+          <p>Generate an executive, role-specific cover letter connecting your real achievements to the hiring team's requirements.</p>
+          <button type="button" class="btn btn-ai btn-sm">✦ Draft Cover Letter</button>
+        </div>
+
+        <div class="ai-tool-card" data-ai-action="interview">
+          <div class="tool-icon-wrap">🎤</div>
+          <h3>STAR Behavioral Interview Simulator</h3>
+          <p>Generate role-specific behavioral and technical interview questions with STAR answer guidance.</p>
+          <button type="button" class="btn btn-ai btn-sm">✦ Practice Questions</button>
+        </div>
+
+        <div class="ai-tool-card" data-ai-action="gap">
+          <div class="tool-icon-wrap">📈</div>
+          <h3>Career Skill Gap &amp; Learning Advisor</h3>
+          <p>Pinpoint missing domain requirements and receive recommended learning pathways to level up.</p>
+          <button type="button" class="btn btn-ai btn-sm">✦ Analyze Skill Gaps</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         VIEW 6: APPLICATION TRACKER (PIPELINE & TABLE)
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel" id="view-applications" aria-label="Job Applications Pipeline">
+      <div class="section-intro">
+        <div>
+          <h2>Job Applications Pipeline</h2>
+          <p>Track your applications across stages with version associations and ATS scores.</p>
+        </div>
+      </div>
+
+      <div class="app-tracker-layout">
+        <!-- New Application Form Card -->
+        <div class="tracker-form-card">
+          <h3>Track New Application</h3>
+          <div class="form-grid cols-2">
+            <label class="form-field">
+              <span>Company Name *</span>
+              <input type="text" id="app-company" placeholder="e.g. Stripe" required />
+            </label>
+            <label class="form-field">
+              <span>Position Title *</span>
+              <input type="text" id="app-position" placeholder="e.g. Senior Software Engineer" required />
+            </label>
+            <label class="form-field">
+              <span>Job Post URL</span>
+              <input type="url" id="app-url" placeholder="https://..." />
+            </label>
+            <label class="form-field">
+              <span>Application Date</span>
+              <input type="date" id="app-date" />
+            </label>
+            <label class="form-field">
+              <span>Resume Version</span>
+              <input type="text" id="app-version" placeholder="e.g. Full-Stack Draft" />
+            </label>
+            <label class="form-field">
+              <span>Current Status</span>
+              <select id="app-status">
+                <option value="Applied">Applied</option>
+                <option value="Screening">Screening</option>
+                <option value="Interview">Interview</option>
+                <option value="Offer">Offer</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </label>
+            <label class="form-field full-width">
+              <span>Interview Notes / Contact</span>
+              <input type="text" id="app-notes" placeholder="e.g. Recruiter phone screen scheduled for Friday..." />
+            </label>
           </div>
-          <div class="stat-card">
-            <span class="stat-icon">🎯</span>
-            <div class="stat-info">
-              <span class="stat-label">ATS Scans Run</span>
-              <strong class="stat-value" id="stat-scans">0</strong>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon">📊</span>
-            <div class="stat-info">
-              <span class="stat-label">Average ATS Match</span>
-              <strong class="stat-value" id="stat-avg-score">—</strong>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon">⭐</span>
-            <div class="stat-info">
-              <span class="stat-label">Highest Match</span>
-              <strong class="stat-value" id="stat-high-score">—</strong>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon">💼</span>
-            <div class="stat-info">
-              <span class="stat-label">Tracked Applications</span>
-              <strong class="stat-value" id="stat-applications">0</strong>
-            </div>
+          <div class="form-actions end">
+            <button type="button" class="btn btn-primary" id="save-app-btn">Save Opportunity</button>
           </div>
         </div>
 
-        <div class="dashboard-details-grid">
-          <div class="dash-card">
-            <h3>Saved Resumes & Versions</h3>
-            <div id="dash-versions-list" class="dash-versions">
-              <!-- Rendered dynamically -->
-            </div>
+        <!-- Applications Table Card -->
+        <div class="tracker-table-card">
+          <h3>Active Applications</h3>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Position</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>ATS Match</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="applications-table-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
           </div>
-          <div class="dash-card">
-            <h3>Top Missing Skill Trends</h3>
-            <div id="dash-skill-trends" class="dash-trends">
-              <p class="muted-text">Run ATS checks on job descriptions to track common skill gaps.</p>
-            </div>
+          <div class="empty-inline" id="applications-empty-msg" style="display: none;">
+            No applications tracked yet. Fill in the form above to track your first opportunity.
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-    </main>
+    <!-- ----------------------------------------------------------------------
+         VIEW 7: SETTINGS
+         ---------------------------------------------------------------------- -->
+    <section class="view-panel" id="view-settings" aria-label="Settings Workspace">
+      <div class="section-intro">
+        <div>
+          <h2>System Settings &amp; Preferences</h2>
+          <p>Manage ATS scoring weights, export preferences, and cloud backup.</p>
+        </div>
+      </div>
 
-    <!-- =========================================================================
-         GLOBAL MODALS & TOAST
-         ========================================================================= -->
-
-    <!-- Auth Modal (Sign In / Register / Reset) -->
-    <div class="modal-overlay" id="auth-modal" style="display: none;">
-      <div class="modal-box auth-box">
-        <button class="modal-close-btn" id="auth-modal-close" aria-label="Close">✕</button>
-
-        <div class="auth-box-header">
-          <img src="./assets/kr-logo.jpeg" alt="Logo" width="40" height="40" class="brand-logo" />
-          <h2 id="auth-modal-title">Sign in to KnowYourResume</h2>
-          <p id="auth-modal-desc">Sync your drafts, ATS reports, and applications securely.</p>
+      <div class="settings-layout">
+        <div class="settings-group-card">
+          <h3>ATS Scoring Weights</h3>
+          <p>Adjust the deterministic weights used by the ATS engine to evaluate compatibility.</p>
+          <div class="form-grid cols-2">
+            <label class="form-field">
+              <span>Keywords Weight: <b>35%</b></span>
+              <input type="range" min="10" max="60" value="35" disabled />
+            </label>
+            <label class="form-field">
+              <span>Skills Weight: <b>25%</b></span>
+              <input type="range" min="10" max="50" value="25" disabled />
+            </label>
+            <label class="form-field">
+              <span>Experience Relevance: <b>15%</b></span>
+              <input type="range" min="5" max="30" value="15" disabled />
+            </label>
+            <label class="form-field">
+              <span>Completeness: <b>10%</b></span>
+              <input type="range" min="5" max="20" value="10" disabled />
+            </label>
+          </div>
         </div>
 
-        <div id="auth-alert-msg" class="alert-box error" style="display: none;"></div>
+        <div class="settings-group-card">
+          <h3>Data &amp; Cloud Sync</h3>
+          <p>Your resume data is securely persisted in your browser's encrypted local storage. Sign in to synchronize across devices.</p>
+          <button type="button" class="btn btn-secondary" id="settings-auth-btn">Manage Cloud Sync Account</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- Google OAuth Button -->
-        <button type="button" class="btn-google-auth" id="modal-google-btn">
-          <svg class="google-svg" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
-            <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-            <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/>
-            <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-          </svg>
-          <span>Continue with Google</span>
+  <!-- ========================================================================
+       FLOATING MOBILE BOTTOM DOCK (APPLE/LINEAR GRADE)
+       ======================================================================== -->
+  <nav class="mobile-bottom-dock" aria-label="Mobile Navigation Dock">
+    <button type="button" class="mobile-dock-btn active" data-route="dashboard">
+      <span class="icon">⌂</span>
+      <span>Home</span>
+    </button>
+    <button type="button" class="mobile-dock-btn" data-route="resume">
+      <span class="icon">▤</span>
+      <span>Builder</span>
+    </button>
+    <button type="button" class="mobile-dock-btn" data-route="ats">
+      <span class="icon">◎</span>
+      <span>ATS</span>
+    </button>
+    <button type="button" class="mobile-dock-btn" data-route="templates">
+      <span class="icon">▧</span>
+      <span>Templates</span>
+    </button>
+    <button type="button" class="mobile-dock-btn" data-route="ai">
+      <span class="icon">✦</span>
+      <span>AI</span>
+    </button>
+    <button type="button" class="mobile-dock-btn" data-route="applications">
+      <span class="icon">▣</span>
+      <span>Apps</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================
+       MOBILE SLIDE-OUT DRAWER
+       ======================================================================== -->
+  <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" style="display: none;">
+    <div class="mobile-drawer-content">
+      <div class="mobile-drawer-header">
+        <div class="brand">
+          <img src="/assets/kr-logo.jpeg" alt="Logo" class="brand-logo" width="32" height="32" />
+          <span class="brand-text">KnowYour<b>Resume</b></span>
+        </div>
+        <button type="button" class="modal-close-btn" id="mobile-drawer-close" aria-label="Close Menu">✕</button>
+      </div>
+
+      <nav class="mobile-drawer-nav">
+        <button type="button" class="drawer-nav-btn active" data-route="dashboard">
+          <span class="icon">⌂</span> Dashboard Overview
         </button>
+        <button type="button" class="drawer-nav-btn" data-route="resume">
+          <span class="icon">▤</span> 3-Zone Resume Builder
+        </button>
+        <button type="button" class="drawer-nav-btn" data-route="ats">
+          <span class="icon">◎</span> ATS Match Analyzer
+        </button>
+        <button type="button" class="drawer-nav-btn" data-route="templates">
+          <span class="icon">▧</span> 8 ATS Templates Gallery
+        </button>
+        <button type="button" class="drawer-nav-btn" data-route="ai">
+          <span class="icon">✦</span> Gemini AI Career Tools
+        </button>
+        <button type="button" class="drawer-nav-btn" data-route="applications">
+          <span class="icon">▣</span> Job Application Pipeline
+        </button>
+        <button type="button" class="drawer-nav-btn" data-route="settings">
+          <span class="icon">⚙</span> ATS & Account Settings
+        </button>
+      </nav>
 
-        <div class="auth-divider"><span>OR</span></div>
+      <div class="mobile-drawer-actions">
+        <button type="button" class="btn btn-secondary btn-full mobile-import-special-btn" id="mobile-import-btn">
+          <span class="btn-icon-wrap import-glow-badge">
+            <svg class="unique-import-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M15 17L18.5 13.5M18.5 13.5L15 10M18.5 13.5H12" stroke="var(--gold-start, #fff200)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span>Import Existing Resume</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-full" id="mobile-demo-btn">
+          <span>✦ Load Engineering Demo</span>
+        </button>
+        <button type="button" class="btn btn-primary btn-full" id="mobile-print-btn">
+          <span>Export Resume PDF ↗</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-        <!-- Sign In Form -->
-        <form id="modal-signin-form" class="auth-form">
-          <label class="form-field">
-            <span>Email</span>
-            <input type="email" id="modal-login-email" placeholder="you@example.com" required />
-          </label>
-          <label class="form-field">
-            <div class="field-label-row">
-              <span>Password</span>
-              <a href="#" id="to-forgot-link" class="subtle-link">Forgot?</a>
-            </div>
-            <input type="password" id="modal-login-password" placeholder="••••••••" required />
-          </label>
-          <button type="submit" class="btn btn-primary btn-full">Sign In <span>→</span></button>
-          <div class="auth-switch-text">
-            Don't have an account? <a href="#" id="to-signup-link">Create one</a>
-          </div>
-        </form>
+  <!-- ========================================================================
+       MODALS: AUTHENTICATION MODAL
+       ======================================================================== -->
+  <div class="modal-overlay" id="auth-modal" style="display: none;">
+    <div class="modal-box">
+      <button type="button" class="modal-close-btn" id="auth-modal-close" aria-label="Close Modal">✕</button>
 
-        <!-- Sign Up Form (Hidden by default) -->
-        <form id="modal-signup-form" class="auth-form" style="display: none;">
-          <label class="form-field">
-            <span>Full Name</span>
-            <input type="text" id="modal-signup-name" placeholder="Alex Morgan" required />
-          </label>
-          <label class="form-field">
-            <span>Email</span>
-            <input type="email" id="modal-signup-email" placeholder="you@example.com" required />
-          </label>
-          <label class="form-field">
+      <div class="auth-box-header">
+        <img src="/assets/kr-logo.jpeg" alt="Logo" class="brand-logo" width="40" height="40" />
+        <h2 id="auth-modal-title">Sign in to KnowYourResume</h2>
+        <p>Sync your resumes, ATS analyses, and applications across all devices.</p>
+      </div>
+
+      <div class="alert-box error" id="auth-alert-msg" style="display: none;"></div>
+
+      <button type="button" class="btn-google-auth" id="modal-google-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
+
+      <!-- Sign In Form -->
+      <form class="auth-form" id="modal-signin-form">
+        <label class="form-field">
+          <span>Email Address</span>
+          <input type="email" id="modal-login-email" required autocomplete="username" />
+        </label>
+        <label class="form-field">
+          <div class="field-label-row">
             <span>Password</span>
-            <input type="password" id="modal-signup-password" placeholder="At least 8 characters" required />
-          </label>
-          <label class="form-field">
-            <span>Confirm Password</span>
-            <input type="password" id="modal-signup-confirm" placeholder="Re-enter password" required />
-          </label>
-          <button type="submit" class="btn btn-primary btn-full">Create Account <span>→</span></button>
-          <div class="auth-switch-text">
-            Already have an account? <a href="#" id="to-signin-link">Sign In</a>
+            <a href="#" class="subtle-link" id="to-forgot-link">Forgot password?</a>
           </div>
-        </form>
+          <input type="password" id="modal-login-password" required autocomplete="current-password" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+        <p class="auth-switch-text">Don't have an account? <a href="#" id="to-signup-link">Create Account</a></p>
+      </form>
 
-        <!-- Forgot Password Form (Hidden by default) -->
-        <form id="modal-forgot-form" class="auth-form" style="display: none;">
-          <label class="form-field">
-            <span>Email Address</span>
-            <input type="email" id="modal-forgot-email" placeholder="you@example.com" required />
-          </label>
-          <button type="submit" class="btn btn-primary btn-full">Send Reset Link</button>
-          <div class="auth-switch-text">
-            <a href="#" id="back-to-signin-link">← Back to Sign In</a>
-          </div>
-        </form>
+      <!-- Sign Up Form -->
+      <form class="auth-form" id="modal-signup-form" style="display: none;">
+        <label class="form-field">
+          <span>Full Name</span>
+          <input type="text" id="modal-signup-name" required autocomplete="name" />
+        </label>
+        <label class="form-field">
+          <span>Email Address</span>
+          <input type="email" id="modal-signup-email" required autocomplete="email" />
+        </label>
+        <label class="form-field">
+          <span>Password</span>
+          <input type="password" id="modal-signup-password" required minlength="6" autocomplete="new-password" />
+        </label>
+        <label class="form-field">
+          <span>Confirm Password</span>
+          <input type="password" id="modal-signup-confirm" required minlength="6" autocomplete="new-password" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-full">Create Free Account</button>
+        <p class="auth-switch-text">Already have an account? <a href="#" id="to-signin-link">Sign In</a></p>
+      </form>
+
+      <!-- Forgot Password Form -->
+      <form class="auth-form" id="modal-forgot-form" style="display: none;">
+        <label class="form-field">
+          <span>Email Address</span>
+          <input type="email" id="modal-forgot-email" required />
+        </label>
+        <button type="submit" class="btn btn-primary btn-full">Send Reset Link</button>
+        <p class="auth-switch-text"><a href="#" id="back-to-signin-link">Back to Sign In</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODALS: AI RESULTS / DIFF VIEWER
+       ======================================================================== -->
+  <div class="modal-overlay" id="ai-modal" style="display: none;">
+    <div class="modal-box ai-modal-box">
+      <button type="button" class="modal-close-btn" id="ai-modal-close" aria-label="Close Modal">✕</button>
+      <span class="badge-ai">✦ Gemini Career Intelligence</span>
+      <h2 id="ai-modal-title" style="margin-top: 6px; font-size: 18px;">AI Career Recommendation</h2>
+      <div class="ai-modal-content" id="ai-modal-body">
+        <!-- Content inserted dynamically -->
       </div>
     </div>
+  </div>
 
-    <!-- AI Output & Diff Modal -->
-    <div class="modal-overlay" id="ai-modal" style="display: none;">
-      <div class="modal-box ai-modal-box">
-        <button class="modal-close-btn" id="ai-modal-close" aria-label="Close">✕</button>
-        <div class="modal-box-header">
-          <span class="badge-ai">✦ Gemini AI Assistant</span>
-          <h2 id="ai-modal-title">AI Recommendation</h2>
-        </div>
-        <div id="ai-modal-body" class="ai-modal-content">
-          <!-- Content dynamically inserted -->
-        </div>
-      </div>
-    </div>
+  <!-- Glass Toast Notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite">✓ Action Completed</div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-    <script type="module" src="./app.js"></script>
-  </body>
+  <script type="module" src="/app.js?v=4.4"></script>
+</body>
 </html>

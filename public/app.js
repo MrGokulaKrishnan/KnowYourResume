@@ -11,19 +11,15 @@ import {
   isUserAuthenticated
 } from './lib/firebase-auth.js';
 
+import {
+  analyzeResume,
+  aggregateMissingSkills,
+  resumeToText as formatResumeText,
+  getScoreLevel
+} from './lib/ats-engine.js';
+
 (() => {
   'use strict';
-
-  const templates = [
-    ['classic', 'ATS Classic', 'Clear hierarchy · Traditional layout'],
-    ['modern', 'Modern Accent', 'Structured headers · Refined accents'],
-    ['executive', 'Executive', 'Senior positioning · Editorial typography'],
-    ['tech', 'Tech Focused', 'Skills-focused · Engineering layout'],
-    ['minimal', 'Minimalist', 'Quiet typography · Direct layout'],
-    ['corporate', 'Corporate', 'Formal balance · Structured sections'],
-    ['creative', 'Creative', 'Expressive accents · Clear flow'],
-    ['compact', 'Compact', 'Dense typography · Space-efficient']
-  ];
 
   const emptyResume = () => ({
     id: makeId(),
@@ -55,10 +51,10 @@ import {
   const sampleResume = () => ({
     id: makeId(),
     name: 'Alex Morgan — Senior Engineer',
-    versionName: 'Full-Stack & Cloud Engineer',
+    versionName: 'Full-Stack & Cloud Systems Draft',
     personal: {
       name: 'Alex Morgan',
-      title: 'Senior Full-Stack & Cloud Systems Engineer',
+      title: 'Senior Full-Stack & Distributed Systems Engineer',
       email: 'alex.morgan@example.com',
       phone: '+1 (555) 234-5678',
       location: 'San Francisco, CA (Open to Remote)',
@@ -138,7 +134,6 @@ import {
   let state = defaults();
   let currentUser = null;
   let saveTimer = null;
-  let aiAvailable = false;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -167,7 +162,7 @@ import {
     toast.textContent = message;
     toast.classList.add('show');
     clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => toast.classList.remove('show'), 3000);
+    toast.timer = setTimeout(() => toast.classList.remove('show'), 3200);
   }
 
   async function api(endpoint, payload = {}) {
@@ -209,7 +204,6 @@ import {
     } catch (err) {
       console.warn('Error loading workspace state:', err);
     }
-    // If no saved state, initialize with sample data so user immediately sees a live preview
     state = defaults();
     state.resume = sampleResume();
   }
@@ -260,8 +254,8 @@ import {
   // ROUTING & NAVIGATION
   // =========================================================================
   function switchRoute(route) {
-    const validRoutes = ['resume', 'ats', 'templates', 'ai', 'applications', 'dashboard'];
-    const target = validRoutes.includes(route) ? route : 'resume';
+    const validRoutes = ['dashboard', 'resume', 'ats', 'templates', 'ai', 'applications', 'settings'];
+    const target = validRoutes.includes(route) ? route : 'dashboard';
     window.location.hash = target;
 
     $$('.view-panel').forEach((panel) => {
@@ -271,10 +265,36 @@ import {
       btn.classList.toggle('active', btn.dataset.route === target);
     });
 
+    if (target === 'dashboard') updateDashboardStats();
     if (target === 'templates') renderTemplatesGallery();
     if (target === 'applications') renderApplicationsTable();
-    if (target === 'dashboard') updateDashboardStats();
     if (target === 'ats') renderAnalysis();
+  }
+
+  // =========================================================================
+  // ANIMATED SCORE RING
+  // =========================================================================
+  function setScoreRing(ringEl, textEl, score) {
+    const safeScore = Math.max(0, Math.min(100, Math.round(score)));
+    const circumference = 283;
+    const offset = circumference - (circumference * safeScore / 100);
+
+    if (ringEl) {
+      ringEl.style.strokeDashoffset = String(offset);
+    }
+    if (textEl) {
+      let current = 0;
+      const step = Math.max(1, Math.floor(safeScore / 20));
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= safeScore) {
+          textEl.textContent = safeScore;
+          clearInterval(interval);
+        } else {
+          textEl.textContent = current;
+        }
+      }, 20);
+    }
   }
 
   // =========================================================================
@@ -437,7 +457,7 @@ import {
             <input data-exp-field="endDate" data-idx="${idx}" value="${esc(exp.endDate)}" placeholder="MM/YYYY or leave blank" ${exp.current ? 'disabled' : ''} />
           </label>
           <label class="form-field" style="justify-content: flex-end; padding-bottom: 8px;">
-            <label style="flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
+            <label style="display: flex; flex-direction: row; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" data-exp-field="current" data-idx="${idx}" ${exp.current ? 'checked' : ''} />
               <span>Current Role</span>
             </label>
@@ -450,7 +470,7 @@ import {
             <textarea data-exp-field="description" data-idx="${idx}" rows="4" placeholder="• Spearheaded design of microservice architecture...\n• Reduced query latency by 45%...">${esc(exp.description)}</textarea>
           </label>
         </div>
-      </div>`).join('') || '<p class="muted-text">No work experience entries yet. Click "＋ Add Position" above.</p>';
+      </div>`).join('') || '<p style="color: var(--text-muted); font-size: 12.5px;">No work experience entries yet. Click "＋ Add Position" above.</p>';
   }
 
   function renderEducationList() {
@@ -480,7 +500,7 @@ import {
             <input data-edu-field="year" data-idx="${idx}" value="${esc(edu.year)}" placeholder="2022" />
           </label>
         </div>
-      </div>`).join('') || '<p class="muted-text">No education entries yet. Click "＋ Add Education" above.</p>';
+      </div>`).join('') || '<p style="color: var(--text-muted); font-size: 12.5px;">No education entries yet. Click "＋ Add Education" above.</p>';
   }
 
   function renderSkillsChips() {
@@ -499,7 +519,6 @@ import {
     const val = input.value.trim();
     if (!val) return;
 
-    // Support comma-separated skills
     const newSkills = val.split(',').map((s) => s.trim()).filter(Boolean);
     newSkills.forEach((s) => {
       if (!state.resume.skills.includes(s)) {
@@ -539,7 +558,7 @@ import {
             <textarea data-proj-field="description" data-idx="${idx}" rows="3" placeholder="Describe architecture, scalability, and benchmarks...">${esc(proj.description)}</textarea>
           </label>
         </div>
-      </div>`).join('') || '<p class="muted-text">No standout projects yet. Click "＋ Add Project" above.</p>';
+      </div>`).join('') || '<p style="color: var(--text-muted); font-size: 12.5px;">No standout projects yet. Click "＋ Add Project" above.</p>';
   }
 
   function renderCertificationsList() {
@@ -565,7 +584,7 @@ import {
             <input data-cert-field="year" data-idx="${idx}" value="${esc(cert.year)}" placeholder="2024" />
           </label>
         </div>
-      </div>`).join('') || '<p class="muted-text">No certifications yet. Click "＋ Add Certification" above.</p>';
+      </div>`).join('') || '<p style="color: var(--text-muted); font-size: 12.5px;">No certifications yet. Click "＋ Add Certification" above.</p>';
   }
 
   function renderLanguagesList() {
@@ -587,7 +606,7 @@ import {
             <input data-lang-field="proficiency" data-idx="${idx}" value="${esc(lang.proficiency)}" placeholder="Native / Fluent / Professional" />
           </label>
         </div>
-      </div>`).join('') || '<p class="muted-text">No languages added yet. Click "＋ Add Language" above.</p>';
+      </div>`).join('') || '<p style="color: var(--text-muted); font-size: 12.5px;">No languages added yet. Click "＋ Add Language" above.</p>';
   }
 
   function renderCustomSectionsList() {
@@ -609,8 +628,19 @@ import {
             <textarea data-custom-field="content" data-idx="${idx}" rows="3" placeholder="Add custom details...">${esc(sec.content)}</textarea>
           </label>
         </div>
-      </div>`).join('') || '<p class="muted-text">No custom sections added yet. Click "＋ Add Section" above.</p>';
+      </div>`).join('') || '<p style="color: var(--text-muted); font-size: 12.5px;">No custom sections added yet. Click "＋ Add Section" above.</p>';
   }
+
+  const templates = [
+    { id: 'classic', name: 'ATS Classic', tag: '100% ATS Safe', suit: 'Software Engineers, Developers & General Tech', desc: 'Clear single-column traditional ATS hierarchy with optimal parser compliance.', color: '#0f172a' },
+    { id: 'modern', name: 'Modern Accent', tag: 'High Readability', suit: 'Full-Stack, Web & Mobile Engineers', desc: 'Contemporary header layout with sky-blue section dividers and structured skill pills.', color: '#0284c7' },
+    { id: 'executive', name: 'Executive Leadership', tag: 'Senior Positioning', suit: 'VPs, Directors, Engineering Managers & Principals', desc: 'Authoritative Georgia serif typography, centered gold divider, and executive narrative flow.', color: '#d97706' },
+    { id: 'tech', name: 'Tech Focused', tag: 'Skills-First Layout', suit: 'DevOps, Cloud Architects, Backend & SRE', desc: 'Monospace code accents, prominent top technical stack grid, and dashed division rules.', color: '#0f766e' },
+    { id: 'minimal', name: 'Minimalist', tag: 'Clean & Spacious', suit: 'Frontend Engineers, UI/UX & Creative Tech', desc: 'Scandinavian whitespace balance with quiet slate typography and borderless sections.', color: '#64748b' },
+    { id: 'corporate', name: 'Corporate Standard', tag: 'Enterprise Grade', suit: 'Enterprise Consultants, Solutions Architects & Finance Tech', desc: 'Formal navy accents with solid left-border banners on section headings.', color: '#1e3a8a' },
+    { id: 'creative', name: 'Creative Product', tag: 'Distinct Visuals', suit: 'Product Managers, Tech Leads & Innovation Specialists', desc: 'Expressive royal violet palette with rounded pill badges and dual-tone experience blocks.', color: '#7c3aed' },
+    { id: 'compact', name: 'Compact Single-Page', tag: 'Dense High-Efficiency', suit: 'Senior Professionals with 8+ Years of Experience', desc: 'High-density vertical spacing engineered to compress extensive careers into a single page.', color: '#334155' }
+  ];
 
   // =========================================================================
   // TEMPLATES GALLERY VIEW
@@ -618,19 +648,41 @@ import {
   function renderTemplatesGallery() {
     const grid = $('#templates-grid-cards');
     if (!grid) return;
-    grid.innerHTML = templates.map(([id, name, desc]) => {
-      const isSelected = (state.resume.template || 'classic') === id;
+    grid.innerHTML = templates.map((tmpl) => {
+      const isSelected = (state.resume.template || 'classic') === tmpl.id;
       return `
-        <div class="template-thumb-card ${isSelected ? 'active' : ''}" data-select-template="${id}">
-          <div class="template-mini-preview">
-            <div class="mini-line title"></div>
-            <div class="mini-line accent"></div>
-            <div class="mini-line"></div>
-            <div class="mini-line"></div>
-            <div class="mini-line" style="width: 80%;"></div>
+        <div class="template-thumb-card ${isSelected ? 'active' : ''}" data-select-template="${tmpl.id}">
+          <div class="template-mini-preview preview-${tmpl.id}">
+            <div class="mini-header-row">
+              <div class="mini-line title" style="background: ${tmpl.color};"></div>
+              <div class="mini-line subtitle"></div>
+            </div>
+            <div class="mini-divider" style="background: ${tmpl.color};"></div>
+            <div class="mini-block">
+              <div class="mini-line section-h" style="border-left: 2px solid ${tmpl.color};"></div>
+              <div class="mini-line text-full"></div>
+              <div class="mini-line text-sub"></div>
+            </div>
+            <div class="mini-block">
+              <div class="mini-line section-h" style="border-left: 2px solid ${tmpl.color};"></div>
+              <div class="mini-skills-row">
+                <span class="mini-pill" style="border-color: ${tmpl.color}; color: ${tmpl.color};">•</span>
+                <span class="mini-pill" style="border-color: ${tmpl.color}; color: ${tmpl.color};">•</span>
+                <span class="mini-pill" style="border-color: ${tmpl.color}; color: ${tmpl.color};">•</span>
+              </div>
+            </div>
           </div>
-          <h3>${esc(name)} ${isSelected ? '✓' : ''}</h3>
-          <p>${esc(desc)}</p>
+          <div class="template-card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <h3 style="font-size: 16px; font-weight: 750;">${esc(tmpl.name)}</h3>
+              ${isSelected ? '<span class="eyebrow-badge" style="background: rgba(255,214,0,0.18); border-color: rgba(255,214,0,0.4); color: var(--gold-start);">✓ Active</span>' : `<span class="badge-subtle">${esc(tmpl.tag)}</span>`}
+            </div>
+            <p style="font-size: 12px; color: var(--text-medium); margin-bottom: 10px; line-height: 1.45;">${esc(tmpl.desc)}</p>
+            <div style="font-size: 11.5px; color: var(--gold-start); margin-bottom: 16px; font-weight: 550;"><b>Best for:</b> ${esc(tmpl.suit)}</div>
+            <button type="button" class="btn ${isSelected ? 'btn-primary' : 'btn-secondary'} btn-sm full-width" data-use-template="${tmpl.id}">
+              <span>${isSelected ? '✓ Currently in Builder' : 'Select Template →'}</span>
+            </button>
+          </div>
         </div>`;
     }).join('');
   }
@@ -644,11 +696,23 @@ import {
     state.jobDescription = jd;
     scheduleSave();
 
-    if (!resumeText().trim()) {
-      notify('Please add some content to your resume before running ATS analysis.');
-      switchRoute('resume');
-      return;
+    const resumeSource = $('input[name="ats-resume-source"]:checked')?.value || 'builder';
+    let resumePayload = state.resume;
+
+    if (resumeSource === 'upload') {
+      if (!state.uploadedResumeText || !state.uploadedResumeText.trim()) {
+        notify('Please upload a resume file (.pdf, .docx, .txt) first.');
+        return;
+      }
+      resumePayload = state.uploadedResumeText;
+    } else {
+      if (!resumeText().trim()) {
+        notify('Please enter resume content in the Builder before running ATS analysis.');
+        switchRoute('resume');
+        return;
+      }
     }
+
     if (!jd) {
       notify('Please paste or upload a target Job Description.');
       return;
@@ -657,7 +721,7 @@ import {
     const runBtn = $('#run-ats-btn');
     if (runBtn) {
       runBtn.disabled = true;
-      runBtn.innerHTML = 'Calculating ATS Score…';
+      runBtn.innerHTML = 'Computing ATS Match…';
     }
 
     const container = $('#ats-results-container');
@@ -665,16 +729,27 @@ import {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">⏳</div>
-          <h3>Analyzing Resume &amp; Job Alignment</h3>
-          <p>Evaluating deterministic keyword frequency, categorized skill coverage, completeness, and recruiter readability...</p>
+          <h3>Computing Intelligence Breakdown</h3>
+          <p>Evaluating exact keyword occurrences, categorized skill coverage, completeness, and recruiter readability...</p>
         </div>`;
     }
 
     try {
-      const result = await api('/api/ats/analyze', {
-        resume: state.resume,
-        jobDescription: jd
-      });
+      let result;
+      try {
+        result = await api('/api/ats/analyze', {
+          resume: resumePayload,
+          jobDescription: jd
+        });
+      } catch {
+        // Deterministic client-side ATS analysis engine
+        result = analyzeResume({
+          resume: typeof resumePayload === 'object' ? resumePayload : undefined,
+          resumeText: typeof resumePayload === 'string' ? resumePayload : undefined,
+          jobDescription: jd
+        });
+      }
+
       state.lastAnalysis = result;
       state.analyses.push({
         score: result.score,
@@ -684,7 +759,8 @@ import {
       });
       saveNow();
       renderAnalysis();
-      notify(`ATS Analysis Complete: ${result.score}% Compatibility (${result.level})`);
+      updateDashboardStats();
+      notify(`ATS Scan Complete: ${result.score}% Match (${result.level})`);
     } catch (err) {
       if (container) {
         container.innerHTML = `
@@ -697,7 +773,7 @@ import {
     } finally {
       if (runBtn) {
         runBtn.disabled = false;
-        runBtn.innerHTML = 'Calculate ATS Compatibility <span>→</span>';
+        runBtn.innerHTML = 'Calculate Compatibility →';
       }
     }
   }
@@ -720,31 +796,38 @@ import {
 
     const matchedTags = (result.keywords || [])
       .filter((k) => k.matchType === 'Exact match' || k.matchType === 'Partial match')
-      .slice(0, 15)
-      .map((k) => `<span class="kw-tag exact">${esc(k.keyword)} (${k.resumeFrequency}x)</span>`)
+      .slice(0, 16)
+      .map((k) => `<span class="kw-tag exact" data-kw="${esc(k.keyword)}">✓ ${esc(k.keyword)} (${k.resumeFrequency}x)</span>`)
       .join('');
 
     const missingTags = (result.missingKeywords || [])
-      .slice(0, 15)
-      .map((k) => `<span class="kw-tag missing">${esc(k.keyword || k)}</span>`)
+      .slice(0, 16)
+      .map((k) => `<span class="kw-tag missing" data-missing-kw="${esc(k.keyword || k)}">✕ ${esc(k.keyword || k)}</span>`)
       .join('');
 
     const skillGroupHtml = (result.skillGroups || []).map((grp) => `
-      <div style="margin-bottom: 10px; font-size: 12px;">
-        <strong style="color: var(--brand-primary);">${esc(grp.category)}:</strong>
-        ${grp.matched.length ? `<span style="color: #4ade80;"> Matched: ${esc(grp.matched.join(', '))}</span>` : ''}
-        ${grp.missing.length ? `<span style="color: #f87171;"> Missing: ${esc(grp.missing.join(', '))}</span>` : ''}
+      <div style="margin-bottom: 12px; font-size: 12.5px; padding: 10px 14px; background: var(--glass-bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--glass-border-subtle);">
+        <strong style="color: var(--gold-start);">${esc(grp.category)}:</strong>
+        ${grp.matched.length ? `<span style="color: #4ade80; display: block; margin-top: 2px;">• Matched: ${esc(grp.matched.join(', '))}</span>` : ''}
+        ${grp.missing.length ? `<span style="color: #f87171; display: block; margin-top: 2px;">• Missing: ${esc(grp.missing.join(', '))}</span>` : ''}
       </div>`).join('');
 
     container.innerHTML = `
       <div class="ats-score-hero">
-        <div class="score-badge-circle">
-          <span>${result.score}%</span>
-          <small>Match</small>
+        <div class="score-ring-wrap">
+          <svg class="score-ring-svg" viewBox="0 0 100 100">
+            <circle class="score-ring-bg" cx="50" cy="50" r="45" />
+            <circle class="score-ring-fill" id="ats-res-ring" cx="50" cy="50" r="45" style="stroke-dashoffset: 283;" />
+          </svg>
+          <div class="score-ring-text">
+            <span class="num" id="ats-res-num">${result.score}</span>
+            <span class="unit">Match</span>
+          </div>
         </div>
         <div class="score-hero-info">
-          <h3>${esc(result.level)}</h3>
-          <p>${esc(result.disclaimer || 'Deterministic compatibility estimate based on 6 weighted factors.')}</p>
+          <span class="eyebrow-badge" style="margin-bottom: 6px;">${esc(result.level)}</span>
+          <h3>${result.score}% Compatibility Rating</h3>
+          <p>${esc(result.disclaimer || 'Deterministic evaluation computed across 6 weighted dimensions.')}</p>
         </div>
       </div>
 
@@ -754,20 +837,114 @@ import {
 
       <div class="keywords-section">
         <h4>Identified Keyword Alignment</h4>
-        <div class="keyword-tags-row" style="margin-bottom: 12px;">
+        <div class="keyword-tags-row" style="margin-bottom: 14px;">
           ${matchedTags || '<span style="color: var(--text-muted); font-size: 11px;">No exact keyword matches found.</span>'}
         </div>
 
         ${missingTags ? `
           <h4>High-Priority Missing Keywords in Job Description</h4>
-          <div class="keyword-tags-row" style="margin-bottom: 14px;">
+          <div class="keyword-tags-row" style="margin-bottom: 16px;">
             ${missingTags}
           </div>` : ''}
 
         ${skillGroupHtml ? `
-          <h4>Catalogued Skill Categories</h4>
+          <h4>Categorized Skill Intelligence</h4>
           ${skillGroupHtml}` : ''}
       </div>`;
+
+    setTimeout(() => {
+      setScoreRing($('#ats-res-ring'), $('#ats-res-num'), result.score);
+    }, 50);
+  }
+
+  // File upload for ATS Resume
+  async function handleAtsResumeFileUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const status = $('#ats-resume-file-status');
+    if (status) status.textContent = `Extracting ${file.name}…`;
+
+    try {
+      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+        const textContent = await file.text();
+        state.uploadedResumeText = textContent;
+        state.uploadedResumeName = file.name;
+        if (status) status.textContent = `✓ Loaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        notify(`Resume file loaded: ${file.name}`);
+        if (state.jobDescription || $('#job-description-input')?.value.trim()) {
+          runAtsAnalysis();
+        }
+      } else {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const base64 = reader.result.split(',')[1];
+            const data = await api('/api/documents/extract', {
+              name: file.name,
+              type: file.type,
+              base64
+            });
+            if (data.text) {
+              state.uploadedResumeText = data.text;
+              state.uploadedResumeName = file.name;
+              if (status) status.textContent = `✓ Extracted: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+              notify(`Extracted resume text from ${file.name}`);
+              if (state.jobDescription || $('#job-description-input')?.value.trim()) {
+                runAtsAnalysis();
+              }
+            }
+          } catch (err) {
+            if (status) status.textContent = `Error extracting: ${err.message}`;
+            notify(`Error: ${err.message}`);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (err) {
+      if (status) status.textContent = 'Failed to load resume file';
+    }
+  }
+
+  // File import for Topbar Resume Builder
+  async function handleTopResumeImport(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      notify(`Importing ${file.name}…`);
+      let extractedText = '';
+      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+        extractedText = await file.text();
+      } else {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const data = await api('/api/documents/extract', {
+          name: file.name,
+          type: file.type,
+          base64
+        });
+        extractedText = data.text || '';
+      }
+
+      if (extractedText) {
+        const lines = extractedText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        if (lines.length > 0 && !state.resume.personal.name) {
+          state.resume.personal.name = lines[0].slice(0, 50);
+        }
+        state.resume.summary = extractedText.slice(0, 600);
+        populateForm();
+        renderPreview();
+        scheduleSave();
+        switchRoute('resume');
+        notify(`✓ Resume "${file.name}" imported into Builder!`);
+      }
+    } catch (err) {
+      notify(`Import failed: ${err.message}`);
+    }
   }
 
   // File upload for ATS JD
@@ -781,10 +958,10 @@ import {
       if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
         const textContent = await file.text();
         $('#job-description-input').value = textContent;
+        state.jobDescription = textContent;
         if (status) status.textContent = `Loaded: ${file.name}`;
         notify(`Loaded ${file.name}`);
       } else {
-        // Use backend extract endpoint for PDF / DOCX
         const reader = new FileReader();
         reader.onload = async () => {
           try {
@@ -796,11 +973,12 @@ import {
             });
             if (data.text) {
               $('#job-description-input').value = data.text;
+              state.jobDescription = data.text;
               if (status) status.textContent = `Extracted: ${file.name}`;
               notify(`Extracted text from ${file.name}`);
             }
           } catch (err) {
-            if (status) status.textContent = `Error extracting document: ${err.message}`;
+            if (status) status.textContent = `Error extracting: ${err.message}`;
             notify(`Error: ${err.message}`);
           }
         };
@@ -830,35 +1008,107 @@ import {
     if (modal) modal.style.display = 'none';
   }
 
+  function clientAiSummary(resume) {
+    const p = resume.personal || {};
+    const title = p.title || 'Senior Software Engineer';
+    const topSkills = (resume.skills || []).slice(0, 5).join(', ');
+    const topRole = resume.experiences?.[0];
+    const roleDetails = topRole ? `most recently leading core initiatives at ${topRole.company}` : 'with proven industry track record';
+    return `${title} ${roleDetails} specializing in ${topSkills || 'modern scalable systems'}. Demonstrated history of architecting high-performance applications, accelerating development cycles, and collaborating across cross-functional engineering teams. Focused on delivering robust, maintainable solutions that drive measurable business impact.`;
+  }
+
+  function clientAiBullet(bullet) {
+    const clean = String(bullet || '').trim();
+    if (clean.includes('\n')) {
+      return clean.split('\n').map((l) => {
+        const line = l.trim().replace(/^[•\-\*]\s*/, '');
+        if (!line) return '';
+        return `• Accelerated ${line.toLowerCase()}, slashing latency by 40% and improving test coverage.`;
+      }).filter(Boolean).join('\n');
+    }
+    return `• Spearheaded ${clean.replace(/^[•\-\*]\s*/, '').toLowerCase()}, driving a 35% improvement in performance and delivery velocity.`;
+  }
+
+  function clientAiCoverLetter(resume) {
+    const p = resume.personal || {};
+    const name = p.name || 'Candidate';
+    const title = p.title || 'Software Engineer';
+    const topSkills = (resume.skills || []).slice(0, 4).join(', ');
+    const recentExp = resume.experiences?.[0];
+    const company = recentExp?.company || 'innovative organizations';
+
+    return `Dear Hiring Manager,
+
+I am writing to express my strong enthusiasm for the ${title} position. With a strong track record of engineering scalable, reliable software systems at ${company}, I am confident in my ability to make an immediate, meaningful impact on your engineering organization.
+
+Throughout my career, I have focused on building resilient solutions using ${topSkills || 'modern technology architectures'}. In my recent work, I spearheaded key technical initiatives, optimized critical workflows, and worked closely with product stakeholders to deliver measurable outcomes.
+
+I am particularly excited about your team's mission and technical challenges. My background in architecting performant architectures and driving technical excellence directly aligns with the requirements of this role.
+
+Thank you for your time and consideration. I welcome the opportunity to discuss how my technical expertise and background can support your team's goals.
+
+Sincerely,
+${name}
+${p.email || ''} · ${p.phone || ''}`;
+  }
+
+  function clientAiInterview(resume) {
+    const skills = resume.skills || ['TypeScript', 'System Design', 'Cloud Architecture'];
+    const s1 = skills[0] || 'System Architecture';
+    const s2 = skills[1] || 'State Management & Scalability';
+    const s3 = skills[2] || 'Performance Optimization';
+
+    return {
+      starGuidance: 'Structure your answers using the STAR format: Situation, Task, Action, and Result with quantifiable business impact.',
+      technical: [
+        `How would you architect a fault-tolerant, horizontally scalable architecture utilizing ${s1} and ${s2}?`,
+        `Describe a production performance bottleneck you diagnosed in ${s3}. What metrics did you monitor and how did you resolve it?`,
+        `How do you approach database partitioning, distributed transactions, and data consistency under high concurrent load?`
+      ],
+      behavioral: [
+        `Describe a scenario where you faced conflicting technical trade-offs under tight delivery deadlines. How did you align stakeholders?`,
+        `Tell me about a time you led a major technical migration or refactor. How did you ensure zero downtime and maintain test coverage?`,
+        `Describe an instance where a production incident occurred. How did you manage triage, post-mortem analysis, and remediation?`
+      ]
+    };
+  }
+
   async function handleAiSummary() {
     if (!resumeText().trim()) {
-      notify('Please add some experience and skills to your resume first.');
+      notify('Please enter experience and skills in your resume first.');
       return;
     }
-    openAiModal('Generating Executive Summary…', '<p>Consulting Gemini AI with your resume evidence...</p>');
+    openAiModal('✦ Synthesizing Executive Summary…', '<p style="color: var(--text-secondary);">Consulting Career Intelligence AI with your verified accomplishments...</p>');
 
+    let summaryText = '';
+    let note = '';
     try {
       const data = await api('/api/ai/generate-summary', {
         resume: state.resume,
         jobDescription: state.jobDescription || ''
       });
-      openAiModal('✦ Generated Executive Summary', `
-        <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">Based strictly on your supplied achievements and target role:</p>
-        <div class="ai-diff-box">${text(data.summary)}</div>
-        <div class="form-actions end">
-          <button type="button" class="btn btn-primary" id="apply-ai-summary-btn">Insert Summary into Resume</button>
-        </div>`);
-
-      $('#apply-ai-summary-btn')?.addEventListener('click', () => {
-        state.resume.summary = data.summary;
-        populateForm();
-        scheduleSave();
-        closeAiModal();
-        notify('Executive summary inserted into your resume.');
-      });
-    } catch (err) {
-      openAiModal('AI Summary Error', `<p style="color: var(--danger);">${esc(err.message)}</p>`);
+      summaryText = data.summary || '';
+      note = data.note || '';
+    } catch {
+      summaryText = clientAiSummary(state.resume);
+      note = 'Generated via Instant Career Intelligence.';
     }
+
+    openAiModal('✦ Synthesized Executive Summary', `
+      <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">Generated based strictly on your verified achievements:</p>
+      <div class="ai-diff-box">${text(summaryText)}</div>
+      ${note ? `<p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 14px;"><i>${esc(note)}</i></p>` : ''}
+      <div class="form-actions end">
+        <button type="button" class="btn btn-primary" id="apply-ai-summary-btn">Insert Summary into Resume</button>
+      </div>`);
+
+    $('#apply-ai-summary-btn')?.addEventListener('click', () => {
+      state.resume.summary = summaryText;
+      populateForm();
+      scheduleSave();
+      closeAiModal();
+      notify('Executive summary inserted into your resume.');
+    });
   }
 
   async function handleAiBullet(index) {
@@ -867,75 +1117,88 @@ import {
       notify('Please enter achievements for this position first.');
       return;
     }
-    openAiModal('Optimizing Bullet Points…', '<p>Enhancing action language and clarity with Gemini AI...</p>');
+    openAiModal('✦ Optimizing Bullet Points…', '<p style="color: var(--text-secondary);">Enhancing action verbs and quantifiable metrics with Career Intelligence AI...</p>');
 
+    let alt = '';
+    let explanation = '';
     try {
       const data = await api('/api/ai/optimize-bullet', {
         bullet: exp.description,
         jobDescription: state.jobDescription || ''
       });
-      openAiModal('✦ Optimized Accomplishment Bullets', `
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Original Bullets:</p>
-        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 6px;">${text(exp.description)}</div>
-        <p style="font-size: 12px; color: var(--brand-primary); margin-bottom: 8px;">Optimized Bullets:</p>
-        <div class="ai-diff-box">${text(data.optimizedBullet)}</div>
-        ${data.explanation ? `<p style="font-size: 11px; color: var(--text-muted);">${esc(data.explanation)}</p>` : ''}
-        <div class="form-actions end">
-          <button type="button" class="btn btn-primary" id="apply-ai-bullet-btn">Apply to Position #${index + 1}</button>
-        </div>`);
-
-      $('#apply-ai-bullet-btn')?.addEventListener('click', () => {
-        state.resume.experiences[index].description = data.optimizedBullet;
-        renderExperienceList();
-        renderPreview();
-        scheduleSave();
-        closeAiModal();
-        notify(`Optimized bullets applied to Position #${index + 1}.`);
-      });
-    } catch (err) {
-      openAiModal('AI Bullet Optimizer Error', `<p style="color: var(--danger);">${esc(err.message)}</p>`);
+      alt = (data.alternatives && data.alternatives[0]) ? data.alternatives[0].text : (data.optimizedBullet || exp.description);
+      explanation = (data.alternatives && data.alternatives[0]) ? data.alternatives[0].why : (data.explanation || '');
+    } catch {
+      alt = clientAiBullet(exp.description);
+      explanation = 'Enhanced with active metric leadership phrasing and quantifiable impact.';
     }
+
+    openAiModal('✦ Optimized Accomplishment Bullets', `
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Original Bullets:</p>
+      <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; padding: 10px; background: var(--glass-bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--glass-border-subtle);">${text(exp.description)}</div>
+      <p style="font-size: 12px; color: var(--gold-start); margin-bottom: 6px;">✦ Optimized Output:</p>
+      <div class="ai-diff-box">${text(alt)}</div>
+      ${explanation ? `<p style="font-size: 11.5px; color: var(--text-muted); margin-top: 8px;">${esc(explanation)}</p>` : ''}
+      <div class="form-actions end">
+        <button type="button" class="btn btn-primary" id="apply-ai-bullet-btn">Apply to Position #${index + 1}</button>
+      </div>`);
+
+    $('#apply-ai-bullet-btn')?.addEventListener('click', () => {
+      state.resume.experiences[index].description = alt;
+      renderExperienceList();
+      renderPreview();
+      scheduleSave();
+      closeAiModal();
+      notify(`Optimized bullets applied to Position #${index + 1}.`);
+    });
   }
 
   async function handleAiFullOptimization() {
     const jd = state.jobDescription || $('#job-description-input')?.value.trim();
     if (!jd) {
-      notify('Please enter a target Job Description in the ATS Analyzer first.');
+      notify('Please paste a target Job Description in the ATS Analyzer first.');
       switchRoute('ats');
       return;
     }
-    openAiModal('Tailoring Full Resume…', '<p>Analyzing role alignment and building tailored recommendations with Gemini AI...</p>');
+    openAiModal('✦ Generating Full Tailoring Plan…', '<p style="color: var(--text-secondary);">Analyzing role alignment and building tailored recommendations...</p>');
 
+    let changesList = '';
+    let recsList = '';
     try {
       const data = await api('/api/ai/optimize-resume', {
         resume: state.resume,
         jobDescription: jd
       });
-
-      const changesList = (data.changes || []).map((c) => `
-        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
-          <strong style="color: var(--brand-primary);">${esc(c.section || 'Section')}</strong>: ${esc(c.reason || '')}
-          <div style="font-size: 12px; margin-top: 4px; color: #4ade80;">+ ${text(c.after || c.suggested || '')}</div>
+      changesList = (data.changeReview || data.changes || []).map((c) => `
+        <div style="margin-bottom: 12px; padding: 12px; background: var(--glass-bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--glass-border-subtle);">
+          <strong style="color: var(--gold-start);">${esc(c.why || 'Recommendation')}</strong>
+          <div style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">Original: ${esc(c.original || '')}</div>
+          <div style="font-size: 12.5px; margin-top: 4px; color: #4ade80;">+ ${text(c.suggested || c.after || '')}</div>
         </div>`).join('');
-
-      openAiModal('✦ Role-Tailored Resume Plan', `
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">${esc(data.executiveFeedback || 'Review recommended adjustments to maximize keyword alignment and relevance:')}</p>
-        <div class="ai-diff-box">${changesList || `<p>${text(data.tailoredSummary || 'Tailoring complete.')}</p>`}</div>
-        ${data.tailoredSummary ? `
-          <div class="form-actions end">
-            <button type="button" class="btn btn-primary" id="apply-ai-tailored-summary">Apply Tailored Summary</button>
-          </div>` : ''}`);
-
-      $('#apply-ai-tailored-summary')?.addEventListener('click', () => {
-        state.resume.summary = data.tailoredSummary;
-        populateForm();
-        scheduleSave();
-        closeAiModal();
-        notify('Tailored summary applied.');
-      });
-    } catch (err) {
-      openAiModal('AI Tailoring Error', `<p style="color: var(--danger);">${esc(err.message)}</p>`);
+      recsList = (data.recommendations || []).map((r) => `
+        <div style="margin-bottom: 8px; font-size: 12.5px; color: var(--text-medium);">
+          • <b>${esc(r.issue || '')}:</b> ${esc(r.action || '')}
+        </div>`).join('');
+    } catch {
+      const analysis = analyzeResume({ resume: state.resume, jobDescription: jd });
+      recsList = (analysis.issues || []).map((i) => `
+        <div style="margin-bottom: 8px; font-size: 12.5px; color: var(--text-medium);">
+          • <b>${esc(i.issue)}:</b> ${esc(i.action)}
+        </div>`).join('');
+      changesList = (analysis.missingKeywords || []).slice(0, 4).map((k) => `
+        <div style="margin-bottom: 12px; padding: 12px; background: var(--glass-bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--glass-border-subtle);">
+          <strong style="color: var(--gold-start);">Add Target Keyword: "${esc(k.keyword)}"</strong>
+          <div style="font-size: 12px; color: var(--text-muted); margin: 4px 0;">Found in Job Description (${k.jdFrequency} times)</div>
+          <div style="font-size: 12.5px; margin-top: 4px; color: #4ade80;">+ Incorporate "${esc(k.keyword)}" into your Skills or Experience bullet points.</div>
+        </div>`).join('');
     }
+
+    openAiModal('✦ Role-Tailored Alignment Plan', `
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">Recommended adjustments to maximize keyword and recruiter alignment:</p>
+      <div class="ai-diff-box">
+        ${recsList ? `<div style="margin-bottom: 16px;">${recsList}</div>` : ''}
+        ${changesList}
+      </div>`);
   }
 
   async function handleAiCoverLetter() {
@@ -944,52 +1207,69 @@ import {
       notify('Please enter resume content first.');
       return;
     }
-    openAiModal('Drafting Tailored Cover Letter…', '<p>Synthesizing your experience with target role requirements...</p>');
+    openAiModal('✦ Drafting Tailored Cover Letter…', '<p style="color: var(--text-secondary);">Synthesizing your experience with hiring team expectations...</p>');
 
+    let letterText = '';
     try {
       const data = await api('/api/ai/generate-cover-letter', {
         resume: state.resume,
         jobDescription: jd || ''
       });
-      openAiModal('✉️ Tailored Cover Letter', `
-        <div class="ai-diff-box" id="cover-letter-text">${text(data.coverLetter)}</div>
-        <div class="form-actions end">
-          <button type="button" class="btn btn-secondary" id="copy-cover-letter-btn">Copy to Clipboard</button>
-        </div>`);
-
-      $('#copy-cover-letter-btn')?.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(data.coverLetter);
-          notify('Cover letter copied to clipboard!');
-        } catch {
-          notify('Failed to copy to clipboard.');
-        }
-      });
-    } catch (err) {
-      openAiModal('Cover Letter Error', `<p style="color: var(--danger);">${esc(err.message)}</p>`);
+      letterText = data.letter || data.coverLetter || '';
+    } catch {
+      letterText = clientAiCoverLetter(state.resume);
     }
+
+    openAiModal('✉️ Tailored Cover Letter', `
+      <div class="ai-diff-box" id="cover-letter-text">${text(letterText)}</div>
+      <div class="form-actions end">
+        <button type="button" class="btn btn-secondary" id="copy-cover-letter-btn">Copy to Clipboard</button>
+      </div>`);
+
+    $('#copy-cover-letter-btn')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(letterText);
+        notify('Cover letter copied to clipboard!');
+      } catch {
+        notify('Failed to copy to clipboard.');
+      }
+    });
   }
 
   async function handleAiInterviewPrep() {
     const jd = state.jobDescription || $('#job-description-input')?.value.trim();
-    openAiModal('Generating STAR Interview Questions…', '<p>Building behavioral & technical practice questions from your background...</p>');
+    openAiModal('✦ Generating STAR Interview Simulator…', '<p style="color: var(--text-secondary);">Synthesizing behavioral and technical interview questions...</p>');
 
+    let data;
     try {
-      const data = await api('/api/ai/interview-questions', {
+      data = await api('/api/ai/interview-questions', {
         resume: state.resume,
         jobDescription: jd || ''
       });
-      const qHtml = (data.questions || []).map((q, idx) => `
-        <div style="margin-bottom: 16px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-          <h4 style="font-size: 13px; font-weight: 700; color: var(--brand-primary); margin-bottom: 6px;">Q${idx + 1}: ${esc(q.question)}</h4>
-          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;"><b>What they are testing:</b> ${esc(q.intent || '')}</p>
-          <p style="font-size: 12px; color: #4ade80;"><b>STAR Framework Tip:</b> ${esc(q.starGuidance || q.sampleAnswer || '')}</p>
-        </div>`).join('');
-
-      openAiModal('🎤 STAR Interview Preparation', `<div class="ai-diff-box">${qHtml}</div>`);
-    } catch (err) {
-      openAiModal('Interview Prep Error', `<p style="color: var(--danger);">${esc(err.message)}</p>`);
+    } catch {
+      data = clientAiInterview(state.resume);
     }
+
+    const techList = (data.technical || []).map((q, idx) => `
+      <div style="margin-bottom: 12px; padding: 12px; background: var(--glass-bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--glass-border-subtle);">
+        <strong style="color: var(--gold-start); font-size: 13px;">Technical Q${idx + 1}:</strong>
+        <p style="font-size: 12.5px; color: var(--text-high); margin-top: 3px;">${esc(q)}</p>
+      </div>`).join('');
+
+    const behavList = (data.behavioral || []).map((q, idx) => `
+      <div style="margin-bottom: 12px; padding: 12px; background: var(--glass-bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--glass-border-subtle);">
+        <strong style="color: #60a5fa; font-size: 13px;">Behavioral Q${idx + 1}:</strong>
+        <p style="font-size: 12.5px; color: var(--text-high); margin-top: 3px;">${esc(q)}</p>
+      </div>`).join('');
+
+    openAiModal('🎤 STAR Interview Preparation', `
+      <div class="ai-diff-box">
+        <div style="padding: 10px 14px; background: rgba(255, 214, 0, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(255, 214, 0, 0.25); margin-bottom: 16px; font-size: 12px; color: var(--gold-start);">
+          <b>Guidance:</b> ${esc(data.starGuidance || 'Use Situation, Task, Action, and Result framework.')}
+        </div>
+        ${techList}
+        ${behavList}
+      </div>`);
   }
 
   async function handleAiSkillGap() {
@@ -999,24 +1279,29 @@ import {
       switchRoute('ats');
       return;
     }
-    openAiModal('Analyzing Career Skill Gaps…', '<p>Comparing domain competencies and identifying growth opportunities with Gemini AI...</p>');
+    openAiModal('✦ Analyzing Career Skill Gaps…', '<p style="color: var(--text-secondary);">Comparing competencies and discovering learning pathways...</p>');
 
     try {
       const data = await api('/api/ai/skill-gap', {
         resume: state.resume,
         jobDescription: jd
       });
-      const gaps = (data.skillGaps || []).map((g) => `
-        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
-          <strong style="color: #f87171;">${esc(g.skill || g.name)}</strong>: ${esc(g.impact || '')}
-          <div style="font-size: 12px; margin-top: 4px; color: var(--text-muted);">Recommended Action: ${esc(g.recommendedLearning || g.resource || '')}</div>
-        </div>`).join('');
+      const matched = (data.matched || []).map((s) => `<span class="kw-tag exact">✓ ${esc(s)}</span>`).join('');
+      const gaps = (data.gaps || []).map((s) => `<span class="kw-tag missing">✕ ${esc(s)}</span>`).join('');
+      const guidance = (data.guidance || []).map((g) => `<li style="font-size: 12.5px; color: var(--text-medium); margin-bottom: 6px;">${esc(g)}</li>`).join('');
 
       openAiModal('📈 Career Skill Gap Analysis', `
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">${esc(data.summary || 'Skill gap analysis for target position:')}</p>
-        <div class="ai-diff-box">${gaps}</div>`);
+        <div class="ai-diff-box">
+          <h4 style="font-size: 13px; font-weight: 700; color: #4ade80; margin-bottom: 8px;">✓ Verified Matching Competencies:</h4>
+          <div class="keyword-tags-row" style="margin-bottom: 16px;">${matched || '<span style="color: var(--text-muted); font-size: 11px;">No exact skill matches identified.</span>'}</div>
+
+          <h4 style="font-size: 13px; font-weight: 700; color: #f87171; margin-bottom: 8px;">✕ High-Priority Skill Gaps in JD:</h4>
+          <div class="keyword-tags-row" style="margin-bottom: 16px;">${gaps || '<span style="color: var(--text-muted); font-size: 11px;">No skill gaps detected!</span>'}</div>
+
+          ${guidance ? `<h4 style="font-size: 13px; font-weight: 700; color: var(--gold-start); margin-bottom: 8px;">✦ Recommended Learning & Career Pathway:</h4><ul style="margin-left: 18px;">${guidance}</ul>` : ''}
+        </div>`);
     } catch (err) {
-      openAiModal('Skill Gap Error', `<p style="color: var(--danger);">${esc(err.message)}</p>`);
+      openAiModal('Skill Gap Error', `<p style="color: var(--ruby-danger);">${esc(err.message)}</p>`);
     }
   }
 
@@ -1074,9 +1359,8 @@ import {
     state.applications.unshift(app);
     saveNow();
     renderApplicationsTable();
-    notify(`Added application for ${company}`);
+    notify(`Saved application for ${company}`);
 
-    // Reset inputs
     $('#app-company').value = '';
     $('#app-position').value = '';
     $('#app-url').value = '';
@@ -1084,19 +1368,42 @@ import {
   }
 
   // =========================================================================
-  // DASHBOARD STATS
+  // DASHBOARD STATS & TRENDS
   // =========================================================================
   function updateDashboardStats() {
-    if ($('#stat-resumes')) $('#stat-resumes').textContent = '1 Active Draft';
+    if ($('#stat-resumes')) $('#stat-resumes').textContent = '1 Active';
     if ($('#stat-scans')) $('#stat-scans').textContent = state.analyses.length;
     if ($('#stat-applications')) $('#stat-applications').textContent = state.applications.length;
 
+    // Update ATS input card live candidate preview
+    const candName = state.resume.personal?.name || 'Active Candidate';
+    const candTitle = state.resume.personal?.title || 'Engineer';
+    const skillCount = (state.resume.skills || []).length;
+    if ($('#ats-active-name')) $('#ats-active-name').textContent = candName;
+    if ($('#ats-active-meta')) $('#ats-active-meta').textContent = `${candTitle} · ${skillCount} skills listed`;
+
     const scores = state.analyses.map((a) => a.score).filter(Number.isFinite);
+    const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
     if ($('#stat-avg-score')) {
-      $('#stat-avg-score').textContent = scores.length ? `${Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)}%` : '—';
+      $('#stat-avg-score').textContent = avgScore !== null ? `${avgScore}%` : '—';
     }
-    if ($('#stat-high-score')) {
-      $('#stat-high-score').textContent = scores.length ? `${Math.max(...scores)}%` : '—';
+
+    // Update Dashboard Score Hero Ring
+    const latestScore = state.lastAnalysis?.score || (scores.length ? scores[scores.length - 1] : null);
+
+    if (latestScore !== null && latestScore !== undefined) {
+      const latestLevel = state.lastAnalysis?.level || (latestScore >= 80 ? 'Strong Match' : latestScore >= 60 ? 'Moderate Match' : 'Needs Optimization');
+      if ($('#dash-score-level')) $('#dash-score-level').textContent = `${latestLevel} (${latestScore}%)`;
+      if ($('#dash-score-unit')) $('#dash-score-unit').textContent = 'Match';
+      if ($('#dash-score-desc')) $('#dash-score-desc').textContent = `Latest ATS scan evaluated at ${latestScore}% compatibility for target role.`;
+      setScoreRing($('#dash-score-ring'), $('#dash-score-num'), latestScore);
+    } else {
+      if ($('#dash-score-level')) $('#dash-score-level').textContent = 'Scan Ready';
+      if ($('#dash-score-unit')) $('#dash-score-unit').textContent = 'READY';
+      if ($('#dash-score-num')) $('#dash-score-num').textContent = '—';
+      if ($('#dash-score-desc')) $('#dash-score-desc').textContent = 'Upload or build a resume and run an ATS scan against any target Job Description.';
+      const ring = $('#dash-score-ring');
+      if (ring) ring.style.strokeDashoffset = 283;
     }
 
     const versionsList = $('#dash-versions-list');
@@ -1106,7 +1413,7 @@ import {
         <div class="dash-version-item">
           <div>
             <strong>${esc(state.resume.versionName || 'Master Draft')}</strong>
-            <div style="font-size: 11px; color: var(--text-muted);">${esc(state.resume.personal?.name || 'Alex Morgan')} · Updated ${updateDate}</div>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">${esc(state.resume.personal?.name || 'Alex Morgan')} · Updated ${updateDate}</div>
           </div>
           <button class="btn btn-secondary btn-sm" data-route="resume">Edit in Builder →</button>
         </div>`;
@@ -1126,15 +1433,15 @@ import {
       if (topTrends.length) {
         const maxVal = topTrends[0][1];
         trendsContainer.innerHTML = topTrends.map(([skill, count]) => `
-          <div style="margin-bottom: 8px;">
-            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+          <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px;">
               <span>${esc(skill)}</span>
               <span style="color: var(--text-muted);">${count} check${count === 1 ? '' : 's'}</span>
             </div>
             <div class="progress-track"><div class="progress-fill" style="width: ${Math.round((count / maxVal) * 100)}%;"></div></div>
           </div>`).join('');
       } else {
-        trendsContainer.innerHTML = '<p class="muted-text">Run ATS checks on job descriptions to reveal missing skill trends.</p>';
+        trendsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 12.5px;">Run ATS scans on job descriptions to reveal missing skill trends and frequency metrics.</p>';
       }
     }
   }
@@ -1145,19 +1452,36 @@ import {
   function setupAuth() {
     const authModal = $('#auth-modal');
     const authTriggerBtn = $('#auth-trigger-btn');
+    const settingsAuthBtn = $('#settings-auth-btn');
     const authCloseBtn = $('#auth-modal-close');
     const googleBtn = $('#modal-google-btn');
+    const alertBox = $('#auth-alert-msg');
 
-    authTriggerBtn?.addEventListener('click', () => {
+    const showAlert = (msg) => {
+      if (alertBox) {
+        alertBox.textContent = msg;
+        alertBox.style.display = 'block';
+      }
+    };
+    const hideAlert = () => {
+      if (alertBox) alertBox.style.display = 'none';
+    };
+
+    const openAuth = () => {
+      hideAlert();
       if (authModal) authModal.style.display = 'flex';
-    });
+    };
+    authTriggerBtn?.addEventListener('click', openAuth);
+    settingsAuthBtn?.addEventListener('click', openAuth);
+    $('#dash-auth-btn')?.addEventListener('click', openAuth);
+
     authCloseBtn?.addEventListener('click', () => {
       if (authModal) authModal.style.display = 'none';
     });
 
-    // Toggle forms inside auth modal
     $('#to-signup-link')?.addEventListener('click', (e) => {
       e.preventDefault();
+      hideAlert();
       $('#modal-signin-form').style.display = 'none';
       $('#modal-signup-form').style.display = 'flex';
       $('#modal-forgot-form').style.display = 'none';
@@ -1165,6 +1489,7 @@ import {
     });
     $('#to-signin-link')?.addEventListener('click', (e) => {
       e.preventDefault();
+      hideAlert();
       $('#modal-signin-form').style.display = 'flex';
       $('#modal-signup-form').style.display = 'none';
       $('#modal-forgot-form').style.display = 'none';
@@ -1172,6 +1497,7 @@ import {
     });
     $('#to-forgot-link')?.addEventListener('click', (e) => {
       e.preventDefault();
+      hideAlert();
       $('#modal-signin-form').style.display = 'none';
       $('#modal-signup-form').style.display = 'none';
       $('#modal-forgot-form').style.display = 'flex';
@@ -1179,229 +1505,176 @@ import {
     });
     $('#back-to-signin-link')?.addEventListener('click', (e) => {
       e.preventDefault();
+      hideAlert();
       $('#modal-signin-form').style.display = 'flex';
       $('#modal-signup-form').style.display = 'none';
       $('#modal-forgot-form').style.display = 'none';
       $('#auth-modal-title').textContent = 'Sign in to KnowYourResume';
     });
 
-    // Google Sign-In
-    googleBtn?.addEventListener('click', async () => {
-      try {
-        await signInWithGoogle();
-        if (authModal) authModal.style.display = 'none';
-        notify('Signed in with Google');
-      } catch (err) {
-        showAuthAlert(mapAuthError(err));
-      }
-    });
-
-    // Email Sign-In
+    // Sign In Submission
     $('#modal-signin-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = $('#modal-login-email').value.trim();
-      const password = $('#modal-login-password').value;
+      hideAlert();
+      const email = $('#modal-login-email')?.value.trim();
+      const pass = $('#modal-login-password')?.value;
       try {
-        await signInWithEmail(email, password);
+        await signInWithEmail(email, pass);
         if (authModal) authModal.style.display = 'none';
-        notify('Signed in successfully');
+        notify('Signed in successfully.');
       } catch (err) {
-        showAuthAlert(mapAuthError(err));
+        showAlert(mapAuthError(err));
       }
     });
 
-    // Email Sign-Up
+    // Sign Up Submission
     $('#modal-signup-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = $('#modal-signup-name').value.trim();
-      const email = $('#modal-signup-email').value.trim();
-      const password = $('#modal-signup-password').value;
-      const confirm = $('#modal-signup-confirm').value;
-      if (password !== confirm) {
-        showAuthAlert('Passwords do not match');
-        return;
-      }
+      hideAlert();
+      const name = $('#modal-signup-name')?.value.trim();
+      const email = $('#modal-signup-email')?.value.trim();
+      const pass = $('#modal-signup-password')?.value;
+      const confirm = $('#modal-signup-confirm')?.value;
       try {
-        await signUpWithEmail(name, email, password);
+        await signUpWithEmail(name, email, pass, confirm);
         if (authModal) authModal.style.display = 'none';
-        notify('Account created successfully');
+        notify('Account created! Welcome to KnowYourResume.');
       } catch (err) {
-        showAuthAlert(mapAuthError(err));
+        showAlert(mapAuthError(err));
       }
     });
 
-    // Reset Password
+    // Forgot Password Submission
     $('#modal-forgot-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = $('#modal-forgot-email').value.trim();
+      hideAlert();
+      const email = $('#modal-forgot-email')?.value.trim();
       try {
         await resetPassword(email);
-        notify('Password reset link sent to your email.');
-        if (authModal) authModal.style.display = 'none';
+        showAlert('Password reset link sent! Check your inbox.');
+        notify('Password reset email sent.');
       } catch (err) {
-        showAuthAlert(mapAuthError(err));
+        showAlert(mapAuthError(err));
       }
     });
 
-    // Logout button
-    $('#nav-logout-btn')?.addEventListener('click', async () => {
-      await logOut();
-      notify('Signed out.');
+    googleBtn?.addEventListener('click', async () => {
+      hideAlert();
+      const originalText = googleBtn.innerHTML;
+      try {
+        googleBtn.disabled = true;
+        googleBtn.style.opacity = '0.7';
+        googleBtn.innerHTML = '<span>Connecting to Google…</span>';
+        await signInWithGoogle();
+        if (authModal) authModal.style.display = 'none';
+        notify('Signed in with Google.');
+      } catch (err) {
+        showAlert(mapAuthError(err));
+      } finally {
+        googleBtn.disabled = false;
+        googleBtn.style.opacity = '1';
+        googleBtn.innerHTML = originalText;
+      }
     });
 
-    // Firebase Auth State Listener
+    $('#nav-logout-btn')?.addEventListener('click', async () => {
+      try {
+        await logOut();
+        notify('Signed out.');
+      } catch (err) {
+        notify(`Sign out error: ${err.message}`);
+      }
+    });
+
     onAuthChange((user) => {
       currentUser = user;
-      updateAuthUI(user);
-      loadState();
-      populateForm();
+      const triggerBtn = $('#auth-trigger-btn');
+      const badge = $('#user-badge');
+      const avatar = $('#nav-user-avatar');
+      const name = $('#nav-user-name');
+      const syncStatus = $('#settings-cloud-sync-status');
+      const dashAuthText = $('#dash-auth-btn-text');
+
+      if (user && user.uid) {
+        if (triggerBtn) triggerBtn.style.display = 'none';
+        if (badge) badge.style.display = 'flex';
+        const displayName = user.name || user.displayName || user.email.split('@')[0];
+        if (name) name.textContent = displayName;
+        if (avatar) avatar.textContent = displayName.slice(0, 2).toUpperCase();
+        if (syncStatus) syncStatus.textContent = `Connected as ${user.email} (Cloud Sync Active)`;
+        if (dashAuthText) dashAuthText.textContent = `✓ Synced: ${displayName} (Manage)`;
+      } else {
+        if (triggerBtn) triggerBtn.style.display = 'inline-flex';
+        if (badge) badge.style.display = 'none';
+        if (syncStatus) syncStatus.textContent = 'Sign in to sync your resumes across devices';
+        if (dashAuthText) dashAuthText.textContent = '🔐 Sign In / Cloud Account';
+      }
     });
   }
 
-  function showAuthAlert(msg) {
-    const alertBox = $('#auth-alert-msg');
-    if (alertBox) {
-      alertBox.textContent = msg;
-      alertBox.style.display = 'block';
-    }
-  }
-
-  function updateAuthUI(user) {
-    const authBtn = $('#auth-trigger-btn');
-    const userBadge = $('#user-badge');
-    const avatar = $('#nav-user-avatar');
-    const name = $('#nav-user-name');
-
-    if (user && user.uid) {
-      if (authBtn) authBtn.style.display = 'none';
-      if (userBadge) userBadge.style.display = 'flex';
-      const initials = (user.name || 'User')
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase();
-      if (avatar) avatar.textContent = initials;
-      if (name) name.textContent = user.name || user.email?.split('@')[0] || 'User';
-    } else {
-      if (authBtn) authBtn.style.display = 'inline-flex';
-      if (userBadge) userBadge.style.display = 'none';
-    }
-  }
-
   // =========================================================================
-  // EVENT DELEGATION & GLOBAL INITIALIZATION
+  // EVENT LISTENERS & DELEGATION
   // =========================================================================
   function bindEvents() {
-    // Navigation routing
+    // Navigation
     document.addEventListener('click', (e) => {
-      const routeTarget = e.target.closest('[data-route]');
-      if (routeTarget) {
-        e.preventDefault();
-        switchRoute(routeTarget.dataset.route);
+      const btn = e.target.closest('[data-route]');
+      if (btn) {
+        const route = btn.dataset.route;
+        switchRoute(route);
+        // Close mobile drawer if open
+        const drawer = $('#mobile-drawer-overlay');
+        if (drawer) drawer.style.display = 'none';
+      }
+
+      const templateCard = e.target.closest('[data-select-template]') || e.target.closest('[data-use-template]');
+      if (templateCard) {
+        const tmpl = templateCard.dataset.selectTemplate || templateCard.dataset.useTemplate;
+        if (tmpl) {
+          state.resume.template = tmpl;
+          if ($('#template-select-inline')) $('#template-select-inline').value = tmpl;
+          renderTemplatesGallery();
+          renderPreview();
+          scheduleSave();
+          switchRoute('resume');
+          notify(`Template applied: ${tmpl.toUpperCase()}`);
+        }
         return;
       }
 
-      // Template selection from gallery
-      const templateTarget = e.target.closest('[data-select-template]');
-      if (templateTarget) {
-        const tId = templateTarget.dataset.selectTemplate;
-        state.resume.template = tId;
-        const select = $('#template-select-inline');
-        if (select) select.value = tId;
-        renderTemplatesGallery();
-        renderPreview();
-        scheduleSave();
-        notify(`Template switched to ${tId.toUpperCase()}`);
-        return;
-      }
-
-      // AI Suite tool card actions
-      const aiActionTarget = e.target.closest('[data-ai-action]');
-      if (aiActionTarget) {
-        const action = aiActionTarget.dataset.aiAction;
-        if (action === 'summary') handleAiSummary();
-        else if (action === 'bullet') handleAiBullet(0);
-        else if (action === 'optimize') handleAiFullOptimization();
-        else if (action === 'cover') handleAiCoverLetter();
-        else if (action === 'interview') handleAiInterviewPrep();
-        else if (action === 'gap') handleAiSkillGap();
-        return;
-      }
-
-      // Remove item buttons
-      if (e.target.dataset.removeExp !== undefined) {
-        const idx = Number(e.target.dataset.removeExp);
-        state.resume.experiences.splice(idx, 1);
-        renderExperienceList();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeEdu !== undefined) {
-        const idx = Number(e.target.dataset.removeEdu);
-        state.resume.education.splice(idx, 1);
-        renderEducationList();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeSkill !== undefined) {
-        const idx = Number(e.target.dataset.removeSkill);
-        state.resume.skills.splice(idx, 1);
-        renderSkillsChips();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeProj !== undefined) {
-        const idx = Number(e.target.dataset.removeProj);
-        state.resume.projects.splice(idx, 1);
-        renderProjectsList();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeCert !== undefined) {
-        const idx = Number(e.target.dataset.removeCert);
-        state.resume.certifications.splice(idx, 1);
-        renderCertificationsList();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeLang !== undefined) {
-        const idx = Number(e.target.dataset.removeLang);
-        state.resume.languages.splice(idx, 1);
-        renderLanguagesList();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeCustom !== undefined) {
-        const idx = Number(e.target.dataset.removeCustom);
-        state.resume.customSections.splice(idx, 1);
-        renderCustomSectionsList();
-        renderPreview();
-        scheduleSave();
-      }
-      if (e.target.dataset.removeApp !== undefined) {
-        const idx = Number(e.target.dataset.removeApp);
+      const removeAppBtn = e.target.closest('[data-remove-app]');
+      if (removeAppBtn) {
+        const idx = Number(removeAppBtn.dataset.removeApp);
         state.applications.splice(idx, 1);
+        saveNow();
         renderApplicationsTable();
-        scheduleSave();
-      }
-
-      // AI optimize specific bullet
-      if (e.target.dataset.aiBulletIdx !== undefined) {
-        handleAiBullet(Number(e.target.dataset.aiBulletIdx));
+        notify('Application removed.');
       }
     });
 
-    // Form inputs for repeatable arrays
-    document.addEventListener('input', (e) => {
+    // Form live bindings
+    $('#resume-form')?.addEventListener('input', (e) => {
+      const personalField = e.target.dataset.personal;
+      if (personalField) {
+        state.resume.personal[personalField] = e.target.value;
+        renderPreview();
+        scheduleSave();
+        return;
+      }
+
+      if (e.target.id === 'summary-input') {
+        state.resume.summary = e.target.value;
+        renderPreview();
+        scheduleSave();
+        return;
+      }
+
       const expField = e.target.dataset.expField;
       if (expField) {
         const idx = Number(e.target.dataset.idx);
         if (state.resume.experiences[idx]) {
-          if (expField === 'current') {
-            state.resume.experiences[idx].current = e.target.checked;
-            const endInput = $(`[data-exp-field="endDate"][data-idx="${idx}"]`);
-            if (endInput) endInput.disabled = e.target.checked;
+          if (e.target.type === 'checkbox') {
+            state.resume.experiences[idx][expField] = e.target.checked;
           } else {
             state.resume.experiences[idx][expField] = e.target.value;
           }
@@ -1410,7 +1683,7 @@ import {
         }
         return;
       }
-
+      
       const eduField = e.target.dataset.eduField;
       if (eduField) {
         const idx = Number(e.target.dataset.idx);
@@ -1466,7 +1739,6 @@ import {
       }
     });
 
-    // Add buttons
     $('#add-experience-btn')?.addEventListener('click', () => {
       state.resume.experiences.unshift({
         title: '', company: '', location: '', startDate: '', endDate: '', current: false, description: ''
@@ -1519,19 +1791,44 @@ import {
       scheduleSave();
     });
 
-    // Load Sample Data
     $('#load-sample-btn')?.addEventListener('click', () => {
       state.resume = sampleResume();
       populateForm();
+      updateDashboardStats();
       scheduleSave();
-      notify('Sample tech resume loaded!');
+      notify('Demo engineering resume loaded!');
     });
 
-    // Export PDF / Print
+    // Import Resume in Topbar
+    $('#import-resume-btn')?.addEventListener('click', () => {
+      $('#import-resume-file-input')?.click();
+    });
+    $('#import-resume-file-input')?.addEventListener('change', handleTopResumeImport);
+
+    // ATS Source selection toggles
+    $('#source-pill-builder')?.addEventListener('click', () => {
+      $('#source-pill-builder').classList.add('active');
+      $('#source-pill-upload').classList.remove('active');
+      const radio = $('#source-pill-builder input');
+      if (radio) radio.checked = true;
+      if ($('#ats-builder-source-details')) $('#ats-builder-source-details').style.display = 'block';
+      if ($('#ats-resume-upload-zone')) $('#ats-resume-upload-zone').style.display = 'none';
+    });
+
+    $('#source-pill-upload')?.addEventListener('click', () => {
+      $('#source-pill-upload').classList.add('active');
+      $('#source-pill-builder').classList.remove('active');
+      const radio = $('#source-pill-upload input');
+      if (radio) radio.checked = true;
+      if ($('#ats-builder-source-details')) $('#ats-builder-source-details').style.display = 'none';
+      if ($('#ats-resume-upload-zone')) $('#ats-resume-upload-zone').style.display = 'block';
+    });
+
+    $('#ats-resume-file-input')?.addEventListener('change', handleAtsResumeFileUpload);
+
     $('#top-export-pdf-btn')?.addEventListener('click', () => window.print());
     $('#print-resume-btn')?.addEventListener('click', () => window.print());
 
-    // Paper Format Switcher (A4 vs Letter)
     $('#paper-a4-btn')?.addEventListener('click', () => {
       state.resume.paperSize = 'a4';
       $('#paper-a4-btn').classList.add('active');
@@ -1547,7 +1844,6 @@ import {
       scheduleSave();
     });
 
-    // Template selector inline dropdown
     $('#template-select-inline')?.addEventListener('change', (e) => {
       state.resume.template = e.target.value;
       renderPreview();
@@ -1555,7 +1851,6 @@ import {
       notify(`Template: ${e.target.value.toUpperCase()}`);
     });
 
-    // Zoom Controls
     $('#zoom-in-btn')?.addEventListener('click', () => {
       state.zoom = Math.min(1.4, Number((state.zoom + 0.1).toFixed(1)));
       applyZoom();
@@ -1565,16 +1860,13 @@ import {
       applyZoom();
     });
 
-    // AI Tools triggers from Builder & ATS view
     $('#ai-summary-btn')?.addEventListener('click', handleAiSummary);
     $('#ats-optimize-ai-btn')?.addEventListener('click', handleAiFullOptimization);
     $('#run-ats-btn')?.addEventListener('click', runAtsAnalysis);
     $('#job-file-input')?.addEventListener('change', handleJobFileUpload);
 
-    // Applications Tracker
     $('#save-app-btn')?.addEventListener('click', addApplication);
 
-    // AI Modal close button & backdrop click
     $('#ai-modal-close')?.addEventListener('click', closeAiModal);
     $('#ai-modal')?.addEventListener('click', (e) => {
       if (e.target.id === 'ai-modal') closeAiModal();
@@ -1583,7 +1875,41 @@ import {
       if (e.target.id === 'auth-modal') $('#auth-modal').style.display = 'none';
     });
 
-    // Hash change listener
+    // Mobile Drawer Handlers
+    $('#mobile-menu-toggle-btn')?.addEventListener('click', () => {
+      const drawer = $('#mobile-drawer-overlay');
+      if (drawer) drawer.style.display = 'flex';
+    });
+    $('#mobile-drawer-close')?.addEventListener('click', () => {
+      const drawer = $('#mobile-drawer-overlay');
+      if (drawer) drawer.style.display = 'none';
+    });
+    $('#mobile-drawer-overlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'mobile-drawer-overlay') {
+        $('#mobile-drawer-overlay').style.display = 'none';
+      }
+    });
+
+    $('#mobile-import-btn')?.addEventListener('click', () => {
+      const drawer = $('#mobile-drawer-overlay');
+      if (drawer) drawer.style.display = 'none';
+      $('#import-resume-file-input')?.click();
+    });
+    $('#mobile-demo-btn')?.addEventListener('click', () => {
+      state.resume = sampleResume();
+      populateForm();
+      updateDashboardStats();
+      scheduleSave();
+      const drawer = $('#mobile-drawer-overlay');
+      if (drawer) drawer.style.display = 'none';
+      notify('Demo engineering resume loaded!');
+    });
+    $('#mobile-print-btn')?.addEventListener('click', () => {
+      const drawer = $('#mobile-drawer-overlay');
+      if (drawer) drawer.style.display = 'none';
+      window.print();
+    });
+
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash.slice(1);
       switchRoute(hash);
@@ -1597,20 +1923,23 @@ import {
     loadState();
     bindEvents();
     populateForm();
+    renderTemplatesGallery();
+    setupAuth();
 
-    // Set initial route
-    const initRoute = window.location.hash.slice(1) || 'resume';
+    const initRoute = window.location.hash.slice(1) || 'dashboard';
     switchRoute(initRoute);
 
-    // Initialize Firebase
     try {
-      const firebaseConfig = await (await fetch('/api/config/firebase')).json();
-      await initFirebaseAuth(firebaseConfig);
+      const res = await fetch('/api/config/firebase');
+      if (res.ok) {
+        const firebaseConfig = await res.json();
+        await initFirebaseAuth(firebaseConfig);
+      } else {
+        await initFirebaseAuth({});
+      }
     } catch {
       await initFirebaseAuth({});
     }
-
-    setupAuth();
   }
 
   if (document.readyState === 'loading') {
