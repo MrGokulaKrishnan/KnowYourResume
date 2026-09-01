@@ -1644,10 +1644,6 @@ ${p.email || ''} · ${p.phone || ''}`;
       const settingsProfileBox = $('#settings-account-profile-box');
       const settingsGuestBox = $('#settings-account-guest-box');
       const settingsAuthBadge = $('#settings-auth-badge-status');
-      const settingsAvatar = $('#settings-avatar-large');
-      const settingsName = $('#settings-user-name-display');
-      const settingsEmail = $('#settings-user-email-display');
-      const settingsCloudBadge = $('#settings-cloud-sync-badge');
 
       if (user && user.uid) {
         if (triggerBtn) triggerBtn.style.display = 'none';
@@ -1673,25 +1669,46 @@ ${p.email || ''} · ${p.phone || ''}`;
           dashGreetingTitle.innerHTML = `Good morning, ${esc(displayName)}.<br>Ready to improve your next application?`;
         }
 
-        if (settingsProfileBox) settingsProfileBox.style.display = 'block';
-        if (settingsGuestBox) settingsGuestBox.style.display = 'none';
         if (settingsAuthBadge) {
           settingsAuthBadge.innerHTML = '<span style="color: var(--emerald-success);">●</span> Cloud Account Synced';
           settingsAuthBadge.style.borderColor = 'rgba(52, 211, 153, 0.35)';
           settingsAuthBadge.style.color = 'var(--emerald-success)';
         }
 
-        if (settingsAvatar) {
-          if (user.photoURL) {
-            settingsAvatar.innerHTML = `<img src="${esc(user.photoURL)}" alt="${esc(displayName)}" class="account-avatar-large-img" referrerpolicy="no-referrer" />`;
-          } else {
-            settingsAvatar.textContent = displayName.slice(0, 2).toUpperCase();
-          }
-        }
-        if (settingsName) settingsName.textContent = displayName;
-        if (settingsEmail) settingsEmail.textContent = user.email || 'Cloud Account';
-        if (settingsCloudBadge) {
-          settingsCloudBadge.textContent = `● Cloud Sync Active (UID: ${user.uid.slice(0, 8)}…)`;
+        if (settingsGuestBox) settingsGuestBox.style.display = 'none';
+
+        if (settingsProfileBox) {
+          const userEmail = user.email || 'Cloud Account';
+          const uidTag = user.uid ? `UID: ${user.uid.slice(0, 8)}…` : '';
+          const avatarLargeHtml = user.photoURL
+            ? `<div class="account-avatar-large"><img src="${esc(user.photoURL)}" alt="${esc(displayName)}" class="account-avatar-large-img" referrerpolicy="no-referrer" /></div>`
+            : `<div class="account-avatar-large">${esc(displayName.slice(0, 2).toUpperCase())}</div>`;
+
+          settingsProfileBox.innerHTML = `
+            <div class="account-profile-header">
+              ${avatarLargeHtml}
+              <div class="account-profile-info">
+                <h4 style="font-size: 16px; margin: 0 0 3px 0; color: var(--text-pure);">${esc(displayName)}</h4>
+                <span class="account-email" style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 6px;">${esc(userEmail)}</span>
+                <span class="account-status-badge" style="font-size: 11.5px; color: var(--emerald-success); font-weight: 600;">● Cloud Sync Active (${esc(uidTag)})</span>
+              </div>
+            </div>
+            <div class="account-actions-row" style="margin-top: 18px; display: flex; gap: 10px;">
+              <button type="button" class="btn btn-danger-outline" id="settings-logout-btn">
+                <span>Sign Out of Account</span>
+              </button>
+            </div>
+          `;
+          settingsProfileBox.style.display = 'block';
+
+          $('#settings-logout-btn')?.addEventListener('click', async () => {
+            try {
+              await logOut();
+              notify('Signed out successfully.');
+            } catch (err) {
+              notify(`Sign out error: ${err.message}`);
+            }
+          });
         }
       } else {
         if (triggerBtn) triggerBtn.style.display = 'inline-flex';
@@ -1707,7 +1724,10 @@ ${p.email || ''} · ${p.phone || ''}`;
           dashGreetingTitle.innerHTML = 'Good morning.<br>Ready to improve your next application?';
         }
 
-        if (settingsProfileBox) settingsProfileBox.style.display = 'none';
+        if (settingsProfileBox) {
+          settingsProfileBox.innerHTML = '';
+          settingsProfileBox.style.display = 'none';
+        }
         if (settingsGuestBox) settingsGuestBox.style.display = 'block';
         if (settingsAuthBadge) {
           settingsAuthBadge.innerHTML = '◌ Local Guest Mode';

@@ -1,7 +1,7 @@
 'use strict';
 
 /** A reproducible, dependency-free ATS compatibility estimator. */
-export const SKILL_CATALOG = {
+const SKILL_CATALOG = {
   'Programming languages': ['javascript', 'typescript', 'python', 'java', 'c#', 'c++', 'go', 'golang', 'rust', 'ruby', 'php', 'kotlin', 'swift', 'sql', 'r', 'scala'],
   'Frontend': ['react', 'next.js', 'nextjs', 'angular', 'vue', 'svelte', 'tailwind', 'redux', 'html5', 'css3', 'webpack', 'vite'],
   'Backend': ['node.js', 'nodejs', 'express', 'nest.js', 'nestjs', 'spring boot', 'spring', 'django', 'flask', 'fastapi', '.net', 'laravel', 'graphql', 'rest api', 'grpc'],
@@ -24,13 +24,28 @@ const EXPECTED_SECTIONS = [
   { label: 'Certifications', patterns: ['certifications', 'certificates', 'licenses', 'credentials'] }
 ];
 
-export const DEFAULT_WEIGHTS = {
+const DEFAULT_WEIGHTS = {
   keywordMatch: 35,
   skillsMatch: 25,
   experienceRelevance: 15,
   completeness: 10,
   formatting: 10,
   readability: 5
+};
+
+const SYNONYMS = {
+  'amazon web services': 'aws',
+  'google cloud platform': 'gcp',
+  'google cloud': 'gcp',
+  'k8s': 'kubernetes',
+  'reactjs': 'react',
+  'react.js': 'react',
+  'nodejs': 'node.js',
+  'nextjs': 'next.js',
+  'golang': 'go',
+  'postgres': 'postgresql',
+  'js': 'javascript',
+  'ts': 'typescript'
 };
 
 function normalise(value) {
@@ -41,9 +56,25 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function getSynonymVariants(term) {
+  const norm = normalise(term);
+  const variants = [norm];
+  for (const [k, v] of Object.entries(SYNONYMS)) {
+    if (norm === k) variants.push(v);
+    if (norm === v) variants.push(k);
+  }
+  return [...new Set(variants)];
+}
+
 function occurrenceCount(text, term) {
-  const matches = normalise(text).match(new RegExp(`(?<![a-z0-9+#.])${escapeRegExp(normalise(term))}(?![a-z0-9+#.])`, 'g'));
-  return matches ? matches.length : 0;
+  const normalizedText = normalise(text);
+  const variants = getSynonymVariants(term);
+  let total = 0;
+  for (const v of variants) {
+    const matches = normalizedText.match(new RegExp(`(?<![a-z0-9+#.])${escapeRegExp(v)}(?![a-z0-9+#.])`, 'g'));
+    if (matches) total += matches.length;
+  }
+  return total;
 }
 
 function unique(items) {
@@ -54,7 +85,7 @@ function clamp(value) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-export function resumeToText(resume) {
+function resumeToText(resume) {
   if (typeof resume === 'string') return resume;
   if (!resume || typeof resume !== 'object') return '';
   const personal = resume.personal || {};
@@ -88,7 +119,7 @@ export function resumeToText(resume) {
   ].filter(Boolean).join('\n');
 }
 
-export function extractKnownSkills(text) {
+function extractKnownSkills(text) {
   const found = [];
   for (const [category, skills] of Object.entries(SKILL_CATALOG)) {
     for (const skill of skills) {
@@ -98,7 +129,7 @@ export function extractKnownSkills(text) {
   return found;
 }
 
-export function extractKeywords(text) {
+function extractKeywords(text) {
   const lower = normalise(text);
   const catalogTerms = extractKnownSkills(lower).map(({ skill }) => skill);
   const words = lower.match(/[a-z][a-z+#.]{2,}/g) || [];
@@ -122,7 +153,7 @@ function detectSections(text) {
   }));
 }
 
-export function getScoreLevel(score) {
+function getScoreLevel(score) {
   if (score >= 90) return 'Excellent Match';
   if (score >= 75) return 'Strong Match';
   if (score >= 60) return 'Moderate Match';
@@ -141,7 +172,7 @@ function findSectionForTerm(resume, term) {
   return 'Resume';
 }
 
-export function analyzeResume({ resume, resumeText, jobDescription, weights = {} } = {}) {
+function analyzeResume({ resume, resumeText, jobDescription, weights = {} } = {}) {
   const safeResume = resume && typeof resume === 'object' ? resume : {};
   const text = resumeText || resumeToText(safeResume);
   const jd = String(jobDescription || '');
@@ -284,7 +315,7 @@ function emptyAnalysis(message) {
   };
 }
 
-export function aggregateMissingSkills(analyses = []) {
+function aggregateMissingSkills(analyses = []) {
   const counts = new Map();
   analyses.forEach((analysis) => {
     (analysis.missingKeywords || []).forEach((item) => {
@@ -299,3 +330,15 @@ export function aggregateMissingSkills(analyses = []) {
     .slice(0, 8)
     .map(([skill, count]) => ({ skill, count }));
 }
+
+module.exports = {
+  ACTION_VERBS,
+  DEFAULT_WEIGHTS,
+  SKILL_CATALOG,
+  analyzeResume,
+  extractKnownSkills,
+  extractKeywords,
+  getScoreLevel,
+  resumeToText,
+  aggregateMissingSkills
+};

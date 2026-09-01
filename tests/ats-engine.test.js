@@ -44,6 +44,50 @@ test('matches keywords across projects and certifications sections', () => {
   assert.equal(go.matchType, 'Exact match');
 });
 
+test('ATS-10: isolates tokens and avoids false substring matches (Java vs JavaScript)', () => {
+  const jsResume = {
+    personal: { name: 'Alex Smith', email: 'alex@example.com' },
+    summary: 'Expert in JavaScript and TypeScript frontend development.',
+    skills: ['JavaScript', 'TypeScript', 'React']
+  };
+  const result = analyzeResume({ resume: jsResume, jobDescription: 'Core Java developer with Spring Boot experience required.' });
+  const javaKeyword = result.keywords.find((k) => k.keyword === 'java');
+  assert.ok(javaKeyword, 'Java keyword should be identified from JD');
+  assert.equal(javaKeyword.matchType, 'Missing', 'Java should not match JavaScript');
+});
+
+test('ATS-11: supports synonym resolution (Amazon Web Services ↔ AWS, Postgres ↔ PostgreSQL)', () => {
+  const cloudResume = {
+    personal: { name: 'Cloud Dev' },
+    summary: 'Extensive AWS and PostgreSQL experience.',
+    skills: ['AWS', 'PostgreSQL']
+  };
+  const result = analyzeResume({ resume: cloudResume, jobDescription: 'Requires Amazon Web Services and Postgres experience.' });
+  const aws = result.keywords.find((k) => k.keyword === 'amazon web services' || k.keyword === 'aws');
+  assert.ok(aws && (aws.matchType === 'Exact match' || aws.matchType === 'Partial match'));
+});
+
+test('ATS-08 & ATS-09: high match vs low match score differential', () => {
+  const highMatch = analyzeResume({
+    resume,
+    jobDescription: 'Software Engineer with React, Node.js, JavaScript, PostgreSQL, Git, and AWS experience.'
+  });
+  const lowMatch = analyzeResume({
+    resume,
+    jobDescription: 'Senior Certified Accountant with GAAP, QuickBooks, Tax Audit, and Financial Modeling.'
+  });
+  assert.ok(highMatch.score > 65, `High match score should be > 65, got ${highMatch.score}`);
+  assert.ok(lowMatch.score < 35, `Low match score should be < 35, got ${lowMatch.score}`);
+  assert.ok(highMatch.score > lowMatch.score + 35, 'High match score should substantially exceed low match score');
+});
+
+test('ATS-12: default breakdown weights sum to exactly 100%', () => {
+  const result = analyzeResume({ resume, jobDescription: 'React Node.js PostgreSQL AWS engineer' });
+  const totalWeight = result.breakdown.reduce((sum, item) => sum + item.weight, 0);
+  assert.equal(totalWeight, 100, `Expected total weight sum of 100%, got ${totalWeight}%`);
+  assert.equal(result.breakdown.length, 6, 'Expected exactly 6 categories in breakdown');
+});
+
 test('is deterministic for identical input', () => {
   const input = { resume, jobDescription: 'React JavaScript Docker AWS experience is required.' };
   const first = analyzeResume(input);
