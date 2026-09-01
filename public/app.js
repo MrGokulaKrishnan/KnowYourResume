@@ -171,6 +171,10 @@ import {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Service endpoint is currently unavailable. Please try again later.');
+    }
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || 'Server request failed');
@@ -857,6 +861,110 @@ import {
     }, 50);
   }
 
+  // 100% On-Device Document Text Extractor (PDF, DOCX, TXT)
+  async function extractDocumentText(file) {
+    if (!file) throw new Error('No file provided');
+
+    // 1. Plain text files
+    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+      return await file.text();
+    }
+
+    // 2. PDF extraction via PDF.js
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      try {
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          const buffer = await file.arrayBuffer();
+          const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
+          const pagesText = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageLines = textContent.items.map((item) => item.str).join(' ');
+            if (pageLines.trim()) pagesText.push(pageLines.trim());
+          }
+          const fullText = pagesText.join('\n\n');
+          if (fullText.trim().length > 10) {
+            return fullText.trim();
+          }
+        }
+      } catch (pdfErr) {
+        console.warn('Client PDF extraction warning:', pdfErr);
+      }
+    }
+
+    // 3. DOCX extraction via JSZip
+    if (file.name.toLowerCase().endsWith('.docx') || file.type.includes('word') || file.type.includes('officedocument')) {
+      try {
+        if (window.JSZip) {
+          const buffer = await file.arrayBuffer();
+          const zip = await window.JSZip.loadAsync(buffer);
+          const docXml = await zip.file('word/document.xml')?.async('text');
+          if (docXml) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(docXml, 'application/xml');
+            const paragraphs = xmlDoc.getElementsByTagName('w:p');
+            const lines = [];
+            for (let i = 0; i < paragraphs.length; i++) {
+              const p = paragraphs[i];
+              const texts = p.getElementsByTagName('w:t');
+              let line = '';
+              for (let j = 0; j < texts.length; j++) {
+                line += texts[j].textContent || '';
+              }
+              if (line.trim()) lines.push(line.trim());
+            }
+            const docxText = lines.join('\n\n');
+            if (docxText.trim().length > 10) {
+              return docxText.trim();
+            }
+          }
+        }
+      } catch (docxErr) {
+        console.warn('Client DOCX extraction warning:', docxErr);
+      }
+    }
+
+    // 4. Server extract endpoint fallback if hosted on Node server
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch('/api/documents/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          data: `data:${file.type || 'application/octet-stream'};base64,${base64}`,
+          base64
+        })
+      });
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.text) return data.text;
+      }
+    } catch {
+      // Ignore server fallback failures
+    }
+
+    // 5. Raw text fallback
+    try {
+      const raw = await file.text();
+      const printable = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').replace(/\s{2,}/g, ' ').trim();
+      if (printable.length > 30) return printable;
+    } catch {
+      // Ignore
+    }
+
+    throw new Error(`Could not extract readable text from "${file.name}". Please upload a standard PDF, DOCX, or TXT file.`);
+  }
+
   // File upload for ATS Resume
   async function handleAtsResumeFileUpload(event) {
     const file = event.target.files?.[0];
@@ -865,43 +973,17 @@ import {
     if (status) status.textContent = `Extracting ${file.name}…`;
 
     try {
-      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        const textContent = await file.text();
-        state.uploadedResumeText = textContent;
-        state.uploadedResumeName = file.name;
-        if (status) status.textContent = `✓ Loaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-        notify(`Resume file loaded: ${file.name}`);
-        if (state.jobDescription || $('#job-description-input')?.value.trim()) {
-          runAtsAnalysis();
-        }
-      } else {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          try {
-            const base64 = reader.result.split(',')[1];
-            const data = await api('/api/documents/extract', {
-              name: file.name,
-              type: file.type,
-              base64
-            });
-            if (data.text) {
-              state.uploadedResumeText = data.text;
-              state.uploadedResumeName = file.name;
-              if (status) status.textContent = `✓ Extracted: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-              notify(`Extracted resume text from ${file.name}`);
-              if (state.jobDescription || $('#job-description-input')?.value.trim()) {
-                runAtsAnalysis();
-              }
-            }
-          } catch (err) {
-            if (status) status.textContent = `Error extracting: ${err.message}`;
-            notify(`Error: ${err.message}`);
-          }
-        };
-        reader.readAsDataURL(file);
+      const textContent = await extractDocumentText(file);
+      state.uploadedResumeText = textContent;
+      state.uploadedResumeName = file.name;
+      if (status) status.textContent = `✓ Loaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      notify(`Resume file loaded: ${file.name}`);
+      if (state.jobDescription || $('#job-description-input')?.value.trim()) {
+        runAtsAnalysis();
       }
     } catch (err) {
-      if (status) status.textContent = 'Failed to load resume file';
+      if (status) status.textContent = `Error extracting: ${err.message}`;
+      notify(`Error: ${err.message}`);
     }
   }
 
@@ -912,24 +994,7 @@ import {
 
     try {
       notify(`Importing ${file.name}…`);
-      let extractedText = '';
-      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        extractedText = await file.text();
-      } else {
-        const base64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result.split(',')[1]);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        const data = await api('/api/documents/extract', {
-          name: file.name,
-          type: file.type,
-          base64
-        });
-        extractedText = data.text || '';
-      }
-
+      const extractedText = await extractDocumentText(file);
       if (extractedText) {
         const lines = extractedText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
         if (lines.length > 0 && !state.resume.personal.name) {
@@ -955,37 +1020,17 @@ import {
     if (status) status.textContent = `Reading ${file.name}…`;
 
     try {
-      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        const textContent = await file.text();
-        $('#job-description-input').value = textContent;
-        state.jobDescription = textContent;
-        if (status) status.textContent = `Loaded: ${file.name}`;
-        notify(`Loaded ${file.name}`);
-      } else {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          try {
-            const base64 = reader.result.split(',')[1];
-            const data = await api('/api/documents/extract', {
-              name: file.name,
-              type: file.type,
-              base64
-            });
-            if (data.text) {
-              $('#job-description-input').value = data.text;
-              state.jobDescription = data.text;
-              if (status) status.textContent = `Extracted: ${file.name}`;
-              notify(`Extracted text from ${file.name}`);
-            }
-          } catch (err) {
-            if (status) status.textContent = `Error extracting: ${err.message}`;
-            notify(`Error: ${err.message}`);
-          }
-        };
-        reader.readAsDataURL(file);
+      const textContent = await extractDocumentText(file);
+      $('#job-description-input').value = textContent;
+      state.jobDescription = textContent;
+      if (status) status.textContent = `✓ Loaded: ${file.name}`;
+      notify(`Loaded ${file.name}`);
+      if (state.uploadedResumeText || state.resume) {
+        runAtsAnalysis();
       }
     } catch (err) {
-      if (status) status.textContent = 'Failed to load file';
+      if (status) status.textContent = `Error extracting: ${err.message}`;
+      notify(`Error: ${err.message}`);
     }
   }
 
