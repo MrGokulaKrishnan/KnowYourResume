@@ -1577,10 +1577,10 @@ ${p.email || ''} · ${p.phone || ''}`;
       }
     });
 
-    $('#nav-logout-btn')?.addEventListener('click', async () => {
+    $('#settings-logout-btn')?.addEventListener('click', async () => {
       try {
         await logOut();
-        notify('Signed out.');
+        notify('Signed out successfully.');
       } catch (err) {
         notify(`Sign out error: ${err.message}`);
       }
@@ -1592,22 +1592,50 @@ ${p.email || ''} · ${p.phone || ''}`;
       const badge = $('#user-badge');
       const avatar = $('#nav-user-avatar');
       const name = $('#nav-user-name');
-      const syncStatus = $('#settings-cloud-sync-status');
       const dashAuthText = $('#dash-auth-btn-text');
+
+      const settingsProfileBox = $('#settings-account-profile-box');
+      const settingsGuestBox = $('#settings-account-guest-box');
+      const settingsAvatar = $('#settings-avatar-large');
+      const settingsName = $('#settings-user-name-display');
+      const settingsEmail = $('#settings-user-email-display');
 
       if (user && user.uid) {
         if (triggerBtn) triggerBtn.style.display = 'none';
         if (badge) badge.style.display = 'flex';
         const displayName = user.name || user.displayName || user.email.split('@')[0];
         if (name) name.textContent = displayName;
-        if (avatar) avatar.textContent = displayName.slice(0, 2).toUpperCase();
-        if (syncStatus) syncStatus.textContent = `Connected as ${user.email} (Cloud Sync Active)`;
-        if (dashAuthText) dashAuthText.textContent = `✓ Synced: ${displayName} (Manage)`;
+
+        if (avatar) {
+          if (user.photoURL) {
+            avatar.innerHTML = `<img src="${esc(user.photoURL)}" alt="${esc(displayName)}" class="user-avatar-img" referrerpolicy="no-referrer" />`;
+          } else {
+            avatar.textContent = displayName.slice(0, 2).toUpperCase();
+          }
+        }
+
+        if (dashAuthText) dashAuthText.textContent = '✓ Synced · Manage Account';
+
+        if (settingsProfileBox) settingsProfileBox.style.display = 'block';
+        if (settingsGuestBox) settingsGuestBox.style.display = 'none';
+
+        if (settingsAvatar) {
+          if (user.photoURL) {
+            settingsAvatar.innerHTML = `<img src="${esc(user.photoURL)}" alt="${esc(displayName)}" class="account-avatar-large-img" referrerpolicy="no-referrer" />`;
+          } else {
+            settingsAvatar.textContent = displayName.slice(0, 2).toUpperCase();
+          }
+        }
+        if (settingsName) settingsName.textContent = displayName;
+        if (settingsEmail) settingsEmail.textContent = user.email || 'Cloud Account';
       } else {
         if (triggerBtn) triggerBtn.style.display = 'inline-flex';
         if (badge) badge.style.display = 'none';
-        if (syncStatus) syncStatus.textContent = 'Sign in to sync your resumes across devices';
+        if (avatar) avatar.textContent = 'AM';
         if (dashAuthText) dashAuthText.textContent = '🔐 Sign In / Cloud Account';
+
+        if (settingsProfileBox) settingsProfileBox.style.display = 'none';
+        if (settingsGuestBox) settingsGuestBox.style.display = 'block';
       }
     });
   }

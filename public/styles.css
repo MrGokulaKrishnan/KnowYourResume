@@ -386,7 +386,7 @@ button {
 .nav-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   color: var(--text-medium);
@@ -394,16 +394,28 @@ button {
   font-weight: 550;
   white-space: nowrap;
   transition: all var(--transition-fast);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
 }
 
-.nav-btn .icon {
-  font-size: 13.5px;
+.nav-svg-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  color: currentColor;
   opacity: 0.85;
+  transition: all var(--transition-fast);
 }
 
 .nav-btn:hover {
   color: var(--text-pure);
   background: var(--glass-bg-card);
+}
+
+.nav-btn:hover .nav-svg-icon {
+  opacity: 1;
+  color: var(--gold-start);
 }
 
 .nav-btn.active {
@@ -413,8 +425,9 @@ button {
   box-shadow: 0 0 20px rgba(255, 214, 0, 0.18), var(--glass-sheen);
 }
 
-.nav-btn.active .icon {
+.nav-btn.active .nav-svg-icon {
   color: var(--gold-start);
+  opacity: 1;
 }
 
 .nav-right {
@@ -593,19 +606,22 @@ button {
 .user-badge {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: var(--glass-bg-card);
   border: 1px solid rgba(255, 214, 0, 0.3);
-  padding: 4px 14px 4px 5px;
+  padding: 4px 12px 4px 5px;
   border-radius: var(--radius-pill);
   backdrop-filter: blur(16px);
   box-shadow: 0 0 20px rgba(255, 214, 0, 0.12), var(--shadow-ambient);
   transition: all var(--transition-fast);
+  cursor: pointer;
+  color: var(--text-pure);
 }
 
 .user-badge:hover {
   border-color: var(--gold-start);
-  box-shadow: 0 0 28px rgba(255, 214, 0, 0.22);
+  box-shadow: 0 0 28px rgba(255, 214, 0, 0.25);
+  transform: translateY(-1px);
 }
 
 .user-avatar {
@@ -621,19 +637,16 @@ button {
   justify-content: center;
   box-shadow: 0 0 12px rgba(255, 214, 0, 0.5);
   position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
-.user-avatar::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 7px;
-  height: 7px;
-  background: var(--emerald-success);
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border: 1.5px solid #000;
-  box-shadow: 0 0 6px var(--emerald-success);
+  object-fit: cover;
+  display: block;
 }
 
 .user-name {
@@ -646,30 +659,42 @@ button {
   white-space: nowrap;
 }
 
-.btn-logout-icon, .btn-logout-pill {
-  color: var(--text-medium);
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
+.account-profile-box {
   background: var(--glass-bg-subtle);
-  border: 1px solid var(--glass-border-subtle);
-  margin-left: 4px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  display: inline-flex;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 14px;
+}
+
+.account-profile-header {
+  display: flex;
   align-items: center;
+  gap: 16px;
 }
 
-.btn-logout-icon:hover, .btn-logout-pill:hover {
-  color: #ffffff;
-  background: var(--ruby-danger);
-  border-color: var(--ruby-danger);
-  box-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
+.account-avatar-large {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--gold-gradient);
+  color: #000;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(255, 214, 0, 0.4);
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
-.btn-logout-icon:hover {
-  color: var(--ruby-danger);
+.account-avatar-large-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ==========================================================================
@@ -772,7 +797,27 @@ button {
 .dash-actions-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dash-actions-row .btn-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 20px;
+  font-size: 13.5px;
+  font-weight: 650;
+  white-space: nowrap;
+  min-height: 46px;
+  line-height: 1.2;
+}
+
+.btn-action-svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .dashboard-ats-hero-card {
