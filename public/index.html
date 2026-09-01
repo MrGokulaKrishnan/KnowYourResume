@@ -116,8 +116,11 @@
     <section class="view-panel active" id="view-dashboard" aria-label="Dashboard Overview">
       <div class="dashboard-hero-section">
         <div class="dashboard-greeting-card">
-          <span class="eyebrow-badge"><i></i> Career Operating System</span>
-          <h1 style="margin-top: 14px;">Good morning.<br>Ready to improve your next application?</h1>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+            <span class="eyebrow-badge"><i></i> Career Operating System</span>
+            <span class="eyebrow-badge" id="dash-workspace-badge" style="font-size: 11px;">◌ Local Guest Workspace</span>
+          </div>
+          <h1 style="margin-top: 10px;" id="dashboard-greeting-title">Good morning.<br>Ready to improve your next application?</h1>
           <p>Build ATS-optimized resumes, analyze target job compatibility with deterministic scoring, and tailor your background using Gemini AI.</p>
           <div class="dash-actions-row">
             <button type="button" class="btn btn-primary btn-lg" data-route="resume">
@@ -753,39 +756,69 @@
 
       <div class="settings-layout">
         <div class="settings-group-card">
-          <h3>ATS Scoring Weights</h3>
-          <p>Adjust the deterministic weights used by the ATS engine to evaluate compatibility.</p>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+            <div>
+              <h3>ATS Scoring Weights</h3>
+              <p style="margin-bottom: 0;">Deterministic weights used by the 6-category ATS compatibility algorithm.</p>
+            </div>
+            <span class="eyebrow-badge" style="background: rgba(255, 214, 0, 0.12); border-color: rgba(255, 214, 0, 0.35); color: var(--gold-start); font-size: 11px; padding: 4px 10px;">
+              Total: 100% (6/6 Active)
+            </span>
+          </div>
+
           <div class="form-grid cols-2">
             <label class="form-field">
-              <span>Keywords Weight: <b>35%</b></span>
+              <span>Keyword Match: <b>35%</b></span>
+              <p class="field-hint" style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Exact &amp; partial term frequency against target job requirements</p>
               <input type="range" min="10" max="60" value="35" disabled />
             </label>
             <label class="form-field">
-              <span>Skills Weight: <b>25%</b></span>
+              <span>Skills Alignment: <b>25%</b></span>
+              <p class="field-hint" style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Catalogued technical, cloud, database, tool, and soft skill matches</p>
               <input type="range" min="10" max="50" value="25" disabled />
             </label>
             <label class="form-field">
               <span>Experience Relevance: <b>15%</b></span>
+              <p class="field-hint" style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Target keyword occurrence in work experience achievements</p>
               <input type="range" min="5" max="30" value="15" disabled />
             </label>
             <label class="form-field">
-              <span>Completeness: <b>10%</b></span>
+              <span>Resume Completeness: <b>10%</b></span>
+              <p class="field-hint" style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Presence of contact info, professional summary, and core sections</p>
               <input type="range" min="5" max="20" value="10" disabled />
+            </label>
+            <label class="form-field">
+              <span>Formatting &amp; Structure: <b>10%</b></span>
+              <p class="field-hint" style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Action-verb bullet density and standard ATS section naming</p>
+              <input type="range" min="5" max="20" value="10" disabled />
+            </label>
+            <label class="form-field">
+              <span>Recruiter Readability: <b>5%</b></span>
+              <p class="field-hint" style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Sentence length distribution and optimal bullet scanning density</p>
+              <input type="range" min="1" max="15" value="5" disabled />
             </label>
           </div>
         </div>
 
         <div class="settings-group-card" id="settings-account-card">
-          <h3>Account &amp; Cloud Sync</h3>
-          <p>Manage your KnowYourResume cloud account, authentication status, and device synchronization.</p>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+            <div>
+              <h3>Account &amp; Cloud Sync</h3>
+              <p style="margin-bottom: 0;">Manage your authentication status, user profile, and cloud synchronization.</p>
+            </div>
+            <span class="eyebrow-badge" id="settings-auth-badge-status" style="font-size: 11px; padding: 4px 10px;">
+              ◌ Local Guest Mode
+            </span>
+          </div>
           
+          <!-- Authenticated Cloud Profile (Shown ONLY when logged in) -->
           <div class="account-profile-box" id="settings-account-profile-box" style="display: none;">
             <div class="account-profile-header">
-              <div class="account-avatar-large" id="settings-avatar-large">AM</div>
+              <div class="account-avatar-large" id="settings-avatar-large">U</div>
               <div class="account-profile-info">
-                <h4 id="settings-user-name-display" style="font-size: 16px; margin: 0 0 3px 0;">Alex Morgan</h4>
-                <span class="account-email" id="settings-user-email-display" style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 6px;">alex@example.com</span>
-                <span class="account-status-badge" style="font-size: 11.5px; color: var(--emerald-success); font-weight: 600;">● Cloud Sync Active</span>
+                <h4 id="settings-user-name-display" style="font-size: 16px; margin: 0 0 3px 0;">User Account</h4>
+                <span class="account-email" id="settings-user-email-display" style="font-size: 13px; color: var(--text-secondary); display: block; margin-bottom: 6px;">user@example.com</span>
+                <span class="account-status-badge" id="settings-cloud-sync-badge" style="font-size: 11.5px; color: var(--emerald-success); font-weight: 600;">● Cloud Sync Active</span>
               </div>
             </div>
             <div class="account-actions-row" style="margin-top: 18px; display: flex; gap: 10px;">
@@ -795,11 +828,21 @@
             </div>
           </div>
 
+          <!-- Guest Mode Box (Shown ONLY when unauthenticated) -->
           <div class="account-guest-box" id="settings-account-guest-box">
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">You are currently browsing in Guest Mode. Sign in to synchronize and backup your resumes across devices.</p>
-            <button type="button" class="btn btn-primary" id="settings-auth-btn">
-              <span>Sign In / Create Account</span>
-            </button>
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 20px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <span style="font-size: 16px;">💾</span>
+                <strong style="color: var(--text-pure); font-size: 14px;">Local Storage Active (Guest Mode)</strong>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px;">
+                You are currently using KnowYourResume in <b>Local Guest Mode</b>. Your resumes, drafts, and ATS match scans are saved privately in your browser's local storage. Sign in or create an account to back up your data to the cloud and sync seamlessly across multiple devices.
+              </p>
+              <button type="button" class="btn btn-primary" id="settings-auth-btn">
+                <svg class="btn-action-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Sign In / Create Account</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -999,6 +1042,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=4.8"></script>
+  <script type="module" src="/app.js?v=5.0"></script>
 </body>
 </html>

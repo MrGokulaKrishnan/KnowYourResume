@@ -1638,17 +1638,21 @@ ${p.email || ''} · ${p.phone || ''}`;
       const avatar = $('#nav-user-avatar');
       const name = $('#nav-user-name');
       const dashAuthText = $('#dash-auth-btn-text');
+      const dashWorkspaceBadge = $('#dash-workspace-badge');
+      const dashGreetingTitle = $('#dashboard-greeting-title');
 
       const settingsProfileBox = $('#settings-account-profile-box');
       const settingsGuestBox = $('#settings-account-guest-box');
+      const settingsAuthBadge = $('#settings-auth-badge-status');
       const settingsAvatar = $('#settings-avatar-large');
       const settingsName = $('#settings-user-name-display');
       const settingsEmail = $('#settings-user-email-display');
+      const settingsCloudBadge = $('#settings-cloud-sync-badge');
 
       if (user && user.uid) {
         if (triggerBtn) triggerBtn.style.display = 'none';
         if (badge) badge.style.display = 'flex';
-        const displayName = user.name || user.displayName || user.email.split('@')[0];
+        const displayName = user.name || user.displayName || user.email?.split('@')[0] || 'User';
         if (name) name.textContent = displayName;
 
         if (avatar) {
@@ -1660,9 +1664,22 @@ ${p.email || ''} · ${p.phone || ''}`;
         }
 
         if (dashAuthText) dashAuthText.textContent = '✓ Synced · Manage Account';
+        if (dashWorkspaceBadge) {
+          dashWorkspaceBadge.innerHTML = '<span style="color: var(--emerald-success);">●</span> Cloud Workspace Synced';
+          dashWorkspaceBadge.style.borderColor = 'rgba(52, 211, 153, 0.35)';
+          dashWorkspaceBadge.style.color = 'var(--emerald-success)';
+        }
+        if (dashGreetingTitle) {
+          dashGreetingTitle.innerHTML = `Good morning, ${esc(displayName)}.<br>Ready to improve your next application?`;
+        }
 
         if (settingsProfileBox) settingsProfileBox.style.display = 'block';
         if (settingsGuestBox) settingsGuestBox.style.display = 'none';
+        if (settingsAuthBadge) {
+          settingsAuthBadge.innerHTML = '<span style="color: var(--emerald-success);">●</span> Cloud Account Synced';
+          settingsAuthBadge.style.borderColor = 'rgba(52, 211, 153, 0.35)';
+          settingsAuthBadge.style.color = 'var(--emerald-success)';
+        }
 
         if (settingsAvatar) {
           if (user.photoURL) {
@@ -1673,14 +1690,30 @@ ${p.email || ''} · ${p.phone || ''}`;
         }
         if (settingsName) settingsName.textContent = displayName;
         if (settingsEmail) settingsEmail.textContent = user.email || 'Cloud Account';
+        if (settingsCloudBadge) {
+          settingsCloudBadge.textContent = `● Cloud Sync Active (UID: ${user.uid.slice(0, 8)}…)`;
+        }
       } else {
         if (triggerBtn) triggerBtn.style.display = 'inline-flex';
         if (badge) badge.style.display = 'none';
-        if (avatar) avatar.textContent = 'AM';
-        if (dashAuthText) dashAuthText.textContent = '🔐 Sign In / Cloud Account';
+        if (avatar) avatar.textContent = 'U';
+        if (dashAuthText) dashAuthText.textContent = 'Sign In / Cloud Account';
+        if (dashWorkspaceBadge) {
+          dashWorkspaceBadge.innerHTML = '◌ Local Guest Workspace';
+          dashWorkspaceBadge.style.borderColor = '';
+          dashWorkspaceBadge.style.color = '';
+        }
+        if (dashGreetingTitle) {
+          dashGreetingTitle.innerHTML = 'Good morning.<br>Ready to improve your next application?';
+        }
 
         if (settingsProfileBox) settingsProfileBox.style.display = 'none';
         if (settingsGuestBox) settingsGuestBox.style.display = 'block';
+        if (settingsAuthBadge) {
+          settingsAuthBadge.innerHTML = '◌ Local Guest Mode';
+          settingsAuthBadge.style.borderColor = '';
+          settingsAuthBadge.style.color = '';
+        }
       }
     });
   }
