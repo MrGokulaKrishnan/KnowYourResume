@@ -2911,11 +2911,66 @@ button {
     transform: scale(0.62);
     transform-origin: top center;
   }
-  .ats-input-card, .ats-results-card {
-    padding: 20px 16px;
-  }
   .modal-box {
     padding: 24px 18px;
     margin: 12px;
   }
+}
+
+/* ==========================================================================
+   AI INTERACTIVE STATES & LOADING SPINNERS (LIQUID GLASS)
+   ========================================================================== */
+.ai-loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px;
+  text-align: center;
+}
+
+.ai-spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 214, 0, 0.15);
+  border-top-color: var(--gold-start);
+  animation: aiSpin 0.9s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+  box-shadow: 0 0 16px rgba(255, 214, 0, 0.35);
+  margin-bottom: 18px;
+}
+
+@keyframes aiSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ai-loading-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-pure);
+  margin-bottom: 6px;
+}
+
+.ai-loading-subtext {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dropzone-box.dragover {
+  border-color: var(--gold-start) !important;
+  background: rgba(255, 214, 0, 0.08) !important;
+  box-shadow: 0 0 24px rgba(255, 214, 0, 0.3) !important;
+  transform: scale(1.01);
+}
+
+.copy-btn-success {
+  background: rgba(52, 211, 153, 0.2) !important;
+  border-color: rgba(52, 211, 153, 0.5) !important;
+  color: #34d399 !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-start);
+  outline-offset: 2px;
 }

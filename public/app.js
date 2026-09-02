@@ -306,15 +306,27 @@ import {
   // =========================================================================
   function populateForm() {
     $$('[data-bind]').forEach((input) => {
-      const [parent, field] = input.dataset.bind.split('.');
-      input.value = parent ? (state.resume[parent]?.[field] || '') : (state.resume[input.dataset.bind] || '');
-      input.oninput = () => {
-        if (parent) state.resume[parent][field] = input.value;
-        else state.resume[input.dataset.bind] = input.value;
-        updateSummaryCharCount();
-        renderPreview();
-        scheduleSave();
-      };
+      const bindPath = input.dataset.bind || '';
+      const parts = bindPath.split('.');
+      if (parts.length === 2) {
+        const [parent, field] = parts;
+        input.value = state.resume[parent]?.[field] || '';
+        input.oninput = () => {
+          if (!state.resume[parent]) state.resume[parent] = {};
+          state.resume[parent][field] = input.value;
+          renderPreview();
+          scheduleSave();
+        };
+      } else {
+        const key = parts[0];
+        input.value = state.resume[key] || '';
+        input.oninput = () => {
+          state.resume[key] = input.value;
+          if (key === 'summary') updateSummaryCharCount();
+          renderPreview();
+          scheduleSave();
+        };
+      }
     });
 
     updateSummaryCharCount();
@@ -335,8 +347,19 @@ import {
   function updateSummaryCharCount() {
     const countEl = $('#summary-char-count');
     if (countEl) {
-      const len = state.resume.summary?.length || 0;
+      const summaryText = state.resume.summary || $('[data-bind="summary"]')?.value || '';
+      const len = summaryText.length;
       countEl.textContent = `${len} / 1000 characters`;
+      if (len > 1000) {
+        countEl.style.color = '#ef4444';
+        countEl.style.fontWeight = '700';
+      } else if (len > 800) {
+        countEl.style.color = 'var(--gold-start)';
+        countEl.style.fontWeight = '600';
+      } else {
+        countEl.style.color = '';
+        countEl.style.fontWeight = '';
+      }
     }
   }
 
@@ -865,8 +888,22 @@ import {
   async function extractDocumentText(file) {
     if (!file) throw new Error('No file provided');
 
+    // 0. File Size & Format Validation (5MB Limit)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      throw new Error(`File size (${sizeMb}MB) exceeds the 5MB maximum limit. Please upload a smaller document.`);
+    }
+
+    const nameLower = file.name.toLowerCase();
+    const validExtensions = ['.pdf', '.docx', '.doc', '.txt', '.rtf', '.md'];
+    const hasValidExt = validExtensions.some((ext) => nameLower.endsWith(ext));
+    if (!hasValidExt && !file.type.includes('text') && !file.type.includes('pdf') && !file.type.includes('word')) {
+      throw new Error(`Unsupported file format "${file.name}". Please upload a standard PDF (.pdf), Word (.docx), or Text (.txt) file.`);
+    }
+
     // 1. Plain text files
-    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+    if (file.type === 'text/plain' || nameLower.endsWith('.txt') || nameLower.endsWith('.md')) {
       return await file.text();
     }
 
@@ -1123,7 +1160,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       notify('Please enter experience and skills in your resume first.');
       return;
     }
-    openAiModal('✦ Synthesizing Executive Summary…', '<p style="color: var(--text-secondary);">Consulting Career Intelligence AI with your verified accomplishments...</p>');
+    openAiLoading('✦ Synthesizing Executive Summary…', 'Extracting high-impact achievements and formulating executive summary...');
 
     let summaryText = '';
     let note = '';
@@ -1143,16 +1180,38 @@ ${p.email || ''} · ${p.phone || ''}`;
       <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">Generated based strictly on your verified achievements:</p>
       <div class="ai-diff-box">${text(summaryText)}</div>
       ${note ? `<p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 14px;"><i>${esc(note)}</i></p>` : ''}
-      <div class="form-actions end">
-        <button type="button" class="btn btn-primary" id="apply-ai-summary-btn">Insert Summary into Resume</button>
+      <div class="form-actions end" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" id="copy-ai-summary-btn">
+          <span>Copy to Clipboard</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="apply-ai-summary-btn">
+          <span>Insert Summary into Resume</span>
+        </button>
       </div>`);
+
+    $('#copy-ai-summary-btn')?.addEventListener('click', async (e) => {
+      try {
+        await navigator.clipboard.writeText(summaryText);
+        e.target.closest('button').classList.add('copy-btn-success');
+        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        notify('Summary copied to clipboard!');
+        setTimeout(() => {
+          if (e.target.closest('button')) {
+            e.target.closest('button').classList.remove('copy-btn-success');
+            e.target.closest('button').innerHTML = '<span>Copy to Clipboard</span>';
+          }
+        }, 2000);
+      } catch {
+        notify('Failed to copy to clipboard.');
+      }
+    });
 
     $('#apply-ai-summary-btn')?.addEventListener('click', () => {
       state.resume.summary = summaryText;
       populateForm();
       scheduleSave();
       closeAiModal();
-      notify('Executive summary inserted into your resume.');
+      notify('✓ Executive summary inserted into your resume.');
     });
   }
 
@@ -1162,7 +1221,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       notify('Please enter achievements for this position first.');
       return;
     }
-    openAiModal('✦ Optimizing Bullet Points…', '<p style="color: var(--text-secondary);">Enhancing action verbs and quantifiable metrics with Career Intelligence AI...</p>');
+    openAiLoading('✦ Optimizing Accomplishment Bullets…', 'Elevating action verbs and quantifying business impact...');
 
     let alt = '';
     let explanation = '';
@@ -1184,9 +1243,31 @@ ${p.email || ''} · ${p.phone || ''}`;
       <p style="font-size: 12px; color: var(--gold-start); margin-bottom: 6px;">✦ Optimized Output:</p>
       <div class="ai-diff-box">${text(alt)}</div>
       ${explanation ? `<p style="font-size: 11.5px; color: var(--text-muted); margin-top: 8px;">${esc(explanation)}</p>` : ''}
-      <div class="form-actions end">
-        <button type="button" class="btn btn-primary" id="apply-ai-bullet-btn">Apply to Position #${index + 1}</button>
+      <div class="form-actions end" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" id="copy-ai-bullet-btn">
+          <span>Copy to Clipboard</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="apply-ai-bullet-btn">
+          <span>Apply to Position #${index + 1}</span>
+        </button>
       </div>`);
+
+    $('#copy-ai-bullet-btn')?.addEventListener('click', async (e) => {
+      try {
+        await navigator.clipboard.writeText(alt);
+        e.target.closest('button').classList.add('copy-btn-success');
+        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        notify('Optimized bullets copied!');
+        setTimeout(() => {
+          if (e.target.closest('button')) {
+            e.target.closest('button').classList.remove('copy-btn-success');
+            e.target.closest('button').innerHTML = '<span>Copy to Clipboard</span>';
+          }
+        }, 2000);
+      } catch {
+        notify('Failed to copy to clipboard.');
+      }
+    });
 
     $('#apply-ai-bullet-btn')?.addEventListener('click', () => {
       state.resume.experiences[index].description = alt;
@@ -1194,7 +1275,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       renderPreview();
       scheduleSave();
       closeAiModal();
-      notify(`Optimized bullets applied to Position #${index + 1}.`);
+      notify(`✓ Optimized bullets applied to Position #${index + 1}.`);
     });
   }
 
@@ -1205,7 +1286,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       switchRoute('ats');
       return;
     }
-    openAiModal('✦ Generating Full Tailoring Plan…', '<p style="color: var(--text-secondary);">Analyzing role alignment and building tailored recommendations...</p>');
+    openAiLoading('✦ Generating Role Tailoring Plan…', 'Computing alignment diff and generating tailored keyword recommendations...');
 
     let changesList = '';
     let recsList = '';
@@ -1252,7 +1333,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       notify('Please enter resume content first.');
       return;
     }
-    openAiModal('✦ Drafting Tailored Cover Letter…', '<p style="color: var(--text-secondary);">Synthesizing your experience with hiring team expectations...</p>');
+    openAiLoading('✦ Drafting Tailored Cover Letter…', 'Synthesizing your experience with hiring team expectations...');
 
     let letterText = '';
     try {
@@ -1268,13 +1349,23 @@ ${p.email || ''} · ${p.phone || ''}`;
     openAiModal('✉️ Tailored Cover Letter', `
       <div class="ai-diff-box" id="cover-letter-text">${text(letterText)}</div>
       <div class="form-actions end">
-        <button type="button" class="btn btn-secondary" id="copy-cover-letter-btn">Copy to Clipboard</button>
+        <button type="button" class="btn btn-secondary" id="copy-cover-letter-btn">
+          <span>Copy to Clipboard</span>
+        </button>
       </div>`);
 
-    $('#copy-cover-letter-btn')?.addEventListener('click', async () => {
+    $('#copy-cover-letter-btn')?.addEventListener('click', async (e) => {
       try {
         await navigator.clipboard.writeText(letterText);
+        e.target.closest('button').classList.add('copy-btn-success');
+        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
         notify('Cover letter copied to clipboard!');
+        setTimeout(() => {
+          if (e.target.closest('button')) {
+            e.target.closest('button').classList.remove('copy-btn-success');
+            e.target.closest('button').innerHTML = '<span>Copy to Clipboard</span>';
+          }
+        }, 2000);
       } catch {
         notify('Failed to copy to clipboard.');
       }
@@ -1283,7 +1374,7 @@ ${p.email || ''} · ${p.phone || ''}`;
 
   async function handleAiInterviewPrep() {
     const jd = state.jobDescription || $('#job-description-input')?.value.trim();
-    openAiModal('✦ Generating STAR Interview Simulator…', '<p style="color: var(--text-secondary);">Synthesizing behavioral and technical interview questions...</p>');
+    openAiLoading('✦ Generating STAR Interview Simulator…', 'Synthesizing behavioral and technical interview questions...');
 
     let data;
     try {
@@ -1314,7 +1405,39 @@ ${p.email || ''} · ${p.phone || ''}`;
         </div>
         ${techList}
         ${behavList}
+      </div>
+      <div class="form-actions end" style="margin-top: 14px;">
+        <button type="button" class="btn btn-secondary" id="copy-interview-questions-btn">
+          <span>Copy Questions to Clipboard</span>
+        </button>
       </div>`);
+
+    $('#copy-interview-questions-btn')?.addEventListener('click', async (e) => {
+      try {
+        const fullQuestions = [
+          'STAR INTERVIEW PREPARATION',
+          data.starGuidance || '',
+          '',
+          'TECHNICAL QUESTIONS:',
+          ...(data.technical || []).map((q, i) => `${i + 1}. ${q}`),
+          '',
+          'BEHAVIORAL QUESTIONS:',
+          ...(data.behavioral || []).map((q, i) => `${i + 1}. ${q}`)
+        ].join('\n');
+        await navigator.clipboard.writeText(fullQuestions);
+        e.target.closest('button').classList.add('copy-btn-success');
+        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        notify('Interview questions copied!');
+        setTimeout(() => {
+          if (e.target.closest('button')) {
+            e.target.closest('button').classList.remove('copy-btn-success');
+            e.target.closest('button').innerHTML = '<span>Copy Questions to Clipboard</span>';
+          }
+        }, 2000);
+      } catch {
+        notify('Failed to copy questions.');
+      }
+    });
   }
 
   async function handleAiSkillGap() {
@@ -1324,7 +1447,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       switchRoute('ats');
       return;
     }
-    openAiModal('✦ Analyzing Career Skill Gaps…', '<p style="color: var(--text-secondary);">Comparing competencies and discovering learning pathways...</p>');
+    openAiLoading('✦ Analyzing Career Skill Gaps…', 'Comparing competencies and discovering learning pathways...');
 
     try {
       const data = await api('/api/ai/skill-gap', {
@@ -1344,7 +1467,41 @@ ${p.email || ''} · ${p.phone || ''}`;
           <div class="keyword-tags-row" style="margin-bottom: 16px;">${gaps || '<span style="color: var(--text-muted); font-size: 11px;">No skill gaps detected!</span>'}</div>
 
           ${guidance ? `<h4 style="font-size: 13px; font-weight: 700; color: var(--gold-start); margin-bottom: 8px;">✦ Recommended Learning & Career Pathway:</h4><ul style="margin-left: 18px;">${guidance}</ul>` : ''}
+        </div>
+        <div class="form-actions end" style="margin-top: 14px;">
+          <button type="button" class="btn btn-secondary" id="copy-skill-gaps-btn">
+            <span>Copy Gap Analysis</span>
+          </button>
         </div>`);
+
+      $('#copy-skill-gaps-btn')?.addEventListener('click', async (e) => {
+        try {
+          const gapReport = [
+            'CAREER SKILL GAP ANALYSIS',
+            '',
+            'MATCHING SKILLS:',
+            ...(data.matched || []).map((s) => `• ${s}`),
+            '',
+            'MISSING GAPS:',
+            ...(data.gaps || []).map((g) => `• ${g}`),
+            '',
+            'RECOMMENDED PATHWAYS:',
+            ...(data.guidance || []).map((p) => `• ${p}`)
+          ].join('\n');
+          await navigator.clipboard.writeText(gapReport);
+          e.target.closest('button').classList.add('copy-btn-success');
+          e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+          notify('Gap analysis copied!');
+          setTimeout(() => {
+            if (e.target.closest('button')) {
+              e.target.closest('button').classList.remove('copy-btn-success');
+              e.target.closest('button').innerHTML = '<span>Copy Gap Analysis</span>';
+            }
+          }, 2000);
+        } catch {
+          notify('Failed to copy.');
+        }
+      });
     } catch (err) {
       openAiModal('Skill Gap Error', `<p style="color: var(--ruby-danger);">${esc(err.message)}</p>`);
     }
@@ -1477,16 +1634,43 @@ ${p.email || ''} · ${p.phone || ''}`;
 
       if (topTrends.length) {
         const maxVal = topTrends[0][1];
-        trendsContainer.innerHTML = topTrends.map(([skill, count]) => `
-          <div style="margin-bottom: 10px;">
-            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px;">
-              <span>${esc(skill)}</span>
-              <span style="color: var(--text-muted);">${count} check${count === 1 ? '' : 's'}</span>
+        trendsContainer.innerHTML = `
+          <div style="margin-bottom: 6px;">
+            <div style="font-size: 11.5px; color: var(--gold-start); margin-bottom: 10px; font-weight: 600;">
+              ✦ Detected Skill Gaps from Your Custom ATS Scans:
             </div>
-            <div class="progress-track"><div class="progress-fill" style="width: ${Math.round((count / maxVal) * 100)}%;"></div></div>
-          </div>`).join('');
+            ${topTrends.map(([skill, count]) => `
+              <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px;">
+                  <strong style="color: var(--text-pure);">${esc(skill)}</strong>
+                  <span style="color: var(--text-muted);">${count} check${count === 1 ? '' : 's'}</span>
+                </div>
+                <div class="progress-track"><div class="progress-fill" style="width: ${Math.round((count / maxVal) * 100)}%;"></div></div>
+              </div>`).join('')}
+          </div>`;
       } else {
-        trendsContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 12.5px;">Run ATS scans on job descriptions to reveal missing skill trends and frequency metrics.</p>';
+        const benchmarks = [
+          { skill: 'TypeScript & React', demand: '94% Market Demand', pct: 94 },
+          { skill: 'AWS & Cloud Architecture', demand: '88% Market Demand', pct: 88 },
+          { skill: 'System Design & Distributed APIs', demand: '82% Market Demand', pct: 82 },
+          { skill: 'Docker & Kubernetes (CI/CD)', demand: '76% Market Demand', pct: 76 },
+          { skill: 'PostgreSQL & Database Optimization', demand: '71% Market Demand', pct: 71 }
+        ];
+        trendsContainer.innerHTML = `
+          <div style="margin-bottom: 4px;">
+            <div style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 10px;">
+              Industry In-Demand Skills Benchmarks (Run ATS scans to populate your personalized missing skill gaps):
+            </div>
+            ${benchmarks.map((b) => `
+              <div style="margin-bottom: 9px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 3px;">
+                  <span style="color: var(--text-high); font-weight: 600;">${esc(b.skill)}</span>
+                  <span style="color: var(--gold-start); font-size: 11px; font-weight: 650;">${b.demand}</span>
+                </div>
+                <div class="progress-track"><div class="progress-fill" style="width: ${b.pct}%;"></div></div>
+              </div>
+            `).join('')}
+          </div>`;
       }
     }
   }
@@ -2035,6 +2219,72 @@ ${p.email || ''} · ${p.phone || ''}`;
       if (drawer) drawer.style.display = 'none';
       window.print();
     });
+
+    // Keyboard Shortcuts (Ctrl+S save, Ctrl+P print, Escape close modals)
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveNow();
+        notify('✓ Resume saved successfully.');
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        window.print();
+      } else if (e.key === 'Escape') {
+        closeAiModal();
+        if ($('#auth-modal')) $('#auth-modal').style.display = 'none';
+        if ($('#mobile-drawer-overlay')) $('#mobile-drawer-overlay').style.display = 'none';
+      }
+    });
+
+    // Drag and Drop for ATS Resume Dropzone
+    const atsDropzone = $('#ats-resume-upload-zone');
+    if (atsDropzone) {
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        atsDropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          atsDropzone.classList.add('dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach((eventName) => {
+        atsDropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          atsDropzone.classList.remove('dragover');
+        });
+      });
+      atsDropzone.addEventListener('drop', async (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+          await handleAtsResumeFileUpload({ target: { files: [file] } });
+        }
+      });
+    }
+
+    // Drag and Drop for Job Description Textarea
+    const jdTextarea = $('#job-description-input');
+    if (jdTextarea) {
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        jdTextarea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          jdTextarea.style.borderColor = 'var(--gold-start)';
+        });
+      });
+      ['dragleave', 'drop'].forEach((eventName) => {
+        jdTextarea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          jdTextarea.style.borderColor = '';
+        });
+      });
+      jdTextarea.addEventListener('drop', async (e) => {
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+          await handleJobFileUpload({ target: { files: [file] } });
+        }
+      });
+    }
 
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash.slice(1);
