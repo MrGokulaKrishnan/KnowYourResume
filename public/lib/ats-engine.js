@@ -331,7 +331,7 @@ function aggregateMissingSkills(analyses = []) {
     .map(([skill, count]) => ({ skill, count }));
 }
 
-module.exports = {
+export {
   ACTION_VERBS,
   DEFAULT_WEIGHTS,
   SKILL_CATALOG,
@@ -342,3 +342,17 @@ module.exports = {
   resumeToText,
   aggregateMissingSkills
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    ACTION_VERBS,
+    DEFAULT_WEIGHTS,
+    SKILL_CATALOG,
+    analyzeResume,
+    extractKnownSkills,
+    extractKeywords,
+    getScoreLevel,
+    resumeToText,
+    aggregateMissingSkills
+  };
+}
