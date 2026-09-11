@@ -521,15 +521,16 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: var(--glass-bg-subtle);
-  padding: 6px 14px;
+  background: rgba(10, 10, 15, 0.94);
+  padding: 8px 14px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--glass-border-subtle);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   position: sticky;
-  top: 72px;
-  z-index: 10;
-  backdrop-filter: blur(16px);
+  top: 0;
+  z-index: 15;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .section-nav-pills {
@@ -538,6 +539,8 @@ button {
   gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .section-nav-pills::-webkit-scrollbar {
@@ -1025,28 +1028,6 @@ button {
   background: var(--bg-surface-l1);
 }
 
-.section-nav-pills {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 16px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--glass-border-subtle);
-  position: sticky;
-  top: 0;
-  background: rgba(7, 7, 10, 0.92);
-  backdrop-filter: blur(16px);
-  z-index: 25;
-}
-
-.section-nav-pills::-webkit-scrollbar {
-  height: 3px;
-}
-
-.section-nav-pills::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
-}
 
 .pill {
   padding: 7px 14px;
@@ -2717,35 +2698,6 @@ button {
   }
 }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN BREAKPOINTS
-   ========================================================================== */
-@media (max-width: 1100px) {
-  .dashboard-hero-section {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .dashboard-details-grid {
-    grid-template-columns: 1fr;
-  }
-  .builder-layout {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  .builder-editor-wrap {
-    border-right: none;
-    border-bottom: 1px solid var(--glass-border-subtle);
-    height: auto;
-  }
-  .builder-preview-wrap {
-    height: 740px;
-  }
-  .ats-layout {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* Mobile Hamburger Toggle Button */
 .mobile-menu-btn {
@@ -2894,14 +2846,30 @@ button {
   .builder-layout {
     grid-template-columns: 1fr;
     height: auto;
+    overflow: visible;
   }
   .builder-editor-wrap {
     border-right: none;
     border-bottom: 1px solid var(--glass-border-subtle);
     height: auto;
+    overflow: visible;
+    padding: 24px 20px 48px;
+  }
+  .section-nav-bar {
+    position: sticky;
+    top: 66px;
+    z-index: 25;
+    margin-bottom: 20px;
   }
   .builder-preview-wrap {
-    height: 740px;
+    height: auto;
+    min-height: 740px;
+    overflow: visible;
+  }
+  .preview-header {
+    position: relative;
+    top: auto;
+    z-index: 10;
   }
   .ats-layout {
     grid-template-columns: 1fr;
@@ -2990,10 +2958,17 @@ button {
   .builder-editor-wrap {
     padding: 16px 14px 40px;
   }
+  .section-nav-bar {
+    top: 60px;
+    z-index: 25;
+    margin-bottom: 16px;
+    padding: 6px 10px;
+  }
   .preview-header {
     flex-direction: column;
     gap: 10px;
     padding: 12px 14px;
+    height: auto;
   }
   .preview-viewport {
     padding: 20px 10px;
