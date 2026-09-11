@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>KnowYourResume — AI Career Operating System</title>
   <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=5.5" />
+  <link rel="stylesheet" href="/styles.css?v=5.6" />
 </head>
 <body>
   <!-- Ambient background glow for liquid depth -->
@@ -96,6 +96,10 @@
           <span class="user-name" id="nav-user-name">Alex Morgan</span>
         </button>
       </div>
+
+      <button type="button" class="mobile-header-btn" id="mobile-header-download-btn" title="Download Resume PDF" aria-label="Download PDF">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
 
       <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle-btn" aria-label="Toggle Navigation Menu">
         <span></span>
@@ -219,7 +223,25 @@
     <!-- ----------------------------------------------------------------------
          VIEW 2: RESUME BUILDER (3-ZONE DOCUMENT WORKSPACE)
          ---------------------------------------------------------------------- -->
-    <section class="view-panel" id="view-resume" aria-label="Resume Builder Workspace">
+    <section class="view-panel" id="view-resume" aria-label="Resume Builder Workspace" data-active-builder-mode="editor">
+      <!-- Mobile Segmented View Mode Bar (Editor vs Live Preview) -->
+      <div class="mobile-builder-tabs-bar" id="mobile-builder-tabs-bar">
+        <div class="mobile-builder-segmented">
+          <button type="button" class="mobile-builder-tab active" data-builder-mode="editor" id="btn-builder-tab-editor">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span>Edit Form</span>
+          </button>
+          <button type="button" class="mobile-builder-tab" data-builder-mode="preview" id="btn-builder-tab-preview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Live Preview</span>
+          </button>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm mobile-builder-quick-pdf" id="mobile-builder-quick-pdf" title="Download ATS PDF">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>PDF</span>
+        </button>
+      </div>
+
       <div class="builder-layout">
         <!-- Zone 1 & 2: Form Editor Column -->
         <div class="builder-editor-wrap">
@@ -427,12 +449,22 @@
               </div>
             </fieldset>
           </form>
+
+          <div class="mobile-editor-footer-action">
+            <button type="button" class="btn btn-primary btn-full" id="mobile-to-preview-btn">
+              <span>👁️ View Live Resume Preview →</span>
+            </button>
+          </div>
         </div>
 
         <!-- Zone 3: Live Floating Paper Preview Column -->
         <div class="builder-preview-wrap">
           <div class="preview-header">
             <div class="preview-controls-left">
+              <button type="button" class="btn btn-secondary btn-sm mobile-back-to-edit-btn" id="mobile-back-to-edit-btn">
+                <span>← Edit Form</span>
+              </button>
+
               <div class="seg-btn-group">
                 <button type="button" class="seg-btn active" id="paper-a4-btn">A4</button>
                 <button type="button" class="seg-btn" id="paper-letter-btn">US Letter</button>
@@ -454,6 +486,7 @@
               <button type="button" class="zoom-btn" id="zoom-out-btn" title="Zoom Out">−</button>
               <span class="zoom-text" id="zoom-value">80%</span>
               <button type="button" class="zoom-btn" id="zoom-in-btn" title="Zoom In">＋</button>
+              <button type="button" class="zoom-btn zoom-fit-btn" id="zoom-fit-btn" title="Fit to Screen">Fit</button>
 
               <button type="button" class="btn btn-secondary btn-sm" id="print-resume-btn" title="Download clean ATS PDF">
                 <span>Download PDF ↗</span>
@@ -1028,6 +1061,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=5.5"></script>
+  <script type="module" src="/app.js?v=5.6"></script>
 </body>
 </html>

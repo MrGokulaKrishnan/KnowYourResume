@@ -128,7 +128,9 @@ import {
     analyses: [],
     jobDescription: '',
     lastAnalysis: null,
-    zoom: 0.8
+    zoom: 0.8,
+    builderMode: 'editor',
+    manualZoomSet: false
   });
 
   let state = defaults();
@@ -273,6 +275,13 @@ import {
     if (target === 'templates') renderTemplatesGallery();
     if (target === 'applications') renderApplicationsTable();
     if (target === 'ats') renderAnalysis();
+    if (target === 'resume') {
+      const viewResume = $('#view-resume');
+      if (viewResume && !viewResume.dataset.activeBuilderMode) {
+        viewResume.dataset.activeBuilderMode = state.builderMode || 'editor';
+      }
+      applyZoom();
+    }
   }
 
   // =========================================================================
@@ -442,12 +451,50 @@ import {
     applyZoom();
   }
 
+  function getPaperBaseWidth() {
+    return state.resume.paperSize === 'letter' ? 816 : 794;
+  }
+
+  function getAutoFitZoom() {
+    if (window.innerWidth > 768) {
+      return state.zoom || 0.8;
+    }
+    const availableWidth = Math.max(260, (window.innerWidth || document.documentElement.clientWidth) - 24);
+    const paperWidth = getPaperBaseWidth();
+    const fit = Math.floor((availableWidth / paperWidth) * 100) / 100;
+    return Math.max(0.35, Math.min(1.0, fit));
+  }
+
   function applyZoom() {
     const stage = $('.paper-stage');
     if (!stage) return;
-    stage.style.transform = `scale(${state.zoom})`;
+
+    const isMobile = window.innerWidth <= 768;
+    const currentZoom = (isMobile && !state.manualZoomSet)
+      ? getAutoFitZoom()
+      : (state.zoom || 0.8);
+
+    stage.style.transform = `scale(${currentZoom})`;
+    stage.style.transformOrigin = 'top center';
+
     const zoomText = $('#zoom-value');
-    if (zoomText) zoomText.textContent = `${Math.round(state.zoom * 100)}%`;
+    if (zoomText) zoomText.textContent = `${Math.round(currentZoom * 100)}%`;
+  }
+
+  function setBuilderMode(mode) {
+    state.builderMode = mode === 'preview' ? 'preview' : 'editor';
+    const viewResume = $('#view-resume');
+    if (viewResume) {
+      viewResume.dataset.activeBuilderMode = state.builderMode;
+    }
+    $$('[data-builder-mode]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.builderMode === state.builderMode);
+    });
+    if (state.builderMode === 'preview') {
+      renderPreview();
+      applyZoom();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   // =========================================================================
@@ -2288,12 +2335,47 @@ ${p.email || ''} · ${p.phone || ''}`;
     });
 
     $('#zoom-in-btn')?.addEventListener('click', () => {
+      state.manualZoomSet = true;
       state.zoom = Math.min(1.4, Number((state.zoom + 0.1).toFixed(1)));
       applyZoom();
     });
     $('#zoom-out-btn')?.addEventListener('click', () => {
-      state.zoom = Math.max(0.4, Number((state.zoom - 0.1).toFixed(1)));
+      state.manualZoomSet = true;
+      state.zoom = Math.max(0.35, Number((state.zoom - 0.1).toFixed(1)));
       applyZoom();
+    });
+    $('#zoom-fit-btn')?.addEventListener('click', () => {
+      state.manualZoomSet = false;
+      state.zoom = getAutoFitZoom();
+      applyZoom();
+      notify(`Fit to screen: ${Math.round(state.zoom * 100)}%`);
+    });
+
+    // Mobile Header Quick PDF Download
+    $('#mobile-header-download-btn')?.addEventListener('click', () => {
+      downloadResumePdf();
+    });
+
+    // Mobile Builder Tab Mode Handlers
+    $$('[data-builder-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setBuilderMode(btn.dataset.builderMode);
+      });
+    });
+    $('#mobile-to-preview-btn')?.addEventListener('click', () => {
+      setBuilderMode('preview');
+    });
+    $('#mobile-back-to-edit-btn')?.addEventListener('click', () => {
+      setBuilderMode('editor');
+    });
+    $('#mobile-builder-quick-pdf')?.addEventListener('click', () => {
+      downloadResumePdf();
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth <= 768 && !state.manualZoomSet) {
+        applyZoom();
+      }
     });
 
     $('#ai-summary-btn')?.addEventListener('click', handleAiSummary);
