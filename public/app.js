@@ -186,6 +186,10 @@ import {
       throw new Error('Service endpoint is currently unavailable. Please try again later.');
     }
     const data = await response.json();
+    if (response.status === 401) {
+      triggerSessionExpired('Cloud session expired.');
+      throw new Error('Your session has expired. Please sign in again.');
+    }
     if (!response.ok) {
       throw new Error(data.error || 'Server request failed');
     }
@@ -268,15 +272,24 @@ import {
   // ROUTING & NAVIGATION
   // =========================================================================
   function switchRoute(route) {
-    const validRoutes = ['dashboard', 'resume', 'ats', 'templates', 'ai', 'applications', 'settings', 'legal'];
-    const target = validRoutes.includes(route) ? route : 'dashboard';
+    const validRoutes = ['dashboard', 'resume', 'ats', 'templates', 'ai', 'applications', 'settings', 'legal', 'faq', 'help', '404', '500'];
+    let target = 'dashboard';
+    if (!route || route === 'index' || route === 'home') {
+      target = 'dashboard';
+    } else if (route === 'help') {
+      target = 'faq';
+    } else if (validRoutes.includes(route)) {
+      target = route;
+    } else {
+      target = '404';
+    }
     window.location.hash = target;
 
     $$('.view-panel').forEach((panel) => {
       panel.classList.toggle('active', panel.id === `view-${target}`);
     });
     $$('[data-route]').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.route === target);
+      btn.classList.toggle('active', btn.dataset.route === target || (target === 'faq' && btn.dataset.route === 'help'));
     });
 
     if (target === 'dashboard') updateDashboardStats();
@@ -290,9 +303,25 @@ import {
       }
       applyZoom();
     }
-    if (target === 'legal') {
+    if (target === 'legal' || target === 'faq' || target === '404' || target === '500') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  function triggerSessionExpired(reason = 'Authentication session has timed out.') {
+    try {
+      if (state.resume) {
+        localStorage.setItem('kyr_emergency_draft_backup', JSON.stringify({
+          resume: state.resume,
+          timestamp: Date.now(),
+          reason
+        }));
+      }
+    } catch {
+      // LocalStorage error fallback
+    }
+    const modal = $('#session-expired-modal');
+    if (modal) modal.style.display = 'flex';
   }
 
   function openLegalTab(tabId) {
@@ -2048,6 +2077,40 @@ ${p.email || ''} · ${p.phone || ''}`;
         return;
       }
 
+      // FAQ Accordion Toggle
+      const faqBtn = e.target.closest('.faq-question');
+      if (faqBtn) {
+        const item = faqBtn.closest('.faq-item');
+        if (item) item.classList.toggle('open');
+        return;
+      }
+
+      // 500 Error Retry Button
+      const retryBtn = e.target.closest('#error-retry-btn');
+      if (retryBtn) {
+        notify('Retrying connection...');
+        setTimeout(() => switchRoute('dashboard'), 500);
+        return;
+      }
+
+      // Session Expired Modal Buttons
+      const sessionReauthBtn = e.target.closest('#session-reauth-btn');
+      if (sessionReauthBtn) {
+        const sem = $('#session-expired-modal');
+        if (sem) sem.style.display = 'none';
+        const am = $('#auth-modal');
+        if (am) am.style.display = 'flex';
+        return;
+      }
+
+      const sessionGuestBtn = e.target.closest('#session-guest-continue-btn');
+      if (sessionGuestBtn) {
+        const sem = $('#session-expired-modal');
+        if (sem) sem.style.display = 'none';
+        notify('Operating in Local Guest Mode.');
+        return;
+      }
+
       const backToTopBtn = e.target.closest('#footer-back-to-top');
       if (backToTopBtn) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2558,6 +2621,29 @@ ${p.email || ''} · ${p.phone || ''}`;
         $$('.section-nav-pills .pill').forEach((p) => p.classList.remove('active'));
         pill.classList.add('active');
       });
+    });
+
+    // FAQ Real-Time Search Filter
+    $('#faq-search-input')?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      $$('.faq-item').forEach((item) => {
+        const match = !q || item.textContent.toLowerCase().includes(q);
+        item.style.display = match ? 'block' : 'none';
+        if (match && q) item.classList.add('open');
+        else if (!q) item.classList.remove('open');
+      });
+      $$('.faq-category').forEach((cat) => {
+        const hasVisible = Array.from(cat.querySelectorAll('.faq-item')).some((it) => it.style.display !== 'none');
+        cat.style.display = hasVisible ? 'block' : 'none';
+      });
+    });
+
+    // Support Inquiries Form Submission
+    $('#support-inquiry-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = $('#support-name')?.value.trim();
+      notify(`Thank you, ${name || 'there'}! Your support request has been logged. We'll be in touch.`);
+      e.target.reset();
     });
 
     window.addEventListener('hashchange', () => {

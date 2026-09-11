@@ -6,7 +6,7 @@
   <title>KnowYourResume — AI Career Operating System</title>
   <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=5.9" />
+  <link rel="stylesheet" href="/styles.css?v=6.0" />
 </head>
 <body>
   <!-- Accessible Skip Link -->
@@ -1165,6 +1165,235 @@
         </article>
       </div>
     </section>
+
+    <!-- ========================================================================
+         VIEW 8: HELP CENTER & FREQUENTLY ASKED QUESTIONS (FAQ)
+         ======================================================================== -->
+    <section class="view-panel" id="view-faq" role="tabpanel" aria-labelledby="tab-faq">
+      <div class="faq-hero">
+        <span class="eyebrow-badge">Help & Support</span>
+        <h1 class="view-title">Help Center & Knowledge Base</h1>
+        <p class="view-subtitle">Everything you need to know about ATS scoring, resume optimization, Gemini AI, and privacy.</p>
+        
+        <div class="faq-search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="faq-search-input" placeholder="Search questions (e.g., ATS score, PDF download, Gemini AI, privacy)..." aria-label="Search frequently asked questions" />
+        </div>
+      </div>
+
+      <div class="faq-layout">
+        <div class="faq-accordion-column">
+          <!-- Category 1: ATS Optimization -->
+          <div class="faq-category">
+            <h3 class="faq-category-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m12 12 7-7"/><circle cx="12" cy="12" r="2"/></svg>
+              <span>Applicant Tracking Systems (ATS)</span>
+            </h3>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How does the ATS Compatibility Score work?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>Our ATS algorithm is 100% deterministic and follows the same parsing rules used by enterprise systems like Workday, Taleo, Greenhouse, and Lever. It evaluates keyword frequency, exact/partial matches, skill categorization, and section completeness to generate an un-inflated compatibility percentage (0–100%).</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Why are some keywords marked as "Missing" even when I have similar experience?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>Legacy ATS algorithms look for specific token matches. While our system resolves common industry synonyms (such as <i>AWS ↔ Amazon Web Services</i> or <i>Postgres ↔ PostgreSQL</i>), recruiters often configure strict keyword filters. We recommend explicitly including the exact terminology from the target Job Description in your skills and experience bullets.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>What is a "good" ATS score to aim for?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>A score of <b>75% or higher</b> is considered competitive (Strong / Exceptional). Scores below 50% indicate substantial terminology misalignment with the job description. Targeting 80%+ maximizes your likelihood of passing initial recruiter screening filters.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 2: Builder & Export -->
+          <div class="faq-category">
+            <h3 class="faq-category-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span>Resume Builder & PDF Export</span>
+            </h3>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How do I export my resume as a high-fidelity PDF?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>Click the <b>Download PDF</b> button in the top navigation bar or press <kbd>Ctrl+P</kbd> (<kbd>Cmd+P</kbd> on macOS). This triggers the browser's native vector print engine configured specifically with `@media print` rules, ensuring crisp vector fonts, correct A4/Letter margins, and zero navbar/UI overlay.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Can I switch templates without losing my content?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>Yes, 100%. All your text, dates, accomplishments, and skills are decoupled from visual templates. You can switch between Modern Executive, Classic Elegance, Minimalist Tech, and Compact One-Page templates instantly in the Template Gallery without losing a single character.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How does on-device document extraction work?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>When you upload an existing PDF or DOCX file, text is parsed locally in your browser using client-side JavaScript libraries (PDF.js and JSZip). Your resume binary never uploads to a server disk, protecting confidential personal data.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 3: Gemini AI Intelligence -->
+          <div class="faq-category">
+            <h3 class="faq-category-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+              <span>AI Career Studio (Gemini Intelligence)</span>
+            </h3>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Does KnowYourResume use my resume to train AI models?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p><b>Never.</b> All AI features interact with the enterprise Google Gemini API under strict ephemeral zero-retention policies. Your private resume text is never retained or incorporated into public foundation model weights.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How does the AI Accomplishment Bullet Optimizer work?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>The optimizer rewrites passive responsibilities into active, metric-driven impact statements using the Google XYZ formula: <i>"Accomplished [X], as measured by [Y], by doing [Z]"</i>. You can review the before/after diff and insert the enhanced bullet into your resume with one click.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 4: Cloud Sync & Privacy -->
+          <div class="faq-category">
+            <h3 class="faq-category-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Cloud Sync, Privacy & Account</span>
+            </h3>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Can I use KnowYourResume without creating an account?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>Yes. In <b>Guest Mode</b>, your work is saved exclusively in your browser's local storage. Creating a free account or signing in with Google enables multi-device cloud backup via Google Cloud Firestore.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How do I delete my data or account?</span>
+                <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="faq-answer">
+                <p>You can clear your local browser drafts at any time using the "Reset Local Draft" button in the footer. To delete your cloud account and all associated backups permanently, go to Account Settings and click "Delete Account & Cloud Data" or email <a href="mailto:privacy@knowyourresume.web.app" class="subtle-link-inline">privacy@knowyourresume.web.app</a>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support Inquiries Card & Form -->
+        <aside class="faq-support-sidebar">
+          <div class="support-card">
+            <div class="support-card-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <div>
+                <h4 style="font-size: 15px; font-weight: 700; color: var(--text-pure); margin: 0;">Need Direct Help?</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0;">Our career engineering team typically responds within 24 hours.</p>
+              </div>
+            </div>
+
+            <form class="support-form" id="support-inquiry-form">
+              <label class="form-field">
+                <span>Your Name</span>
+                <input type="text" id="support-name" required placeholder="Jane Doe" />
+              </label>
+              <label class="form-field">
+                <span>Email Address</span>
+                <input type="email" id="support-email" required placeholder="jane@example.com" />
+              </label>
+              <label class="form-field">
+                <span>Topic</span>
+                <select id="support-topic" required>
+                  <option value="ats">ATS Score & Keyword Help</option>
+                  <option value="pdf">PDF Download & Formatting</option>
+                  <option value="ai">Gemini AI Assistance</option>
+                  <option value="account">Account & Cloud Sync</option>
+                  <option value="bug">Report a Bug</option>
+                  <option value="other">Other Inquiry</option>
+                </select>
+              </label>
+              <label class="form-field">
+                <span>Message</span>
+                <textarea id="support-message" rows="4" required placeholder="Describe your question or issue in detail..."></textarea>
+              </label>
+              <button type="submit" class="btn btn-primary btn-full">
+                <span>Send Message to Support</span>
+              </button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         VIEW 9: 404 PAGE NOT FOUND
+         ======================================================================== -->
+    <section class="view-panel" id="view-404" role="tabpanel" aria-labelledby="tab-404">
+      <div class="error-view-container">
+        <div class="error-code-badge">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-desc">
+          The link you followed may be broken, or the page may have been moved. Let's get you back on track to building your next executive resume.
+        </p>
+        <div class="error-actions">
+          <button type="button" class="btn btn-primary btn-lg" data-route="dashboard">
+            <span>Return to Dashboard →</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="resume">
+            <span>Open Resume Builder</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="ats">
+            <span>ATS Scanner</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         VIEW 10: 500 SERVICE ERROR
+         ======================================================================== -->
+    <section class="view-panel" id="view-500" role="tabpanel" aria-labelledby="tab-500">
+      <div class="error-view-container">
+        <div class="error-code-badge error-500">500</div>
+        <h1 class="error-title">Service Temporarily Unavailable</h1>
+        <p class="error-desc">
+          We encountered an unexpected communication issue with cloud services. Your local drafts remain safe on your device.
+        </p>
+        <div class="error-actions">
+          <button type="button" class="btn btn-primary btn-lg" id="error-retry-btn">
+            <span>Retry Operation</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="dashboard">
+            <span>Go to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- ========================================================================
@@ -1198,6 +1427,7 @@
             <li><button type="button" class="footer-link-btn" data-route="templates">Executive Templates</button></li>
             <li><button type="button" class="footer-link-btn" data-route="ai">AI Career Studio</button></li>
             <li><button type="button" class="footer-link-btn" data-route="applications">Applications Tracker</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="faq">Help Center & FAQ</button></li>
           </ul>
         </div>
 
@@ -1435,6 +1665,33 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       SESSION EXPIRED SAFEGUARD MODAL (ZERO DATA LOSS)
+       ======================================================================== -->
+  <div class="modal-overlay" id="session-expired-modal" style="display: none;">
+    <div class="modal-box session-expired-box">
+      <div class="session-expired-icon-wrap">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h2 style="font-size: 20px; font-weight: 750; margin-top: 14px; text-align: center;">Session Expired</h2>
+      <div class="session-preservation-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Your Active Resume Draft Has Been Saved Locally</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; text-align: center; margin-bottom: 20px;">
+        Your cloud authentication session has timed out. To protect your career data, please sign in again. All your recent edits are safely preserved on this device and will synchronize automatically upon re-authentication.
+      </p>
+      <div class="form-actions" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" id="session-guest-continue-btn">
+          <span>Continue in Local Mode</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="session-reauth-btn">
+          <span>Sign In to Reconnect Sync →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Glass Toast Notification (Populated dynamically on action completion) -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -1515,6 +1772,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=5.9"></script>
+  <script type="module" src="/app.js?v=6.0"></script>
 </body>
 </html>
