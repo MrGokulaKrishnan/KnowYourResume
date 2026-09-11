@@ -1923,10 +1923,33 @@ ${p.email || ''} · ${p.phone || ''}`;
   }
 
   // =========================================================================
+  // HIGH-QUALITY VECTOR PDF EXPORT & DOWNLOAD
+  // =========================================================================
+  function downloadResumePdf() {
+    const originalTitle = document.title;
+    const name = state.resume.personal?.name?.trim() || 'Resume';
+    const cleanName = name.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim().replace(/\s+/g, '_') || 'My';
+    document.title = `${cleanName}_Resume`;
+
+    // Ensure preview is fully rendered
+    renderPreview();
+
+    notify('Opening Clean PDF Print / Download dialog…');
+
+    // Trigger browser's native vector PDF print dialog
+    window.print();
+
+    // Restore title after print dialog closes
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1500);
+  }
+
+  // =========================================================================
   // EVENT LISTENERS & DELEGATION
   // =========================================================================
   function bindEvents() {
-    // Navigation
+    // Navigation & Dynamic Item Actions
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-route]');
       if (btn) {
@@ -1935,6 +1958,7 @@ ${p.email || ''} · ${p.phone || ''}`;
         // Close mobile drawer if open
         const drawer = $('#mobile-drawer-overlay');
         if (drawer) drawer.style.display = 'none';
+        return;
       }
 
       const templateCard = e.target.closest('[data-select-template]') || e.target.closest('[data-use-template]');
@@ -1952,6 +1976,97 @@ ${p.email || ''} · ${p.phone || ''}`;
         return;
       }
 
+      // Dynamic Experience Remove
+      const removeExpBtn = e.target.closest('[data-remove-exp]');
+      if (removeExpBtn) {
+        const idx = Number(removeExpBtn.dataset.removeExp);
+        state.resume.experiences.splice(idx, 1);
+        renderExperienceList();
+        renderPreview();
+        scheduleSave();
+        notify('Position removed.');
+        return;
+      }
+
+      // Dynamic Education Remove
+      const removeEduBtn = e.target.closest('[data-remove-edu]');
+      if (removeEduBtn) {
+        const idx = Number(removeEduBtn.dataset.removeEdu);
+        state.resume.education.splice(idx, 1);
+        renderEducationList();
+        renderPreview();
+        scheduleSave();
+        notify('Education entry removed.');
+        return;
+      }
+
+      // Dynamic Skill Chip Remove
+      const removeSkillBtn = e.target.closest('[data-remove-skill]');
+      if (removeSkillBtn) {
+        const idx = Number(removeSkillBtn.dataset.removeSkill);
+        state.resume.skills.splice(idx, 1);
+        renderSkillsChips();
+        renderPreview();
+        scheduleSave();
+        return;
+      }
+
+      // Dynamic Project Remove
+      const removeProjBtn = e.target.closest('[data-remove-proj]');
+      if (removeProjBtn) {
+        const idx = Number(removeProjBtn.dataset.removeProj);
+        state.resume.projects.splice(idx, 1);
+        renderProjectsList();
+        renderPreview();
+        scheduleSave();
+        notify('Project removed.');
+        return;
+      }
+
+      // Dynamic Certification Remove
+      const removeCertBtn = e.target.closest('[data-remove-cert]');
+      if (removeCertBtn) {
+        const idx = Number(removeCertBtn.dataset.removeCert);
+        state.resume.certifications.splice(idx, 1);
+        renderCertificationsList();
+        renderPreview();
+        scheduleSave();
+        notify('Certification removed.');
+        return;
+      }
+
+      // Dynamic Language Remove
+      const removeLangBtn = e.target.closest('[data-remove-lang]');
+      if (removeLangBtn) {
+        const idx = Number(removeLangBtn.dataset.removeLang);
+        state.resume.languages.splice(idx, 1);
+        renderLanguagesList();
+        renderPreview();
+        scheduleSave();
+        notify('Language removed.');
+        return;
+      }
+
+      // Dynamic Custom Section Remove
+      const removeCustomBtn = e.target.closest('[data-remove-custom]');
+      if (removeCustomBtn) {
+        const idx = Number(removeCustomBtn.dataset.removeCustom);
+        state.resume.customSections.splice(idx, 1);
+        renderCustomSectionsList();
+        renderPreview();
+        scheduleSave();
+        notify('Custom section removed.');
+        return;
+      }
+
+      // Dynamic AI Bullet Optimizer Trigger
+      const aiBulletBtn = e.target.closest('[data-ai-bullet-idx]');
+      if (aiBulletBtn) {
+        const idx = Number(aiBulletBtn.dataset.aiBulletIdx);
+        handleAiBullet(idx);
+        return;
+      }
+
       const removeAppBtn = e.target.closest('[data-remove-app]');
       if (removeAppBtn) {
         const idx = Number(removeAppBtn.dataset.removeApp);
@@ -1962,18 +2077,20 @@ ${p.email || ''} · ${p.phone || ''}`;
       }
     });
 
-    // Form live bindings
-    $('#resume-form')?.addEventListener('input', (e) => {
+    // Form live bindings (Supports both input and change events)
+    const handleEditorFormInput = (e) => {
       const personalField = e.target.dataset.personal;
       if (personalField) {
+        if (!state.resume.personal) state.resume.personal = {};
         state.resume.personal[personalField] = e.target.value;
         renderPreview();
         scheduleSave();
         return;
       }
 
-      if (e.target.id === 'summary-input') {
+      if (e.target.dataset.bind === 'summary' || e.target.id === 'summary-input') {
         state.resume.summary = e.target.value;
+        updateSummaryCharCount();
         renderPreview();
         scheduleSave();
         return;
@@ -1985,6 +2102,11 @@ ${p.email || ''} · ${p.phone || ''}`;
         if (state.resume.experiences[idx]) {
           if (e.target.type === 'checkbox') {
             state.resume.experiences[idx][expField] = e.target.checked;
+            const endInput = document.querySelector(`input[data-exp-field="endDate"][data-idx="${idx}"]`);
+            if (endInput) {
+              endInput.disabled = e.target.checked;
+              if (e.target.checked) endInput.value = '';
+            }
           } else {
             state.resume.experiences[idx][expField] = e.target.value;
           }
@@ -2047,7 +2169,10 @@ ${p.email || ''} · ${p.phone || ''}`;
           scheduleSave();
         }
       }
-    });
+    };
+
+    $('#resume-editor-form')?.addEventListener('input', handleEditorFormInput);
+    $('#resume-editor-form')?.addEventListener('change', handleEditorFormInput);
 
     $('#add-experience-btn')?.addEventListener('click', () => {
       state.resume.experiences.unshift({
@@ -2136,8 +2261,9 @@ ${p.email || ''} · ${p.phone || ''}`;
 
     $('#ats-resume-file-input')?.addEventListener('change', handleAtsResumeFileUpload);
 
-    $('#top-export-pdf-btn')?.addEventListener('click', () => window.print());
-    $('#print-resume-btn')?.addEventListener('click', () => window.print());
+    // Dedicated Clean PDF Download / Print Actions
+    $('#top-export-pdf-btn')?.addEventListener('click', downloadResumePdf);
+    $('#print-resume-btn')?.addEventListener('click', downloadResumePdf);
 
     $('#paper-a4-btn')?.addEventListener('click', () => {
       state.resume.paperSize = 'a4';
@@ -2217,7 +2343,7 @@ ${p.email || ''} · ${p.phone || ''}`;
     $('#mobile-print-btn')?.addEventListener('click', () => {
       const drawer = $('#mobile-drawer-overlay');
       if (drawer) drawer.style.display = 'none';
-      window.print();
+      downloadResumePdf();
     });
 
     // Keyboard Shortcuts (Ctrl+S save, Ctrl+P print, Escape close modals)
@@ -2228,7 +2354,7 @@ ${p.email || ''} · ${p.phone || ''}`;
         notify('✓ Resume saved successfully.');
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
         e.preventDefault();
-        window.print();
+        downloadResumePdf();
       } else if (e.key === 'Escape') {
         closeAiModal();
         if ($('#auth-modal')) $('#auth-modal').style.display = 'none';

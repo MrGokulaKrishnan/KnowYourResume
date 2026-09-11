@@ -2585,44 +2585,135 @@ button {
 }
 
 /* ==========================================================================
-   PRINT SPECIFICATION FOR HIGH-QUALITY PDF EXPORT
+   PRINT SPECIFICATION FOR HIGH-QUALITY CLEAN PDF EXPORT
    ========================================================================== */
 @media print {
-  body, html {
+  /* Reset all background and shadow artifacts */
+  *, *::before, *::after {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html, body {
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    font-size: 10.5pt;
+  }
+
+  /* Force hide all navigation, editors, sidebars, modals, floating docks, glows, and other view panels */
+  header,
+  nav,
+  footer,
+  .navbar,
+  .nav-left,
+  .nav-links,
+  .nav-right,
+  .mobile-menu-btn,
+  .mobile-drawer-overlay,
+  .mobile-bottom-dock,
+  .ambient-bg-glow,
+  .ambient-bg-secondary,
+  .modal-overlay,
+  .toast,
+  #toast,
+  .builder-editor-wrap,
+  .section-nav-bar,
+  .section-nav-pills,
+  .editor-form,
+  .preview-header,
+  .preview-controls-left,
+  .preview-controls-right,
+  .btn,
+  .seg-btn-group,
+  .template-select,
+  #view-dashboard,
+  #view-ats,
+  #view-templates,
+  #view-ai,
+  #view-applications,
+  #view-settings {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-  .navbar, .builder-editor-wrap, .preview-header, .modal-overlay, #toast, .section-nav-pills, .ambient-bg-glow, .ambient-bg-secondary, .mobile-bottom-dock {
-    display: none !important;
+
+  /* Make sure the resume view and paper preview are visible and full width */
+  #view-resume {
+    display: block !important;
+    visibility: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
   }
+
   .builder-layout {
     display: block !important;
+    grid-template-columns: 1fr !important;
     height: auto !important;
     overflow: visible !important;
-  }
-  .builder-preview-wrap {
-    background: #ffffff !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-  .preview-viewport {
+    margin: 0 !important;
     padding: 0 !important;
+  }
+
+  .builder-preview-wrap {
+    display: block !important;
     background: #ffffff !important;
+    height: auto !important;
     overflow: visible !important;
-  }
-  .paper-stage {
-    transform: none !important;
-  }
-  .resume-paper {
-    box-shadow: none !important;
+    border: none !important;
     padding: 0 !important;
     margin: 0 !important;
+  }
+
+  .preview-viewport {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .paper-stage {
+    display: block !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
     width: 100% !important;
   }
+
+  .resume-paper {
+    display: block !important;
+    visibility: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .resume-paper * {
+    visibility: visible !important;
+  }
+
   @page {
-    margin: 12mm 15mm;
+    size: auto;
+    margin: 10mm 12mm;
   }
 }
 
