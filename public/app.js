@@ -268,7 +268,7 @@ import {
   // ROUTING & NAVIGATION
   // =========================================================================
   function switchRoute(route) {
-    const validRoutes = ['dashboard', 'resume', 'ats', 'templates', 'ai', 'applications', 'settings'];
+    const validRoutes = ['dashboard', 'resume', 'ats', 'templates', 'ai', 'applications', 'settings', 'legal'];
     const target = validRoutes.includes(route) ? route : 'dashboard';
     window.location.hash = target;
 
@@ -290,6 +290,23 @@ import {
       }
       applyZoom();
     }
+    if (target === 'legal') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function openLegalTab(tabId) {
+    const validTabs = ['privacy', 'terms', 'disclaimer', 'cookies', 'security', 'accessibility'];
+    const target = validTabs.includes(tabId) ? tabId : 'privacy';
+
+    $$('.legal-tab-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.legalTab === target);
+    });
+    $$('.legal-section').forEach((sec) => {
+      sec.classList.toggle('active', sec.dataset.legalSection === target);
+    });
+    const pane = $('#legal-content-pane');
+    if (pane) pane.scrollTop = 0;
   }
 
   // =========================================================================
@@ -2016,9 +2033,36 @@ ${p.email || ''} · ${p.phone || ''}`;
       if (btn) {
         const route = btn.dataset.route;
         switchRoute(route);
+        if (btn.dataset.legalTarget) {
+          openLegalTab(btn.dataset.legalTarget);
+        }
         // Close mobile drawer if open
         const drawer = $('#mobile-drawer-overlay');
         if (drawer) drawer.style.display = 'none';
+        return;
+      }
+
+      const legalTabBtn = e.target.closest('[data-legal-tab]');
+      if (legalTabBtn) {
+        openLegalTab(legalTabBtn.dataset.legalTab);
+        return;
+      }
+
+      const backToTopBtn = e.target.closest('#footer-back-to-top');
+      if (backToTopBtn) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      const clearDraftBtn = e.target.closest('#footer-clear-drafts-btn');
+      if (clearDraftBtn) {
+        if (window.confirm('Clear all local resume drafts and start fresh? This cannot be undone.')) {
+          localStorage.removeItem('kyr_resume_data');
+          state.resume = sampleResume();
+          populateForm();
+          renderPreview();
+          notify('Local drafts cleared. Master template reloaded.');
+        }
         return;
       }
 
@@ -2539,6 +2583,90 @@ ${p.email || ''} · ${p.phone || ''}`;
   }
 
   // =========================================================================
+  // PRIVACY & COOKIE CONSENT SYSTEM (GDPR / CCPA)
+  // =========================================================================
+  function initCookieConsent() {
+    const banner = $('#cookie-consent-banner');
+    const modal = $('#cookie-modal');
+    if (!banner || !modal) return;
+
+    let consent = null;
+    try {
+      const stored = localStorage.getItem('kyr_cookie_consent');
+      if (stored) consent = JSON.parse(stored);
+    } catch {
+      consent = null;
+    }
+
+    if (!consent) {
+      setTimeout(() => {
+        banner.style.display = 'block';
+      }, 1200);
+    }
+
+    const saveConsent = (prefs) => {
+      const data = {
+        essential: true,
+        telemetry: Boolean(prefs.telemetry),
+        aiCache: Boolean(prefs.aiCache),
+        timestamp: Date.now()
+      };
+      localStorage.setItem('kyr_cookie_consent', JSON.stringify(data));
+      banner.style.display = 'none';
+      modal.style.display = 'none';
+      notify('Privacy preferences saved.');
+    };
+
+    const openPreferencesModal = () => {
+      let current = {};
+      try { current = JSON.parse(localStorage.getItem('kyr_cookie_consent') || '{}'); }
+      catch { current = {}; }
+
+      const telemToggle = $('#pref-telemetry-toggle');
+      const aiToggle = $('#pref-ai-cache-toggle');
+      if (telemToggle) telemToggle.checked = current.telemetry !== false;
+      if (aiToggle) aiToggle.checked = current.aiCache !== false;
+      modal.style.display = 'flex';
+    };
+
+    $('#cookie-accept-all-btn')?.addEventListener('click', () => {
+      saveConsent({ telemetry: true, aiCache: true });
+    });
+
+    $('#cookie-essential-btn')?.addEventListener('click', () => {
+      saveConsent({ telemetry: false, aiCache: false });
+    });
+
+    $('#cookie-customize-btn')?.addEventListener('click', openPreferencesModal);
+    $('#footer-cookie-prefs-btn')?.addEventListener('click', openPreferencesModal);
+    $('#legal-open-cookie-prefs')?.addEventListener('click', openPreferencesModal);
+
+    $('#cookie-modal-close')?.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    $('#cookie-read-policy-btn')?.addEventListener('click', () => {
+      banner.style.display = 'none';
+      switchRoute('legal');
+      openLegalTab('privacy');
+    });
+
+    $('#cookie-save-prefs-btn')?.addEventListener('click', () => {
+      const telemetry = $('#pref-telemetry-toggle')?.checked;
+      const aiCache = $('#pref-ai-cache-toggle')?.checked;
+      saveConsent({ telemetry, aiCache });
+    });
+
+    $('#cookie-save-reject-btn')?.addEventListener('click', () => {
+      saveConsent({ telemetry: false, aiCache: false });
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+  }
+
+  // =========================================================================
   // BOOTSTRAP
   // =========================================================================
   async function init() {
@@ -2547,6 +2675,7 @@ ${p.email || ''} · ${p.phone || ''}`;
     populateForm();
     renderTemplatesGallery();
     setupAuth();
+    initCookieConsent();
 
     const initRoute = window.location.hash.slice(1) || 'dashboard';
     switchRoute(initRoute);

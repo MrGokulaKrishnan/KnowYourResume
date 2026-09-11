@@ -6,7 +6,7 @@
   <title>KnowYourResume — AI Career Operating System</title>
   <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=5.8" />
+  <link rel="stylesheet" href="/styles.css?v=5.9" />
 </head>
 <body>
   <!-- Accessible Skip Link -->
@@ -929,7 +929,318 @@
         </div>
       </div>
     </section>
+
+    <!-- ========================================================================
+         VIEW 7: LEGAL, PRIVACY & COMPLIANCE CENTER
+         ======================================================================== -->
+    <section class="view-panel" id="view-legal" role="tabpanel" aria-labelledby="tab-legal">
+      <div class="legal-hero">
+        <div class="hero-content">
+          <span class="eyebrow-badge">Trust & Compliance</span>
+          <h1 class="view-title">Legal Center & Governance</h1>
+          <p class="view-subtitle">Transparency, data protection, AI ethics, and user privacy standards at KnowYourResume.</p>
+        </div>
+      </div>
+
+      <div class="legal-layout">
+        <!-- Navigation sidebar / tabs -->
+        <nav class="legal-nav-tabs" aria-label="Legal documents navigation">
+          <button type="button" class="legal-tab-btn active" data-legal-tab="privacy">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Privacy Policy</span>
+          </button>
+          <button type="button" class="legal-tab-btn" data-legal-tab="terms">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Terms of Service</span>
+          </button>
+          <button type="button" class="legal-tab-btn" data-legal-tab="disclaimer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>AI & Career Disclaimer</span>
+          </button>
+          <button type="button" class="legal-tab-btn" data-legal-tab="cookies">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><circle cx="8.5" cy="8.5" r="1"/><circle cx="12" cy="15" r="1"/><circle cx="16" cy="11" r="1"/></svg>
+            <span>Cookie & Storage Policy</span>
+          </button>
+          <button type="button" class="legal-tab-btn" data-legal-tab="security">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Security Architecture</span>
+          </button>
+          <button type="button" class="legal-tab-btn" data-legal-tab="accessibility">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+            <span>Accessibility Statement</span>
+          </button>
+        </nav>
+
+        <!-- Document content panels -->
+        <article class="legal-article" id="legal-content-pane">
+          <!-- 1. Privacy Policy -->
+          <section class="legal-section active" data-legal-section="privacy">
+            <div class="legal-meta">
+              <span class="legal-meta-badge">GDPR & CCPA Compliant</span>
+              <span>Effective Date: September 2026</span>
+              <span>Version: 3.2</span>
+            </div>
+            <div class="legal-prose">
+              <h2>Privacy Policy</h2>
+              <p>KnowYourResume ("we," "us," or "our") is dedicated to protecting your career data and personal information. This Privacy Policy details how we collect, process, safeguard, and respect your information when you use our AI Career Operating System.</p>
+              
+              <div class="legal-callout-box">
+                <strong>Our Core Privacy Guarantee:</strong>
+                We never sell, rent, monetize, or broker your personal information or resume drafts. Furthermore, we never use your private resume content to train public or commercial foundation AI models.
+              </div>
+
+              <h3>1. Information We Process</h3>
+              <ul>
+                <li><b>Profile & Career Information:</b> Full name, contact details (email, phone, location), professional summary, employment history, education, skills, projects, and certifications entered into the Resume Builder.</li>
+                <li><b>Uploaded Documents:</b> Resumes uploaded in PDF, DOCX, or TXT formats for ATS scanning. <i>All text extraction is executed on-device in your browser; your original raw files are never stored on our server storage disks.</i></li>
+                <li><b>Job Descriptions:</b> Target job vacancy postings you provide to compute deterministic ATS keyword scores and skill gap analyses.</li>
+                <li><b>Authentication Identifiers:</b> Email address, encrypted authentication tokens, and display names provided via Google OAuth or standard email registration.</li>
+              </ul>
+
+              <h3>2. How We Use Your Information</h3>
+              <ul>
+                <li>To format and generate high-fidelity, ATS-compliant PDF and print resumes.</li>
+                <li>To calculate deterministic ATS keyword match ratios, category breakdowns, and skill gap metrics.</li>
+                <li>To generate tailored bullet points, executive summaries, and interview preparation questions through the Google Gemini API.</li>
+                <li>To synchronize and back up your saved drafts securely across your authenticated devices via Google Cloud Firestore.</li>
+              </ul>
+
+              <h3>3. On-Device Privacy Architecture</h3>
+              <p>Whenever you upload a resume file for ATS analysis or builder import, text parsing is performed entirely inside your browser's local sandbox using compiled WebAssembly and client-side JavaScript (PDF.js / JSZip). Your binary document never leaves your machine unless you choose to sync your structured JSON draft to your private cloud workspace.</p>
+
+              <h3>4. Artificial Intelligence Ethics & Processing</h3>
+              <p>When you invoke AI assistance (e.g., bullet enhancement or summary generation), only the specific section text and optional job description are transmitted ephemerally to Google Gemini API over encrypted TLS 1.3 channels. Google Cloud does not retain or use your personal data to train generative models.</p>
+
+              <h3>5. Your Rights Under GDPR & CCPA</h3>
+              <p>Depending on your jurisdiction, you possess the following statutory rights:</p>
+              <ul>
+                <li><b>Right of Access:</b> You can view all saved resume versions and application records at any time.</li>
+                <li><b>Right to Portability:</b> You can export your master resume data in standardized JSON format or industry-standard PDF at any moment without lock-in.</li>
+                <li><b>Right to Erasure ("Right to be Forgotten"):</b> You can clear all local storage drafts in one click or permanently delete your cloud account and stored drafts from Account Settings.</li>
+                <li><b>Right to Non-Discrimination:</b> We do not discriminate against users who exercise privacy rights.</li>
+              </ul>
+
+              <h3>6. Data Retention & Contact</h3>
+              <p>Guest users retain data solely within their browser's local storage. Authenticated users' encrypted drafts remain stored in Google Cloud Firestore until manually deleted. For privacy inquiries or Data Subject Access Requests (DSAR), contact our Data Protection Officer at: <a href="mailto:privacy@knowyourresume.web.app" class="subtle-link-inline">privacy@knowyourresume.web.app</a>.</p>
+            </div>
+          </section>
+
+          <!-- 2. Terms of Service -->
+          <section class="legal-section" data-legal-section="terms">
+            <div class="legal-meta">
+              <span class="legal-meta-badge">Binding Agreement</span>
+              <span>Effective Date: September 2026</span>
+              <span>Version: 3.2</span>
+            </div>
+            <div class="legal-prose">
+              <h2>Terms of Service</h2>
+              <p>By accessing or utilizing KnowYourResume, you agree to be bound by these Terms of Service. If you disagree with any part of these terms, you must refrain from using the platform.</p>
+
+              <h3>1. User Content & 100% Intellectual Property Ownership</h3>
+              <p>You retain full, exclusive, and unencumbered intellectual property ownership of all career data, resume text, accomplishments, and documents you create or upload on KnowYourResume. We claim zero proprietary rights or copyright over your career materials.</p>
+
+              <h3>2. Acceptable Use Policy</h3>
+              <p>You agree not to use KnowYourResume to:</p>
+              <ul>
+                <li>Upload or distribute malicious code, viruses, corrupted files, or disruptive payloads.</li>
+                <li>Conduct automated scraping, crawling, stress-testing, or data harvesting without prior written consent.</li>
+                <li>Attempt prompt injection, jailbreaking, or adversarial tampering against the underlying AI API.</li>
+                <li>Impersonate another individual or fabricate fraudulent professional credentials in a manner that violates applicable employment laws.</li>
+              </ul>
+
+              <h3>3. Account Security & Responsibilities</h3>
+              <p>You are responsible for maintaining the confidentiality of your login credentials. You must notify us immediately if you suspect unauthorized access to your account.</p>
+
+              <h3>4. Service Availability & Digital Delivery</h3>
+              <p>All KnowYourResume features are delivered electronically as web-based digital applications. We do not provide physical goods or shipping services. While we target 99.9% uptime, services are provided on an "as is" and "as available" basis.</p>
+
+              <h3>5. Limitation of Liability</h3>
+              <p>To the maximum extent permitted by applicable law, KnowYourResume and its operators shall not be liable for any direct, indirect, incidental, special, or consequential damages resulting from your use of the service or any third-party employment outcome.</p>
+            </div>
+          </section>
+
+          <!-- 3. AI & Career Disclaimer -->
+          <section class="legal-section" data-legal-section="disclaimer">
+            <div class="legal-meta">
+              <span class="legal-meta-badge">Important Notice</span>
+              <span>Last Updated: September 2026</span>
+            </div>
+            <div class="legal-prose">
+              <h2>AI Generation & Career Outcome Disclaimer</h2>
+              <div class="legal-callout-box">
+                <strong>Please Read Carefully:</strong>
+                KnowYourResume provides editorial and analytical assistance tools powered by algorithmic heuristics and artificial intelligence. We are not an employment agency, headhunter, or hiring authority.
+              </div>
+
+              <h3>1. Automated AI Recommendations</h3>
+              <p>Our bullet-point optimizations, executive summaries, cover letters, and STAR interview prep questions are synthesized by generative artificial intelligence (Google Gemini API). While designed to elevate readability, action verbs, and business impact, AI-generated text is suggestive only and may occasionally contain inaccuracies or mischaracterize your specific scope of responsibility.</p>
+
+              <h3>2. Sole Responsibility for Factual Truthfulness</h3>
+              <p>You, as the candidate, bear complete and exclusive legal and ethical responsibility for the factual truthfulness, accuracy, and completeness of all statements, job titles, achievements, certifications, and metrics submitted on your resume. You must carefully review, edit, and verify all AI-generated content prior to submitting any job application.</p>
+
+              <h3>3. No Guarantee of Interviews or Employment</h3>
+              <p>KnowYourResume does not guarantee that using our resume builder, templates, or achieving a high ATS score will result in job interviews, job offers, hiring decisions, or salary increases. Hiring processes depend on numerous subjective, market, and company-specific factors outside our platform's control.</p>
+            </div>
+          </section>
+
+          <!-- 4. Cookie & Storage Policy -->
+          <section class="legal-section" data-legal-section="cookies">
+            <div class="legal-meta">
+              <span class="legal-meta-badge">Storage Transparency</span>
+              <span>Last Updated: September 2026</span>
+            </div>
+            <div class="legal-prose">
+              <h2>Cookie & Local Storage Policy</h2>
+              <p>KnowYourResume operates on a privacy-first, minimal-storage philosophy. We do not employ third-party advertising cookies, ad tracking networks, or commercial cross-site surveillance beacons.</p>
+
+              <h3>1. What We Store in Your Browser</h3>
+              <ul>
+                <li><b>Essential Storage (Local Storage & IndexedDB):</b>
+                  <ul>
+                    <li><code>kyr_resume_data</code>: Automatically saves your in-progress resume draft so you never lose your work if your tab closes.</li>
+                    <li><code>kyr_theme</code>: Saves your UI display preference.</li>
+                    <li><code>kyr_cookie_consent</code>: Records your privacy and cookie preference choices.</li>
+                    <li>Firebase Auth Tokens: Secure session tokens managed by Google Identity Toolkit for authenticated account sync.</li>
+                  </ul>
+                </li>
+                <li><b>Optional Performance Cache:</b> Ephemeral in-memory caching of generated bullet alternatives to accelerate responsiveness and avoid duplicate API calls.</li>
+                <li><b>Optional ATS Telemetry:</b> Anonymous match rates to improve our catalogue of technical skill synonyms.</li>
+              </ul>
+
+              <h3>2. Managing Your Preferences</h3>
+              <p>You can adjust your storage preferences at any time by clicking the <button type="button" class="subtle-link-inline" id="legal-open-cookie-prefs">Cookie Preferences</button> button in the site footer, or by clearing your browser's local application storage.</p>
+            </div>
+          </section>
+
+          <!-- 5. Security Architecture -->
+          <section class="legal-section" data-legal-section="security">
+            <div class="legal-meta">
+              <span class="legal-meta-badge">Enterprise Grade</span>
+              <span>SOC2 / ISO 27001 Aligned Standards</span>
+            </div>
+            <div class="legal-prose">
+              <h2>Security Architecture & Data Protection</h2>
+              <p>KnowYourResume is built with defense-in-depth principles to ensure that candidate resumes and personally identifiable information remain strictly private and secure.</p>
+
+              <h3>1. Cryptographic Safeguards</h3>
+              <ul>
+                <li><b>TLS 1.3 Transport Encryption:</b> All data transmitted between your browser and our servers is encrypted using modern TLS 1.3 with Perfect Forward Secrecy.</li>
+                <li><b>AES-256 Storage Encryption:</b> Cloud backups stored in Google Cloud Firestore are encrypted at rest using industry-standard AES-256 keys.</li>
+                <li><b>Zero File Storage:</b> Uploaded resume files (PDF, Word) are decoded in client memory and discarded immediately after text extraction; no physical resume files reside on our backend file systems.</li>
+              </ul>
+
+              <h3>2. Authorization & Database Security Rules</h3>
+              <p>Our Cloud Firestore database rules strictly enforce ownership boundaries: only authenticated requests where <code>request.auth.uid == resource.data.userId</code> are permitted to read or write resume documents. Unauthorized cross-account access is cryptographically blocked at the database kernel.</p>
+
+              <h3>3. Responsible Vulnerability Disclosure</h3>
+              <p>We welcome vulnerability reports from ethical cybersecurity researchers. If you discover a security flaw, please notify our security team at <a href="mailto:security@knowyourresume.web.app" class="subtle-link-inline">security@knowyourresume.web.app</a>. We commit to acknowledging receipt within 24 hours and resolving confirmed issues promptly.</p>
+            </div>
+          </section>
+
+          <!-- 6. Accessibility Statement -->
+          <section class="legal-section" data-legal-section="accessibility">
+            <div class="legal-meta">
+              <span class="legal-meta-badge">WCAG 2.1 Level AA</span>
+              <span>Accessibility Commitment</span>
+            </div>
+            <div class="legal-prose">
+              <h2>Accessibility Statement</h2>
+              <p>KnowYourResume is committed to ensuring digital accessibility for individuals with disabilities. We continually improve the user experience for everyone and apply relevant accessibility standards.</p>
+
+              <h3>1. Conformance Status</h3>
+              <p>We target full conformance with the <b>Web Content Accessibility Guidelines (WCAG) 2.1 Level AA</b>. These guidelines define how to make web content more accessible to people with disabilities.</p>
+
+              <h3>2. Accessibility Features Implemented</h3>
+              <ul>
+                <li><b>Keyboard Operability:</b> Complete navigation accessible via Tab, Shift+Tab, and Enter. Keyboard shortcuts include <kbd>Ctrl+S</kbd> (Save), <kbd>Ctrl+P</kbd> (Download/Print), and <kbd>Escape</kbd> (Close dialogs).</li>
+                <li><b>High-Contrast Typography:</b> Text and icons meet or exceed the 4.5:1 minimum contrast ratio against our dark glass backgrounds.</li>
+                <li><b>Screen Reader Support:</b> Form inputs feature explicit <code>&lt;label&gt;</code> associations, button icons include descriptive <code>aria-label</code> tags, and dialogs are bound with <code>role="dialog"</code> and <code>aria-modal="true"</code>.</li>
+                <li><b>Reduced Motion Support:</b> Respects <code>prefers-reduced-motion: reduce</code> to disable continuous background ambient glow and spin animations.</li>
+              </ul>
+
+              <h3>3. Feedback & Assistance</h3>
+              <p>If you encounter any accessibility barriers or require assistance in accessing our platform, please reach out to our accessibility coordinator at <a href="mailto:accessibility@knowyourresume.web.app" class="subtle-link-inline">accessibility@knowyourresume.web.app</a>.</p>
+            </div>
+          </section>
+        </article>
+      </div>
+    </section>
   </main>
+
+  <!-- ========================================================================
+       UNIVERSAL PRODUCTION SITE FOOTER
+       ======================================================================== -->
+  <footer class="site-footer" id="main-site-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <!-- Col 1: Brand & Bio -->
+        <div class="footer-brand-col">
+          <div class="brand">
+            <img src="/assets/kr-logo.jpeg" alt="Logo" class="brand-logo" width="32" height="32" />
+            <span class="brand-text">KnowYour<b>Resume</b></span>
+          </div>
+          <p class="footer-bio">
+            The AI Career Operating System. Engineered with client-side document privacy, deterministic ATS matching, and Gemini career intelligence.
+          </p>
+          <div class="footer-security-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>100% On-Device Document Extraction</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Platform -->
+        <div class="footer-nav-col">
+          <h4 class="footer-heading">Platform</h4>
+          <ul class="footer-links">
+            <li><button type="button" class="footer-link-btn" data-route="dashboard">Dashboard Overview</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="resume">Resume Builder</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="ats">ATS Scanner</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="templates">Executive Templates</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="ai">AI Career Studio</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="applications">Applications Tracker</button></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Legal & Trust -->
+        <div class="footer-nav-col">
+          <h4 class="footer-heading">Trust & Legal</h4>
+          <ul class="footer-links">
+            <li><button type="button" class="footer-link-btn" data-route="legal" data-legal-target="privacy">Privacy Policy</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="legal" data-legal-target="terms">Terms of Service</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="legal" data-legal-target="disclaimer">AI & Career Disclaimer</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="legal" data-legal-target="cookies">Cookie & Storage Policy</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="legal" data-legal-target="security">Security Architecture</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="legal" data-legal-target="accessibility">Accessibility Statement</button></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Account & Preferences -->
+        <div class="footer-nav-col">
+          <h4 class="footer-heading">Account & Privacy</h4>
+          <ul class="footer-links">
+            <li><button type="button" class="footer-link-btn" data-route="settings">Account Settings</button></li>
+            <li><button type="button" class="footer-link-btn" id="footer-cookie-prefs-btn">Cookie Preferences</button></li>
+            <li><button type="button" class="footer-link-btn" id="footer-clear-drafts-btn">Reset Local Draft</button></li>
+            <li><span class="system-status-indicator"><span class="status-dot"></span> Cloud Services Online</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+          © 2026 KnowYourResume. All rights reserved. Zero resume data sale guarantee.
+        </div>
+        <div class="footer-badges">
+          <span class="footer-badge">🔒 AES-256 & TLS 1.3</span>
+          <span class="footer-badge">🛡️ GDPR & CCPA Ready</span>
+          <button type="button" class="footer-back-to-top" id="footer-back-to-top" aria-label="Back to Top">
+            <span>Top</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <!-- ========================================================================
        FLOATING MOBILE BOTTOM DOCK (APPLE/LINEAR GRADE)
@@ -1127,9 +1438,83 @@
   <!-- Glass Toast Notification (Populated dynamically on action completion) -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <!-- ========================================================================
+       COOKIE CONSENT BANNER & PREFERENCES (GDPR / CCPA COMPLIANCE)
+       ======================================================================== -->
+  <div class="cookie-consent-banner" id="cookie-consent-banner" role="dialog" aria-live="polite" style="display: none;">
+    <div class="cookie-banner-inner">
+      <div class="cookie-banner-text">
+        <div class="cookie-banner-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><circle cx="8.5" cy="8.5" r="1"/><circle cx="12" cy="15" r="1"/><circle cx="16" cy="11" r="1"/></svg>
+          <strong>Privacy & Cookie Preferences</strong>
+        </div>
+        <p>
+          We use essential browser storage for autosaving your resume drafts and authentication, and optional telemetry to improve ATS keyword detection. We never sell your personal data or train public AI models on your resumes.
+          <button type="button" class="subtle-link-inline" id="cookie-read-policy-btn">Read our Privacy Policy</button>.
+        </p>
+      </div>
+      <div class="cookie-banner-actions">
+        <button type="button" class="btn btn-secondary btn-sm" id="cookie-essential-btn">Essential Only</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="cookie-customize-btn">Customize</button>
+        <button type="button" class="btn btn-primary btn-sm" id="cookie-accept-all-btn">Accept All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cookie Preferences Modal -->
+  <div class="modal-overlay" id="cookie-modal" style="display: none;">
+    <div class="modal-box cookie-modal-box">
+      <button type="button" class="modal-close-btn" id="cookie-modal-close" aria-label="Close Modal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <div class="auth-box-header">
+        <h2 style="font-size: 18px; font-weight: 700;">Storage & Cookie Preferences</h2>
+        <p style="font-size: 12.5px; color: var(--text-medium); margin-top: 4px;">Customize how KnowYourResume stores data in your browser.</p>
+      </div>
+
+      <div class="cookie-pref-options">
+        <div class="cookie-pref-row">
+          <div class="cookie-pref-info">
+            <strong>Essential Local Storage</strong>
+            <p>Required for resume draft autosaving, template selection, and secure authentication tokens. Cannot be disabled.</p>
+          </div>
+          <span class="cookie-badge-locked">Always Active</span>
+        </div>
+
+        <div class="cookie-pref-row">
+          <div class="cookie-pref-info">
+            <strong>ATS & Career Telemetry</strong>
+            <p>Anonymous aggregated metric tracking to identify common missing ATS skills and enhance keyword recommendations.</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-telemetry-toggle" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="cookie-pref-row">
+          <div class="cookie-pref-info">
+            <strong>AI Response Acceleration Cache</strong>
+            <p>Locally caches optimized bullet alternatives in browser memory to accelerate repeated AI queries and reduce API calls.</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="pref-ai-cache-toggle" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions end" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn btn-secondary" id="cookie-save-reject-btn">Reject Non-Essential</button>
+        <button type="button" class="btn btn-primary" id="cookie-save-prefs-btn">Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=5.8"></script>
+  <script type="module" src="/app.js?v=5.9"></script>
 </body>
 </html>
