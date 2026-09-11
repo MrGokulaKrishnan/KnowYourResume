@@ -3656,3 +3656,36 @@ button {
   outline: 2px solid var(--gold-start);
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   VECTOR STATUS ICONS (Tick / Cross)
+   ========================================================================== */
+.tick-svg-icon,
+.cross-svg-icon {
+  display: inline-block;
+  vertical-align: -0.15em;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+.btn .tick-svg-icon,
+.btn .cross-svg-icon {
+  vertical-align: -0.15em;
+  margin-right: 6px;
+}
+
+.eyebrow-badge .tick-svg-icon {
+  vertical-align: -0.08em;
+  margin-right: 3px;
+}
+
+.kw-tag .tick-svg-icon,
+.kw-tag .cross-svg-icon {
+  vertical-align: -0.1em;
+}
+
+.file-status .tick-svg-icon {
+  vertical-align: -0.15em;
+  margin-right: 4px;
+  color: #34d399;
+}

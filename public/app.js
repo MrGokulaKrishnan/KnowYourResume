@@ -158,6 +158,14 @@ import {
     return esc(value).replace(/\n/g, '<br>');
   }
 
+  function svgTick(size = 14, strokeWidth = 2.8, extraClass = '') {
+    return `<svg class="tick-svg-icon ${extraClass}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  }
+
+  function svgCross(size = 14, strokeWidth = 2.5, extraClass = '') {
+    return `<svg class="cross-svg-icon ${extraClass}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+  }
+
   function notify(message) {
     const toast = $('#toast');
     if (!toast) return;
@@ -585,7 +593,7 @@ import {
     container.innerHTML = state.resume.skills.map((skill, idx) => `
       <span class="chip">
         <span>${esc(skill)}</span>
-        <button type="button" data-remove-skill="${idx}" aria-label="Remove skill">✕</button>
+        <button type="button" data-remove-skill="${idx}" aria-label="Remove skill">${svgCross(11, 2.5)}</button>
       </span>`).join('');
   }
 
@@ -751,12 +759,12 @@ import {
           <div class="template-card-body">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
               <h3 style="font-size: 16px; font-weight: 750;">${esc(tmpl.name)}</h3>
-              ${isSelected ? '<span class="eyebrow-badge" style="background: rgba(255,214,0,0.18); border-color: rgba(255,214,0,0.4); color: var(--gold-start);">✓ Active</span>' : `<span class="badge-subtle">${esc(tmpl.tag)}</span>`}
+              ${isSelected ? `<span class="eyebrow-badge active-template-badge" style="background: rgba(255,214,0,0.18); border-color: rgba(255,214,0,0.4); color: var(--gold-start);">${svgTick(12, 3)} Active</span>` : `<span class="badge-subtle">${esc(tmpl.tag)}</span>`}
             </div>
             <p style="font-size: 12px; color: var(--text-medium); margin-bottom: 10px; line-height: 1.45;">${esc(tmpl.desc)}</p>
             <div style="font-size: 11.5px; color: var(--gold-start); margin-bottom: 16px; font-weight: 550;"><b>Best for:</b> ${esc(tmpl.suit)}</div>
             <button type="button" class="btn ${isSelected ? 'btn-primary' : 'btn-secondary'} btn-sm full-width" data-use-template="${tmpl.id}">
-              <span>${isSelected ? '✓ Currently in Builder' : 'Select Template →'}</span>
+              <span>${isSelected ? `${svgTick(14, 2.8)} Currently in Builder` : 'Select Template →'}</span>
             </button>
           </div>
         </div>`;
@@ -877,12 +885,12 @@ import {
     const matchedTags = (result.keywords || [])
       .filter((k) => k.matchType === 'Exact match' || k.matchType === 'Partial match')
       .slice(0, 16)
-      .map((k) => `<span class="kw-tag exact" data-kw="${esc(k.keyword)}">✓ ${esc(k.keyword)} (${k.resumeFrequency}x)</span>`)
+      .map((k) => `<span class="kw-tag exact" data-kw="${esc(k.keyword)}">${svgTick(11, 2.6)} ${esc(k.keyword)} (${k.resumeFrequency}x)</span>`)
       .join('');
 
     const missingTags = (result.missingKeywords || [])
       .slice(0, 16)
-      .map((k) => `<span class="kw-tag missing" data-missing-kw="${esc(k.keyword || k)}">✕ ${esc(k.keyword || k)}</span>`)
+      .map((k) => `<span class="kw-tag missing" data-missing-kw="${esc(k.keyword || k)}">${svgCross(11, 2.6)} ${esc(k.keyword || k)}</span>`)
       .join('');
 
     const skillGroupHtml = (result.skillGroups || []).map((grp) => `
@@ -1066,7 +1074,7 @@ import {
       const textContent = await extractDocumentText(file);
       state.uploadedResumeText = textContent;
       state.uploadedResumeName = file.name;
-      if (status) status.textContent = `✓ Loaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      if (status) status.innerHTML = `${svgTick(13, 2.8)} Loaded: ${esc(file.name)} (${(file.size / 1024).toFixed(1)} KB)`;
       notify(`Resume file loaded: ${file.name}`);
       if (state.jobDescription || $('#job-description-input')?.value.trim()) {
         runAtsAnalysis();
@@ -1095,7 +1103,7 @@ import {
         renderPreview();
         scheduleSave();
         switchRoute('resume');
-        notify(`✓ Resume "${file.name}" imported into Builder!`);
+        notify(`Resume "${file.name}" imported into Builder!`);
       }
     } catch (err) {
       notify(`Import failed: ${err.message}`);
@@ -1113,7 +1121,7 @@ import {
       const textContent = await extractDocumentText(file);
       $('#job-description-input').value = textContent;
       state.jobDescription = textContent;
-      if (status) status.textContent = `✓ Loaded: ${file.name}`;
+      if (status) status.innerHTML = `${svgTick(13, 2.8)} Loaded: ${esc(file.name)}`;
       notify(`Loaded ${file.name}`);
       if (state.uploadedResumeText || state.resume) {
         runAtsAnalysis();
@@ -1246,7 +1254,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       try {
         await navigator.clipboard.writeText(summaryText);
         e.target.closest('button').classList.add('copy-btn-success');
-        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        e.target.closest('button').innerHTML = `<span>${svgTick(14, 2.8)} Copied!</span>`;
         notify('Summary copied to clipboard!');
         setTimeout(() => {
           if (e.target.closest('button')) {
@@ -1264,7 +1272,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       populateForm();
       scheduleSave();
       closeAiModal();
-      notify('✓ Executive summary inserted into your resume.');
+      notify('Executive summary inserted into your resume.');
     });
   }
 
@@ -1309,7 +1317,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       try {
         await navigator.clipboard.writeText(alt);
         e.target.closest('button').classList.add('copy-btn-success');
-        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        e.target.closest('button').innerHTML = `<span>${svgTick(14, 2.8)} Copied!</span>`;
         notify('Optimized bullets copied!');
         setTimeout(() => {
           if (e.target.closest('button')) {
@@ -1328,7 +1336,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       renderPreview();
       scheduleSave();
       closeAiModal();
-      notify(`✓ Optimized bullets applied to Position #${index + 1}.`);
+      notify(`Optimized bullets applied to Position #${index + 1}.`);
     });
   }
 
@@ -1411,7 +1419,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       try {
         await navigator.clipboard.writeText(letterText);
         e.target.closest('button').classList.add('copy-btn-success');
-        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        e.target.closest('button').innerHTML = `<span>${svgTick(14, 2.8)} Copied!</span>`;
         notify('Cover letter copied to clipboard!');
         setTimeout(() => {
           if (e.target.closest('button')) {
@@ -1479,7 +1487,7 @@ ${p.email || ''} · ${p.phone || ''}`;
         ].join('\n');
         await navigator.clipboard.writeText(fullQuestions);
         e.target.closest('button').classList.add('copy-btn-success');
-        e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+        e.target.closest('button').innerHTML = `<span>${svgTick(14, 2.8)} Copied!</span>`;
         notify('Interview questions copied!');
         setTimeout(() => {
           if (e.target.closest('button')) {
@@ -1507,16 +1515,16 @@ ${p.email || ''} · ${p.phone || ''}`;
         resume: state.resume,
         jobDescription: jd
       });
-      const matched = (data.matched || []).map((s) => `<span class="kw-tag exact">✓ ${esc(s)}</span>`).join('');
-      const gaps = (data.gaps || []).map((s) => `<span class="kw-tag missing">✕ ${esc(s)}</span>`).join('');
+      const matched = (data.matched || []).map((s) => `<span class="kw-tag exact">${svgTick(12, 2.8)} ${esc(s)}</span>`).join('');
+      const gaps = (data.gaps || []).map((s) => `<span class="kw-tag missing">${svgCross(12, 2.5)} ${esc(s)}</span>`).join('');
       const guidance = (data.guidance || []).map((g) => `<li style="font-size: 12.5px; color: var(--text-medium); margin-bottom: 6px;">${esc(g)}</li>`).join('');
 
       openAiModal('✦ Career Skill Gap Analysis', `
         <div class="ai-diff-box">
-          <h4 style="font-size: 13px; font-weight: 700; color: #4ade80; margin-bottom: 8px;">✓ Verified Matching Competencies:</h4>
+          <h4 style="font-size: 13px; font-weight: 700; color: #4ade80; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">${svgTick(14, 2.8)} Verified Matching Competencies:</h4>
           <div class="keyword-tags-row" style="margin-bottom: 16px;">${matched || '<span style="color: var(--text-muted); font-size: 11px;">No exact skill matches identified.</span>'}</div>
 
-          <h4 style="font-size: 13px; font-weight: 700; color: #f87171; margin-bottom: 8px;">✕ High-Priority Skill Gaps in JD:</h4>
+          <h4 style="font-size: 13px; font-weight: 700; color: #f87171; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">${svgCross(14, 2.5)} High-Priority Skill Gaps in JD:</h4>
           <div class="keyword-tags-row" style="margin-bottom: 16px;">${gaps || '<span style="color: var(--text-muted); font-size: 11px;">No skill gaps detected!</span>'}</div>
 
           ${guidance ? `<h4 style="font-size: 13px; font-weight: 700; color: var(--gold-start); margin-bottom: 8px;">✦ Recommended Learning & Career Pathway:</h4><ul style="margin-left: 18px;">${guidance}</ul>` : ''}
@@ -1543,7 +1551,7 @@ ${p.email || ''} · ${p.phone || ''}`;
           ].join('\n');
           await navigator.clipboard.writeText(gapReport);
           e.target.closest('button').classList.add('copy-btn-success');
-          e.target.closest('button').innerHTML = '<span>✓ Copied!</span>';
+          e.target.closest('button').innerHTML = `<span>${svgTick(14, 2.8)} Copied!</span>`;
           notify('Gap analysis copied!');
           setTimeout(() => {
             if (e.target.closest('button')) {
@@ -1896,7 +1904,7 @@ ${p.email || ''} · ${p.phone || ''}`;
           }
         }
 
-        if (dashAuthText) dashAuthText.textContent = '✓ Synced · Manage Account';
+        if (dashAuthText) dashAuthText.innerHTML = `${svgTick(13, 2.8)} Synced · Manage Account`;
         if (dashWorkspaceBadge) {
           dashWorkspaceBadge.innerHTML = '<span style="color: var(--emerald-success);">●</span> Cloud Workspace Synced';
           dashWorkspaceBadge.style.borderColor = 'rgba(52, 211, 153, 0.35)';
@@ -2440,7 +2448,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         saveNow();
-        notify('✓ Resume saved successfully.');
+        notify('Resume saved successfully.');
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         downloadResumePdf();
