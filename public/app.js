@@ -269,21 +269,74 @@ import {
   }
 
   // =========================================================================
-  // ROUTING & NAVIGATION
+  // ROUTING & NAVIGATION (CLEAN PATH WITH HTML5 HISTORY API)
   // =========================================================================
-  function switchRoute(route) {
-    const validRoutes = ['dashboard', 'resume', 'ats', 'templates', 'ai', 'applications', 'settings', 'legal', 'faq', 'help', '404', '500'];
-    let target = 'dashboard';
-    if (!route || route === 'index' || route === 'home') {
-      target = 'dashboard';
-    } else if (route === 'help') {
-      target = 'faq';
-    } else if (validRoutes.includes(route)) {
-      target = route;
-    } else {
-      target = '404';
+  const ROUTE_TITLES = {
+    dashboard: 'Dashboard — KnowYourResume',
+    resume: 'Resume Builder — KnowYourResume',
+    ats: 'ATS Compatibility Scanner — KnowYourResume',
+    templates: 'Templates Gallery — KnowYourResume',
+    ai: 'AI Career Studio — KnowYourResume',
+    applications: 'Job Applications — KnowYourResume',
+    settings: 'Account Settings — KnowYourResume',
+    pricing: 'Pricing & Pro Plans — KnowYourResume',
+    'payment-success': 'Payment Confirmed — KnowYourResume Pro',
+    'payment-failed': 'Payment Incomplete — KnowYourResume',
+    legal: 'Legal Center & Governance — KnowYourResume',
+    faq: 'Help Center & Knowledge Base — KnowYourResume',
+    '404': '404 Not Found — KnowYourResume',
+    '500': 'Service Unavailable — KnowYourResume'
+  };
+
+  function normalizeRoute(route) {
+    const raw = (route || '').toLowerCase().replace(/^[#/]+/, '').replace(/\/+$/, '').trim();
+    if (!raw || raw === 'dashboard' || raw === 'home' || raw === 'index' || raw === 'index.html') return 'dashboard';
+    if (raw === 'resume' || raw === 'builder') return 'resume';
+    if (raw === 'ats' || raw === 'scan' || raw === 'scanner') return 'ats';
+    if (raw === 'templates' || raw === 'template') return 'templates';
+    if (raw === 'ai' || raw === 'tools' || raw === 'studio') return 'ai';
+    if (raw === 'applications' || raw === 'pipeline' || raw === 'jobs') return 'applications';
+    if (raw === 'settings' || raw === 'account') return 'settings';
+    if (raw === 'pricing' || raw === 'plans' || raw === 'upgrade') return 'pricing';
+    if (raw === 'payment-success' || raw === 'success') return 'payment-success';
+    if (raw === 'payment-failed' || raw === 'failed') return 'payment-failed';
+    if (raw === 'legal' || raw === 'privacy' || raw === 'terms') return 'legal';
+    if (raw === 'faq' || raw === 'help' || raw === 'support') return 'faq';
+    if (raw === '404') return '404';
+    if (raw === '500') return '500';
+    return '404';
+  }
+
+  function parseCurrentRoute() {
+    // 1. If hash exists, prioritize it for legacy bookmark compatibility
+    if (window.location.hash) {
+      const hash = window.location.hash.slice(1);
+      return normalizeRoute(hash);
     }
-    window.location.hash = target;
+    // 2. Otherwise read the clean path from window.location.pathname
+    const path = window.location.pathname.replace(/^\/|\/$/g, '');
+    return normalizeRoute(path);
+  }
+
+  function switchRoute(route, pushState = true) {
+    const target = normalizeRoute(route);
+    const targetPath = target === 'dashboard' ? '/dashboard' : `/${target}`;
+
+    // Seamless URL update: replace hash with clean path or pushState
+    try {
+      if (window.location.hash) {
+        window.history.replaceState({ route: target }, '', targetPath);
+      } else if (pushState && window.location.pathname !== targetPath) {
+        window.history.pushState({ route: target }, '', targetPath);
+      }
+    } catch {
+      // Browser history sandbox fallback
+    }
+
+    // Dynamic Title
+    if (ROUTE_TITLES[target]) {
+      document.title = ROUTE_TITLES[target];
+    }
 
     $$('.view-panel').forEach((panel) => {
       panel.classList.toggle('active', panel.id === `view-${target}`);
@@ -303,9 +356,11 @@ import {
       }
       applyZoom();
     }
-    if (target === 'legal' || target === 'faq' || target === '404' || target === '500') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (target === 'payment-success') {
+      initPaymentSuccessView();
     }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function triggerSessionExpired(reason = 'Authentication session has timed out.') {
@@ -2071,6 +2126,20 @@ ${p.email || ''} · ${p.phone || ''}`;
         return;
       }
 
+      // Intercept clean anchor links (e.g. <a href="/dashboard"> or <a href="/pricing">)
+      const link = e.target.closest('a');
+      if (link && !e.defaultPrevented) {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('/') && !href.startsWith('//') && !href.startsWith('/api') && !href.startsWith('/assets') && !href.endsWith('.jpeg') && !href.endsWith('.png') && !href.endsWith('.pdf')) {
+          e.preventDefault();
+          const route = href.replace(/^\//, '');
+          switchRoute(route);
+          const drawer = $('#mobile-drawer-overlay');
+          if (drawer) drawer.style.display = 'none';
+          return;
+        }
+      }
+
       const legalTabBtn = e.target.closest('[data-legal-tab]');
       if (legalTabBtn) {
         openLegalTab(legalTabBtn.dataset.legalTab);
@@ -2646,9 +2715,14 @@ ${p.email || ''} · ${p.phone || ''}`;
       e.target.reset();
     });
 
+    window.addEventListener('popstate', () => {
+      const route = parseCurrentRoute();
+      switchRoute(route, false);
+    });
+
     window.addEventListener('hashchange', () => {
-      const hash = window.location.hash.slice(1);
-      switchRoute(hash);
+      const route = parseCurrentRoute();
+      switchRoute(route, true);
     });
 
     window.addEventListener('online', () => {
@@ -2753,6 +2827,218 @@ ${p.email || ''} · ${p.phone || ''}`;
   }
 
   // =========================================================================
+  // PRICING, CHECKOUT & CUSTOMER LIFECYCLE
+  // =========================================================================
+  function initPricingAndLifecycle() {
+    let billingCycle = 'monthly';
+    let discountApplied = false;
+
+    const monthlyBtn = $('#billing-monthly-btn');
+    const annualBtn = $('#billing-annual-btn');
+    const proPriceVal = $('#pro-price-val');
+    const proPricePeriod = $('#pro-price-period');
+    const proBillingNote = $('#pro-billing-note');
+
+    const updatePricingDisplay = (cycle) => {
+      billingCycle = cycle;
+      if (cycle === 'annual') {
+        annualBtn?.classList.add('active');
+        monthlyBtn?.classList.remove('active');
+        if (proPriceVal) proPriceVal.textContent = '8';
+        if (proPricePeriod) proPricePeriod.textContent = '/ month';
+        if (proBillingNote) proBillingNote.textContent = 'Billed annually ($96/year). Save 33%.';
+      } else {
+        monthlyBtn?.classList.add('active');
+        annualBtn?.classList.remove('active');
+        if (proPriceVal) proPriceVal.textContent = '12';
+        if (proPricePeriod) proPricePeriod.textContent = '/ month';
+        if (proBillingNote) proBillingNote.textContent = 'Billed monthly. Cancel anytime.';
+      }
+    };
+
+    monthlyBtn?.addEventListener('click', () => updatePricingDisplay('monthly'));
+    annualBtn?.addEventListener('click', () => updatePricingDisplay('annual'));
+
+    // Checkout Modal Elements
+    const checkoutModal = $('#upgrade-checkout-modal');
+    const promoInput = $('#checkout-promo-input');
+    const promoBtn = $('#checkout-promo-btn');
+    const promoMsg = $('#checkout-promo-msg');
+    const summaryBase = $('#summary-base-price');
+    const summaryDiscountLine = $('#summary-discount-line');
+    const summaryDiscountAmt = $('#summary-discount-amount');
+    const summaryTotal = $('#summary-total-price');
+    const planAnnualRadio = $('#checkout-plan-annual');
+    const planMonthlyRadio = $('#checkout-plan-monthly');
+
+    const updateCheckoutSummary = () => {
+      const isAnnual = planAnnualRadio?.checked ?? true;
+      const base = isAnnual ? 96.00 : 12.00;
+      if (summaryBase) summaryBase.textContent = `$${base.toFixed(2)}`;
+
+      if (discountApplied) {
+        const discount = base * 0.20;
+        const total = base - discount;
+        if (summaryDiscountLine) summaryDiscountLine.style.display = 'flex';
+        if (summaryDiscountAmt) summaryDiscountAmt.textContent = `-$${discount.toFixed(2)}`;
+        if (summaryTotal) summaryTotal.textContent = `$${total.toFixed(2)}`;
+      } else {
+        if (summaryDiscountLine) summaryDiscountLine.style.display = 'none';
+        if (summaryTotal) summaryTotal.textContent = `$${base.toFixed(2)}`;
+      }
+    };
+
+    const openCheckout = (preferredPlan = billingCycle) => {
+      if (preferredPlan === 'annual' && planAnnualRadio) {
+        planAnnualRadio.checked = true;
+      } else if (planMonthlyRadio) {
+        planMonthlyRadio.checked = true;
+      }
+      updateCheckoutSummary();
+      if (checkoutModal) checkoutModal.style.display = 'flex';
+    };
+
+    planAnnualRadio?.addEventListener('change', updateCheckoutSummary);
+    planMonthlyRadio?.addEventListener('change', updateCheckoutSummary);
+
+    promoBtn?.addEventListener('click', () => {
+      const code = (promoInput?.value || '').trim().toUpperCase();
+      if (code === 'CAREERPRO') {
+        discountApplied = true;
+        if (promoMsg) {
+          promoMsg.textContent = '✓ 20% discount code CAREERPRO applied successfully!';
+          promoMsg.className = 'promo-feedback success';
+          promoMsg.style.display = 'block';
+        }
+        updateCheckoutSummary();
+      } else if (!code) {
+        if (promoMsg) {
+          promoMsg.textContent = 'Please enter a promo code.';
+          promoMsg.className = 'promo-feedback error';
+          promoMsg.style.display = 'block';
+        }
+      } else {
+        if (promoMsg) {
+          promoMsg.textContent = 'Invalid promo code. Try "CAREERPRO" for 20% off.';
+          promoMsg.className = 'promo-feedback error';
+          promoMsg.style.display = 'block';
+        }
+      }
+    });
+
+    // Upgrade buttons
+    $('#pricing-upgrade-pro-btn')?.addEventListener('click', () => openCheckout());
+    $('#payment-failed-retry-btn')?.addEventListener('click', () => openCheckout());
+    $('#checkout-modal-close')?.addEventListener('click', () => {
+      if (checkoutModal) checkoutModal.style.display = 'none';
+    });
+
+    checkoutModal?.addEventListener('click', (e) => {
+      if (e.target === checkoutModal) checkoutModal.style.display = 'none';
+    });
+
+    // Simulated Checkout Form Submission
+    $('#checkout-sim-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      try {
+        localStorage.setItem('kyr_pro_tier', 'true');
+      } catch {}
+      if (checkoutModal) checkoutModal.style.display = 'none';
+      switchRoute('payment-success');
+      notify('Pro membership activated! Unlimited AI & ATS tools are now unlocked.', 'success');
+    });
+
+    // Contact Enterprise Button
+    $('#pricing-contact-enterprise-btn')?.addEventListener('click', () => {
+      switchRoute('faq');
+      const subjectInput = $('#support-subject');
+      if (subjectInput) subjectInput.value = 'Enterprise Multi-Seat Inquiry';
+      const form = $('#support-inquiry-form');
+      if (form) form.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Print Receipt
+    $('#receipt-print-btn')?.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  function initPaymentSuccessView() {
+    const orderIdEl = $('#receipt-order-id');
+    const dateEl = $('#receipt-date');
+    if (orderIdEl && (!orderIdEl.textContent || orderIdEl.textContent === 'KYR-PRO-89421')) {
+      orderIdEl.textContent = `KYR-PRO-${Math.floor(100000 + Math.random() * 900000)}`;
+    }
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+  }
+
+  // =========================================================================
+  // FIRST-TIME USER ONBOARDING TOUR
+  // =========================================================================
+  function initOnboardingTour() {
+    const modal = $('#onboarding-welcome-modal');
+    if (!modal) return;
+
+    let completed = false;
+    try {
+      completed = localStorage.getItem('kyr_onboarding_completed') === 'true';
+    } catch {
+      completed = false;
+    }
+
+    if (!completed) {
+      setTimeout(() => {
+        modal.style.display = 'flex';
+      }, 700);
+    }
+
+    const dismiss = () => {
+      const dontShow = $('#onboarding-dont-show-toggle')?.checked ?? true;
+      if (dontShow) {
+        try {
+          localStorage.setItem('kyr_onboarding_completed', 'true');
+        } catch {}
+      }
+      modal.style.display = 'none';
+    };
+
+    $('#onboarding-close-btn')?.addEventListener('click', dismiss);
+    $('#onboarding-skip-btn')?.addEventListener('click', dismiss);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) dismiss();
+    });
+
+    // Card 1: Import
+    $('#onboarding-import-card')?.addEventListener('click', () => {
+      dismiss();
+      $('#import-resume-file-input')?.click();
+    });
+
+    // Card 2: Sample
+    $('#onboarding-sample-card')?.addEventListener('click', () => {
+      dismiss();
+      state.resume = sampleResume();
+      saveState();
+      populateForm();
+      renderLivePreview();
+      switchRoute('resume');
+      notify('Master Senior Engineer profile loaded into builder.', 'success');
+    });
+
+    // Card 3: Scratch Builder
+    $('#onboarding-scratch-card')?.addEventListener('click', () => {
+      dismiss();
+      switchRoute('resume');
+    });
+  }
+
+  // =========================================================================
   // BOOTSTRAP
   // =========================================================================
   async function init() {
@@ -2762,9 +3048,11 @@ ${p.email || ''} · ${p.phone || ''}`;
     renderTemplatesGallery();
     setupAuth();
     initCookieConsent();
+    initPricingAndLifecycle();
+    initOnboardingTour();
 
-    const initRoute = window.location.hash.slice(1) || 'dashboard';
-    switchRoute(initRoute);
+    const initRoute = parseCurrentRoute();
+    switchRoute(initRoute, false);
 
     try {
       const res = await fetch('/api/config/firebase');

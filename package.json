@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test tests/ats-engine.test.js tests/server-ai.test.js tests/auth.test.js",
+    "test": "node --test tests/ats-engine.test.js tests/server-ai.test.js tests/auth.test.js tests/router-lifecycle.test.js",
     "lint": "node --check server.js && node --check lib/ats-engine.js && node --check public/app.js && node --check public/lib/firebase-auth.js"
   },
   "engines": {

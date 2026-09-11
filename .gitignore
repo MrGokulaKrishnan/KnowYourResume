@@ -31,3 +31,4 @@ Thumbs.db
 # Coverage and test output
 coverage/
 .nyc_output/
+scratch/

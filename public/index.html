@@ -6,7 +6,7 @@
   <title>KnowYourResume — AI Career Operating System</title>
   <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=6.0" />
+  <link rel="stylesheet" href="/styles.css?v=6.1" />
 </head>
 <body>
   <!-- Accessible Skip Link -->
@@ -32,7 +32,7 @@
        ======================================================================== -->
   <header class="navbar">
     <div class="nav-left">
-      <a href="#dashboard" class="brand" data-route="dashboard">
+      <a href="/dashboard" class="brand" data-route="dashboard">
         <img src="/assets/kr-logo.jpeg" alt="KnowYourResume Logo" class="brand-logo" width="34" height="34" />
         <span class="brand-text">KnowYour<b>Resume</b></span>
       </a>
@@ -61,6 +61,10 @@
         <button type="button" class="nav-btn" data-route="applications">
           <svg class="nav-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           <span>Applications</span>
+        </button>
+        <button type="button" class="nav-btn" data-route="pricing">
+          <svg class="nav-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Pricing</span>
         </button>
         <button type="button" class="nav-btn" data-route="settings">
           <svg class="nav-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1394,6 +1398,417 @@
         </div>
       </div>
     </section>
+
+    <!-- ========================================================================
+         PRICING & LIFECYCLE VIEW
+         ======================================================================== -->
+    <section class="view-panel" id="view-pricing" role="tabpanel" aria-labelledby="tab-pricing">
+      <div class="pricing-hero">
+        <span class="eyebrow-badge">✦ Transparent Investment</span>
+        <h1 class="view-title">Simple, Powerful Career Pricing</h1>
+        <p class="view-subtitle">Accelerate your job search with deterministic ATS scoring, unlimited Gemini AI bullets, and executive templates.</p>
+
+        <!-- Billing Switcher Toggle -->
+        <div class="billing-switcher-wrap" role="group" aria-label="Billing cycle selector">
+          <button type="button" class="billing-switch-btn active" id="billing-monthly-btn">Monthly Billing</button>
+          <button type="button" class="billing-switch-btn" id="billing-annual-btn">
+            <span>Annual Billing</span>
+            <span class="annual-discount-pill">Save 33%</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pricing Cards Grid -->
+      <div class="pricing-cards-grid">
+        <!-- Tier 1: Starter -->
+        <div class="pricing-card">
+          <div class="pricing-card-header">
+            <h3 class="tier-name">Starter</h3>
+            <p class="tier-desc">Essential ATS checking and clean PDF generation directly on your device.</p>
+            <div class="tier-price-wrap">
+              <span class="currency">$</span>
+              <span class="price-val">0</span>
+              <span class="period">/ lifetime free</span>
+            </div>
+          </div>
+          <ul class="tier-features-list">
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>1 Active Resume Draft</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Standard ATS Keyword Analysis</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>5 AI Bullet Enhancements / month</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Clean Vector PDF Export</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>100% On-Device Document Privacy</span>
+            </li>
+            <li class="disabled">
+              <svg class="feature-icon cross" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Deep ATS Keyword Gap Breakdown</span>
+            </li>
+            <li class="disabled">
+              <svg class="feature-icon cross" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Executive Design Templates</span>
+            </li>
+          </ul>
+          <div class="pricing-card-footer">
+            <button type="button" class="btn btn-secondary btn-full" data-route="resume">Start Free Now</button>
+          </div>
+        </div>
+
+        <!-- Tier 2: Pro (Featured) -->
+        <div class="pricing-card featured">
+          <div class="featured-badge">MOST POPULAR — CAREER PRO</div>
+          <div class="pricing-card-header">
+            <h3 class="tier-name">Pro Acceleration</h3>
+            <p class="tier-desc">Complete toolkit for active job seekers targeting high-compensation tech roles.</p>
+            <div class="tier-price-wrap">
+              <span class="currency">$</span>
+              <span class="price-val" id="pro-price-val">12</span>
+              <span class="period" id="pro-price-period">/ month</span>
+            </div>
+            <p class="billing-note" id="pro-billing-note">Billed monthly. Cancel anytime.</p>
+          </div>
+          <ul class="tier-features-list">
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>Unlimited Resumes &amp; Version Snapshots</strong>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>Unlimited Gemini 2.5 AI Rewriting &amp; Bullet Polish</strong>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>Deep ATS Keyword Gap &amp; Weighting Engine</strong>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>All 5 Premium Executive &amp; Tech Templates</strong>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>AI Cover Letter &amp; Tailored Interview Q&amp;A Suite</strong>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>Real-Time Cloud Synchronization &amp; Backup</strong>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <strong>Vector PDF &amp; Clean Word DOCX Exports</strong>
+            </li>
+          </ul>
+          <div class="pricing-card-footer">
+            <button type="button" class="btn btn-primary btn-full" id="pricing-upgrade-pro-btn">Upgrade to Pro ⚡</button>
+          </div>
+        </div>
+
+        <!-- Tier 3: Enterprise & Coaching -->
+        <div class="pricing-card">
+          <div class="pricing-card-header">
+            <h3 class="tier-name">Enterprise &amp; Teams</h3>
+            <p class="tier-desc">Multi-seat workspaces for career coaches, universities, and recruitment firms.</p>
+            <div class="tier-price-wrap">
+              <span class="currency">$</span>
+              <span class="price-val">49</span>
+              <span class="period">/ seat / mo</span>
+            </div>
+            <p class="billing-note">Volume discounts starting at 5 seats.</p>
+          </div>
+          <ul class="tier-features-list">
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Everything in Pro Tier</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Team Workspaces &amp; Candidate Sharing</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Custom Institutional Branding &amp; Fonts</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Dedicated High-Throughput AI Bandwidth</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Batch ATS Screening (Up to 50 Resumes)</span>
+            </li>
+            <li>
+              <svg class="feature-icon check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Dedicated Account Manager &amp; Video Review SLA</span>
+            </li>
+          </ul>
+          <div class="pricing-card-footer">
+            <button type="button" class="btn btn-secondary btn-full" id="pricing-contact-enterprise-btn">Inquire for Teams</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Matrix Table -->
+      <div class="pricing-matrix-container">
+        <h2 class="matrix-title">Complete Feature Matrix</h2>
+        <div class="table-responsive">
+          <table class="pricing-matrix-table">
+            <thead>
+              <tr>
+                <th>Features &amp; Capabilities</th>
+                <th>Starter (Free)</th>
+                <th class="col-highlight">Pro ($12/mo)</th>
+                <th>Enterprise ($49/seat)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cat-header" colspan="4">Document Management &amp; Builder</td>
+              </tr>
+              <tr>
+                <td>Active Resume Profiles</td>
+                <td>1 Resume</td>
+                <td class="col-highlight"><strong>Unlimited</strong></td>
+                <td><strong>Unlimited</strong></td>
+              </tr>
+              <tr>
+                <td>Version Snapshots &amp; History</td>
+                <td>Last 2</td>
+                <td class="col-highlight"><strong>Unlimited</strong></td>
+                <td><strong>Unlimited</strong></td>
+              </tr>
+              <tr>
+                <td>Templates Included</td>
+                <td>Classic (1)</td>
+                <td class="col-highlight"><strong>All 5 Executive Templates</strong></td>
+                <td><strong>All 5 + Custom Brand</strong></td>
+              </tr>
+              <tr>
+                <td>Export Formats</td>
+                <td>Clean Vector PDF</td>
+                <td class="col-highlight"><strong>PDF + Word DOCX + JSON</strong></td>
+                <td><strong>All Formats + Batch Export</strong></td>
+              </tr>
+              <tr>
+                <td class="cat-header" colspan="4">ATS Compatibility Engine</td>
+              </tr>
+              <tr>
+                <td>Scoring Breakdown (5 Pillars)</td>
+                <td>Included</td>
+                <td class="col-highlight"><strong>Included</strong></td>
+                <td><strong>Included</strong></td>
+              </tr>
+              <tr>
+                <td>Deep Keyword Gap Extraction</td>
+                <td>Top 3 missing skills</td>
+                <td class="col-highlight"><strong>Comprehensive Gap &amp; Weighting</strong></td>
+                <td><strong>Comprehensive + Batch Audit</strong></td>
+              </tr>
+              <tr>
+                <td>Contextual Hard/Soft Skill Categorization</td>
+                <td>Basic</td>
+                <td class="col-highlight"><strong>Advanced Neural Classification</strong></td>
+                <td><strong>Custom Taxonomy</strong></td>
+              </tr>
+              <tr>
+                <td class="cat-header" colspan="4">AI Career Studio (Gemini 2.5)</td>
+              </tr>
+              <tr>
+                <td>AI Bullet Point Polish</td>
+                <td>5 prompts / month</td>
+                <td class="col-highlight"><strong>Unlimited</strong></td>
+                <td><strong>Unlimited (High Priority)</strong></td>
+              </tr>
+              <tr>
+                <td>Executive Summary Generator</td>
+                <td>Basic</td>
+                <td class="col-highlight"><strong>Unlimited Tailored</strong></td>
+                <td><strong>Unlimited Bespoke</strong></td>
+              </tr>
+              <tr>
+                <td>Cover Letter Tailoring</td>
+                <td>1 trial</td>
+                <td class="col-highlight"><strong>Unlimited Full Generation</strong></td>
+                <td><strong>Unlimited Full Generation</strong></td>
+              </tr>
+              <tr>
+                <td>Job Interview Q&amp;A Simulator</td>
+                <td>Sample only</td>
+                <td class="col-highlight"><strong>Full Behavioral &amp; Technical</strong></td>
+                <td><strong>Full + Question Bank Export</strong></td>
+              </tr>
+              <tr>
+                <td class="cat-header" colspan="4">Privacy, Security &amp; Support</td>
+              </tr>
+              <tr>
+                <td>On-Device Document Parsing</td>
+                <td>Yes (100%)</td>
+                <td class="col-highlight"><strong>Yes (100%)</strong></td>
+                <td><strong>Yes (100%)</strong></td>
+              </tr>
+              <tr>
+                <td>Multi-Device Cloud Backup</td>
+                <td>No (Local only)</td>
+                <td class="col-highlight"><strong>AES-256 Cloud Sync</strong></td>
+                <td><strong>Enterprise Cloud + SSO</strong></td>
+              </tr>
+              <tr>
+                <td>Support Level</td>
+                <td>Knowledge Base / FAQ</td>
+                <td class="col-highlight"><strong>24-Hour Email Support</strong></td>
+                <td><strong>Dedicated SLA &amp; Video Review</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Trust & Guarantee Ribbon -->
+      <div class="pricing-guarantee-ribbon">
+        <div class="guarantee-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <strong>30-Day Money-Back Guarantee</strong>
+            <p>If you don't land more interviews within 30 days, we'll refund 100% of your investment. No questions asked.</p>
+          </div>
+        </div>
+        <div class="guarantee-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div>
+            <strong>Bank-Grade 256-Bit Encryption</strong>
+            <p>Transactions are processed via TLS 1.3 encrypted secure payment tokenization. Your credentials never touch our servers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         PAYMENT SUCCESS & RECEIPT VIEW
+         ======================================================================== -->
+    <section class="view-panel" id="view-payment-success" role="tabpanel" aria-labelledby="tab-payment-success">
+      <div class="payment-result-container">
+        <div class="payment-icon-wrap success">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h1 class="view-title">Payment Confirmed — Welcome to Pro!</h1>
+        <p class="view-subtitle">Your transaction has been processed successfully. All Pro capabilities are immediately unlocked on your account.</p>
+
+        <div class="receipt-card" id="receipt-card">
+          <div class="receipt-header">
+            <div class="receipt-brand">
+              <img src="/assets/kr-logo.jpeg" alt="Logo" width="28" height="28" />
+              <span>KnowYour<b>Resume</b> Pro</span>
+            </div>
+            <span class="receipt-status-badge">PAID</span>
+          </div>
+          <div class="receipt-body">
+            <div class="receipt-row">
+              <span class="receipt-label">Receipt / Order ID</span>
+              <span class="receipt-value" id="receipt-order-id">KYR-PRO-89421</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Plan</span>
+              <span class="receipt-value" id="receipt-plan-name">KnowYourResume Pro Annual</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Amount Paid</span>
+              <span class="receipt-value" id="receipt-amount">$96.00 USD</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Billing Cycle</span>
+              <span class="receipt-value">Annual (Renews in 12 Months)</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Payment Method</span>
+              <span class="receipt-value">Credit Card (•••• 4242)</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Date &amp; Time</span>
+              <span class="receipt-value" id="receipt-date">September 11, 2026</span>
+            </div>
+          </div>
+          <div class="receipt-perks-summary">
+            <h4>Unlocked Features on This Account:</h4>
+            <ul>
+              <li>✦ Unlimited Gemini 2.5 AI Rewrites &amp; Bullet Polish</li>
+              <li>✦ Deep ATS Keyword Gap &amp; Weighting Analysis</li>
+              <li>✦ All 5 Executive Templates (Modern, Executive, Minimal, Tech, Creative)</li>
+              <li>✦ Real-time Cloud Synchronization &amp; Local Draft Safeguards</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="payment-actions">
+          <button type="button" class="btn btn-primary btn-lg" data-route="dashboard">
+            <span>Go to Dashboard</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="ai">
+            <span>Launch AI Studio ✦</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="resume">
+            <span>Edit in Builder</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" id="receipt-print-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Print Receipt</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         PAYMENT RECOVERY / FAILED VIEW
+         ======================================================================== -->
+    <section class="view-panel" id="view-payment-failed" role="tabpanel" aria-labelledby="tab-payment-failed">
+      <div class="payment-result-container">
+        <div class="payment-icon-wrap failed">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h1 class="view-title">Payment Incomplete</h1>
+        <p class="view-subtitle">We were unable to complete your transaction. Your card was not charged.</p>
+
+        <div class="payment-notice-card">
+          <div class="safe-data-badge">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Your Existing Resume Drafts &amp; Settings are 100% Safe</span>
+          </div>
+          <p class="notice-desc">
+            No modifications have been made to your active resume documents or account data. You can retry checkout anytime or continue using the Free Starter tier with local document parsing.
+          </p>
+
+          <div class="reasons-checklist">
+            <h4>Common Reasons for Transaction Failure:</h4>
+            <ul>
+              <li><strong>Bank 3D-Secure Authentication:</strong> The confirmation challenge timed out.</li>
+              <li><strong>Card Details / Postal Code:</strong> Discrepancy between billing address and card issuer records.</li>
+              <li><strong>International Limit:</strong> Bank filter flagged automated international SaaS checkout.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="payment-actions">
+          <button type="button" class="btn btn-primary btn-lg" id="payment-failed-retry-btn">
+            <span>Retry Checkout ⚡</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="pricing">
+            <span>Back to Pricing</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-lg" data-route="faq">
+            <span>Contact Support</span>
+          </button>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- ========================================================================
@@ -1427,6 +1842,7 @@
             <li><button type="button" class="footer-link-btn" data-route="templates">Executive Templates</button></li>
             <li><button type="button" class="footer-link-btn" data-route="ai">AI Career Studio</button></li>
             <li><button type="button" class="footer-link-btn" data-route="applications">Applications Tracker</button></li>
+            <li><button type="button" class="footer-link-btn" data-route="pricing">Pricing &amp; Plans</button></li>
             <li><button type="button" class="footer-link-btn" data-route="faq">Help Center & FAQ</button></li>
           </ul>
         </div>
@@ -1541,6 +1957,10 @@
         <button type="button" class="drawer-nav-btn" data-route="applications">
           <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           <span>Job Applications</span>
+        </button>
+        <button type="button" class="drawer-nav-btn" data-route="pricing">
+          <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Pricing &amp; Plans</span>
         </button>
         <button type="button" class="drawer-nav-btn" data-route="settings">
           <svg class="nav-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1769,9 +2189,177 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       UPGRADE CHECKOUT MODAL (PRO LIFECYCLE ACTIVATION)
+       ======================================================================== -->
+  <div class="modal-overlay" id="upgrade-checkout-modal" style="display: none;">
+    <div class="modal-box checkout-modal-box">
+      <button type="button" class="modal-close-btn" id="checkout-modal-close" aria-label="Close Checkout">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <div class="checkout-header">
+        <span class="badge-ai">✦ Accelerate Your Career</span>
+        <h2 style="font-size: 20px; font-weight: 750; margin-top: 6px;">Upgrade to KnowYourResume Pro</h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Instant access to unlimited Gemini AI optimizations, deep ATS scans, and executive templates.</p>
+      </div>
+
+      <!-- Plan Selection Toggle inside Modal -->
+      <div class="checkout-plan-selector">
+        <label class="checkout-plan-radio">
+          <input type="radio" name="checkout-plan-choice" value="annual" checked id="checkout-plan-annual" />
+          <div class="plan-radio-content">
+            <div class="plan-title-row">
+              <strong>Annual Pro Acceleration</strong>
+              <span class="discount-tag">Save 33%</span>
+            </div>
+            <p>$8 / month ($96 billed annually)</p>
+          </div>
+        </label>
+        <label class="checkout-plan-radio">
+          <input type="radio" name="checkout-plan-choice" value="monthly" id="checkout-plan-monthly" />
+          <div class="plan-radio-content">
+            <div class="plan-title-row">
+              <strong>Monthly Pro Plan</strong>
+            </div>
+            <p>$12 / month (cancel anytime)</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Promo Code Field -->
+      <div class="promo-code-wrap">
+        <input type="text" id="checkout-promo-input" placeholder="Promo code (e.g. CAREERPRO)" autocomplete="off" />
+        <button type="button" class="btn btn-secondary btn-sm" id="checkout-promo-btn">Apply</button>
+      </div>
+      <div class="promo-feedback" id="checkout-promo-msg" style="display: none;"></div>
+
+      <!-- Payment Method Simulation Form -->
+      <form class="checkout-form" id="checkout-sim-form">
+        <label class="form-field">
+          <span>Name on Card</span>
+          <input type="text" id="checkout-card-name" value="Alex Morgan" required />
+        </label>
+        <label class="form-field">
+          <div class="field-label-row">
+            <span>Card Number</span>
+            <div class="card-brands-row">
+              <span class="card-brand-pill">VISA</span>
+              <span class="card-brand-pill">MC</span>
+              <span class="card-brand-pill">AMEX</span>
+            </div>
+          </div>
+          <input type="text" id="checkout-card-number" value="•••• •••• •••• 4242" required />
+        </label>
+        <div class="form-row-duo">
+          <label class="form-field">
+            <span>Expiration</span>
+            <input type="text" id="checkout-card-exp" value="12/28" required />
+          </label>
+          <label class="form-field">
+            <span>Security CVC</span>
+            <input type="text" id="checkout-card-cvc" value="842" required />
+          </label>
+        </div>
+
+        <div class="checkout-summary-box">
+          <div class="summary-line">
+            <span>Pro Plan Tier</span>
+            <span id="summary-base-price">$96.00</span>
+          </div>
+          <div class="summary-line discount" id="summary-discount-line" style="display: none;">
+            <span>Promo Code Discount (20%)</span>
+            <span id="summary-discount-amount">-$19.20</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-line total">
+            <strong>Total Due Today:</strong>
+            <strong id="summary-total-price" style="color: var(--gold-start); font-size: 18px;">$96.00</strong>
+          </div>
+        </div>
+
+        <div class="sandbox-guarantee-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Instant Pro Activation in Browser (Zero Real Charges)</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="checkout-submit-btn" style="margin-top: 14px;">
+          <span>Activate Pro Access Now ⚡</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       FIRST-TIME USER ONBOARDING WELCOME DIALOG
+       ======================================================================== -->
+  <div class="modal-overlay" id="onboarding-welcome-modal" style="display: none;">
+    <div class="modal-box onboarding-modal-box">
+      <button type="button" class="modal-close-btn" id="onboarding-close-btn" aria-label="Close Welcome Guide">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+
+      <div class="onboarding-header">
+        <div class="onboarding-logo-glow">
+          <img src="/assets/kr-logo.jpeg" alt="Logo" width="48" height="48" />
+        </div>
+        <h2 style="font-size: 22px; font-weight: 800; margin-top: 12px; text-align: center;">Welcome to KnowYourResume</h2>
+        <p class="onboarding-tagline" style="font-size: 13.5px; color: var(--text-secondary); text-align: center; max-width: 520px; margin: 8px auto 0;">
+          The AI Career Operating System designed to help you beat applicant tracking systems and land more interviews with confidence.
+        </p>
+      </div>
+
+      <div class="onboarding-cards-grid">
+        <!-- Card 1: Import -->
+        <div class="onboarding-card" id="onboarding-import-card">
+          <div class="card-icon-bubble">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-top: 10px;">Import Existing Resume</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 4px;">
+            Upload PDF, DOCX, or TXT. Parsed 100% on-device into the builder in seconds.
+          </p>
+          <span class="card-cta-hint" style="font-size: 12px; font-weight: 600; color: var(--gold-start); margin-top: 10px; display: inline-block;">Upload Document →</span>
+        </div>
+
+        <!-- Card 2: Master Template -->
+        <div class="onboarding-card" id="onboarding-sample-card">
+          <div class="card-icon-bubble">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-top: 10px;">Load Master Profile</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 4px;">
+            Start with our pre-configured, high-scoring Senior Full-Stack Engineer profile and customize it.
+          </p>
+          <span class="card-cta-hint" style="font-size: 12px; font-weight: 600; color: #34d399; margin-top: 10px; display: inline-block;">Load Master Profile →</span>
+        </div>
+
+        <!-- Card 3: Scratch Builder -->
+        <div class="onboarding-card" id="onboarding-scratch-card">
+          <div class="card-icon-bubble">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-top: 10px;">Build from Scratch</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-top: 4px;">
+            Open a clean, distraction-free builder with real-time vector preview and ATS recommendations.
+          </p>
+          <span class="card-cta-hint" style="font-size: 12px; font-weight: 600; color: #60a5fa; margin-top: 10px; display: inline-block;">Open Builder →</span>
+        </div>
+      </div>
+
+      <div class="onboarding-footer">
+        <label class="onboarding-checkbox-label">
+          <input type="checkbox" id="onboarding-dont-show-toggle" checked />
+          <span>Don't show this welcome guide again</span>
+        </label>
+        <button type="button" class="btn btn-secondary" id="onboarding-skip-btn">Explore Platform</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=6.0"></script>
+  <script type="module" src="/app.js?v=6.1"></script>
 </body>
 </html>

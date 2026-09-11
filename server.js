@@ -154,7 +154,24 @@ async function serveStatic(pathname, method, response) {
       'Cache-Control': isCode ? 'no-cache, must-revalidate' : 'public, max-age=86400'
     });
     if (method === 'HEAD') response.end(); else response.end(content);
-  } catch { sendJson(response, 404, { error: 'Not found' }); }
+  } catch {
+    // SPA Fallback: If path has no extension (clean route like /dashboard, /pricing, /resume), serve index.html
+    if (!path.extname(pathname) && (method === 'GET' || method === 'HEAD')) {
+      try {
+        const indexPath = path.join(PUBLIC_DIR, 'index.html');
+        const indexContent = await fsp.readFile(indexPath);
+        response.writeHead(200, {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-cache, must-revalidate'
+        });
+        if (method === 'HEAD') response.end(); else response.end(indexContent);
+        return;
+      } catch {
+        // Fall through to 404
+      }
+    }
+    sendJson(response, 404, { error: 'Not found' });
+  }
 }
 
 function checkRateLimit(request, response, type = 'general') {
