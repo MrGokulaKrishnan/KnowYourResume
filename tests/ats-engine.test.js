@@ -130,3 +130,22 @@ test('uses the documented score bands', () => {
   assert.equal(getScoreLevel(75), 'Strong Match');
   assert.equal(getScoreLevel(90), 'Excellent Match');
 });
+
+test('handles null or undefined input safely without throwing TypeError', () => {
+  const resultNull = analyzeResume(null);
+  assert.equal(resultNull.score, 0);
+  assert.equal(resultNull.level, 'Not analyzed');
+  assert.match(resultNull.disclaimer, /job description/i);
+
+  const resultUndef = analyzeResume();
+  assert.equal(resultUndef.score, 0);
+  assert.equal(resultUndef.level, 'Not analyzed');
+});
+
+test('returns empty analysis when resume contains no user text even if JD is present', () => {
+  const result = analyzeResume({ resume: {}, jobDescription: 'Looking for Senior React and Node developer' });
+  assert.equal(result.score, 0);
+  assert.equal(result.level, 'Not analyzed');
+  assert.match(result.disclaimer, /resume content/i);
+});
+

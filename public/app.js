@@ -2103,6 +2103,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       // Dynamic Custom Section Remove
       const removeCustomBtn = e.target.closest('[data-remove-custom]');
       if (removeCustomBtn) {
+        if (!confirm('Are you sure you want to remove this custom section?')) return;
         const idx = Number(removeCustomBtn.dataset.removeCustom);
         state.resume.customSections.splice(idx, 1);
         renderCustomSectionsList();
@@ -2510,6 +2511,22 @@ ${p.email || ''} · ${p.phone || ''}`;
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash.slice(1);
       switchRoute(hash);
+    });
+
+    window.addEventListener('online', () => {
+      notify('Network connection restored. Sync active.', 'success');
+      const badge = $('#dash-workspace-badge');
+      if (badge && isUserAuthenticated()) {
+        badge.textContent = '● Cloud Sync Active';
+      }
+    });
+
+    window.addEventListener('offline', () => {
+      notify('You are offline. Your edits are saved locally.', 'warning');
+      const badge = $('#dash-workspace-badge');
+      if (badge) {
+        badge.textContent = '○ Offline Mode (Local Storage)';
+      }
     });
   }
 

@@ -109,6 +109,28 @@ body {
   position: relative;
 }
 
+/* Accessible Skip Link */
+.skip-to-content {
+  position: fixed;
+  top: -100px;
+  left: 20px;
+  z-index: 10000;
+  background: var(--blue-electric, #2563eb);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: var(--radius-md, 14px);
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  box-shadow: var(--shadow-floating-card);
+  transition: top 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.skip-to-content:focus {
+  top: 16px;
+  outline: 2px solid var(--accent-gold, #fff200);
+  outline-offset: 2px;
+}
+
 /* Ambient Radial Mesh Lighting (Apple / Linear style) */
 .ambient-bg-glow {
   position: fixed;

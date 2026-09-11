@@ -96,6 +96,18 @@ function resumeToText(resume) {
   const languages = (resume.languages || []).map((item) => [item.language, item.proficiency].filter(Boolean).join(' '));
   const custom = (resume.customSections || []).map((section) => `${section.title || ''} ${section.content || ''}`);
 
+  const hasUserData = Boolean(
+    [personal.name, personal.title, personal.email, personal.phone, personal.location, resume.summary].some((v) => normalise(v)) ||
+    experiences.some((v) => normalise(v)) ||
+    education.some((v) => normalise(v)) ||
+    (resume.skills || []).some((v) => normalise(v)) ||
+    projects.some((v) => normalise(v)) ||
+    certs.some((v) => normalise(v)) ||
+    languages.some((v) => normalise(v)) ||
+    custom.some((v) => normalise(v))
+  );
+  if (!hasUserData) return '';
+
   return [
     personal.name,
     personal.title,
@@ -172,7 +184,9 @@ function findSectionForTerm(resume, term) {
   return 'Resume';
 }
 
-function analyzeResume({ resume, resumeText, jobDescription, weights = {} } = {}) {
+function analyzeResume(options = {}) {
+  const safeOptions = options && typeof options === 'object' ? options : {};
+  const { resume, resumeText, jobDescription, weights = {} } = safeOptions;
   const safeResume = resume && typeof resume === 'object' ? resume : {};
   const text = resumeText || resumeToText(safeResume);
   const jd = String(jobDescription || '');
