@@ -494,6 +494,8 @@ import {
       renderPreview();
       applyZoom();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -2497,6 +2499,13 @@ ${p.email || ''} · ${p.phone || ''}`;
         }
       });
     }
+
+    $$('.section-nav-pills .pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        $$('.section-nav-pills .pill').forEach((p) => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
 
     window.addEventListener('hashchange', () => {
       const hash = window.location.hash.slice(1);

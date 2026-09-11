@@ -89,11 +89,12 @@ html {
   font-size: 14px;
   line-height: 1.55;
   scroll-behavior: smooth;
+  scroll-padding-top: 120px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -104,7 +105,7 @@ body {
   flex-direction: column;
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
   position: relative;
 }
 
@@ -2962,7 +2963,8 @@ button {
     gap: 8px;
     position: sticky;
     top: 0;
-    z-index: 80;
+    z-index: 100;
+    box-sizing: border-box;
   }
   .nav-left {
     gap: 10px;
@@ -3037,13 +3039,13 @@ button {
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   .view-panel {
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* 3. Floating Mobile Bottom Dock (Edge-to-Edge with Safe-Area) */
@@ -3109,14 +3111,16 @@ button {
     align-items: center !important;
     justify-content: space-between !important;
     gap: 8px !important;
-    padding: 8px 10px !important;
-    background: rgba(8, 8, 12, 0.95) !important;
-    backdrop-filter: blur(20px) !important;
-    border-bottom: 1px solid var(--glass-border-subtle) !important;
+    padding: 8px 12px !important;
+    background: rgba(6, 6, 10, 0.96) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
     position: sticky !important;
     top: 56px !important;
-    z-index: 35 !important;
-    margin: -8px -8px 10px !important;
+    z-index: 90 !important;
+    margin: -8px -8px 14px !important;
+    box-sizing: border-box !important;
   }
   .mobile-builder-segmented {
     display: inline-flex !important;
@@ -3203,18 +3207,16 @@ button {
     justify-content: center !important;
   }
   .mobile-back-to-edit-btn {
-    display: inline-flex !important;
-    font-size: 11px !important;
-    padding: 4px 8px !important;
+    display: none !important;
   }
 
   /* 5. Mobile Form & Touch Targets */
   .section-nav-bar {
-    position: sticky !important;
-    top: 102px !important;
-    z-index: 30 !important;
-    margin-bottom: 12px !important;
-    padding: 5px 8px !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 10 !important;
+    margin-bottom: 16px !important;
+    padding: 6px 10px !important;
     border-radius: var(--radius-pill) !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -3232,9 +3234,10 @@ button {
     padding: 2px 7px !important;
   }
   .form-card {
+    scroll-margin-top: 125px !important;
     padding: 16px 12px !important;
     border-radius: var(--radius-md) !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 16px !important;
   }
   .card-legend {
     flex-wrap: wrap !important;
@@ -3278,15 +3281,15 @@ button {
 
   /* 6. Mobile Preview Stage & Auto-Fit Scaling */
   .preview-header {
-    position: sticky !important;
-    top: 102px !important;
-    z-index: 25 !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 10 !important;
     flex-direction: column !important;
     gap: 8px !important;
     padding: 8px 10px !important;
     height: auto !important;
     border-radius: var(--radius-sm) !important;
-    margin: 0 0 10px !important;
+    margin: 0 0 14px !important;
   }
   .preview-controls-left,
   .preview-controls-right {
