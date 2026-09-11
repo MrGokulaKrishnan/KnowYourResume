@@ -11,6 +11,7 @@ function normalizeRoute(route) {
   if (raw === 'applications' || raw === 'pipeline' || raw === 'jobs') return 'applications';
   if (raw === 'settings' || raw === 'account') return 'settings';
   if (raw === 'pricing' || raw === 'plans' || raw === 'upgrade') return 'pricing';
+  if (raw === 'login' || raw === 'signin' || raw === 'signup' || raw === 'register' || raw === 'forgot-password' || raw === 'forgot') return 'dashboard';
   if (raw === 'payment-success' || raw === 'success') return 'payment-success';
   if (raw === 'payment-failed' || raw === 'failed') return 'payment-failed';
   if (raw === 'legal' || raw === 'privacy' || raw === 'terms') return 'legal';
@@ -35,6 +36,14 @@ test('Route Normalization: resolves root, index, and dashboard aliases to dashbo
   assert.equal(normalizeRoute('/index.html'), 'dashboard');
   assert.equal(normalizeRoute('#dashboard'), 'dashboard');
   assert.equal(normalizeRoute('home'), 'dashboard');
+});
+
+test('Route Normalization: resolves auth aliases to dashboard with active modal', () => {
+  assert.equal(normalizeRoute('/login'), 'dashboard');
+  assert.equal(normalizeRoute('signin'), 'dashboard');
+  assert.equal(normalizeRoute('/signup'), 'dashboard');
+  assert.equal(normalizeRoute('/register'), 'dashboard');
+  assert.equal(normalizeRoute('/forgot-password'), 'dashboard');
 });
 
 test('Route Normalization: resolves resume and builder aliases to resume', () => {

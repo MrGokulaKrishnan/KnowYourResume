@@ -6,7 +6,7 @@
   <title>KnowYourResume — AI Career Operating System</title>
   <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=6.1" />
+  <link rel="stylesheet" href="/styles.css?v=6.2" />
 </head>
 <body>
   <!-- Accessible Skip Link -->
@@ -927,6 +927,82 @@
               <button type="button" class="btn btn-primary" id="settings-auth-btn">
                 <svg class="btn-action-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 <span>Sign In / Create Account</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscription & Tier Management -->
+        <div class="settings-group-card" id="settings-subscription-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+            <div>
+              <h3>Subscription &amp; Membership Tier</h3>
+              <p style="margin-bottom: 0;">Manage your career acceleration plan, AI token allocation, and receipt history.</p>
+            </div>
+            <span class="eyebrow-badge" id="settings-tier-badge" style="font-size: 11px; padding: 4px 10px;">
+              Starter Tier (Free)
+            </span>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 20px;">
+            <div id="settings-tier-free-box">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <strong style="color: var(--text-pure); font-size: 14px;">Starter Plan (Free Forever)</strong>
+                  <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">
+                    5 AI bullet polishes / month, 1 active draft, and standard ATS analysis.
+                  </p>
+                </div>
+                <button type="button" class="btn btn-primary" id="settings-upgrade-btn">
+                  <span>Upgrade to Pro ⚡</span>
+                </button>
+              </div>
+            </div>
+            <div id="settings-tier-pro-box" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <strong style="color: #34d399; font-size: 14px;">✦ KnowYourResume Pro (Active)</strong>
+                  <p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0 0;">
+                    Unlimited Gemini 2.5 AI optimizations, all 5 executive templates, and deep keyword gap analysis.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" class="btn btn-secondary btn-sm" data-route="payment-success">
+                    <span>View Receipt</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" data-route="pricing">
+                    <span>Change Plan</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GDPR Data Portability & Storage Management -->
+        <div class="settings-group-card" id="settings-gdpr-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+            <div>
+              <h3>Data Privacy &amp; GDPR Portability</h3>
+              <p style="margin-bottom: 0;">Export your complete resume data or manage local browser storage.</p>
+            </div>
+            <span class="eyebrow-badge" style="background: rgba(52, 211, 153, 0.12); border-color: rgba(52, 211, 153, 0.35); color: #34d399; font-size: 11px; padding: 4px 10px;">
+              GDPR &amp; CCPA Ready
+            </span>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 20px;">
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px;">
+              Under GDPR Article 20 (Right to Data Portability), you can download a structured JSON archive of all your resumes, version histories, job applications, and ATS match diagnostics.
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary" id="settings-export-data-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export All Career Data (JSON)</span>
+              </button>
+              <button type="button" class="btn btn-secondary" id="settings-cookie-prefs-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Cookie Preferences</span>
               </button>
             </div>
           </div>
@@ -2360,6 +2436,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=6.1"></script>
+  <script type="module" src="/app.js?v=6.2"></script>
 </body>
 </html>

@@ -136,6 +136,8 @@ import {
   let state = defaults();
   let currentUser = null;
   let saveTimer = null;
+  let openAuthModal = () => {};
+  let openUpgradeCheckout = () => {};
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -298,6 +300,18 @@ import {
     if (raw === 'applications' || raw === 'pipeline' || raw === 'jobs') return 'applications';
     if (raw === 'settings' || raw === 'account') return 'settings';
     if (raw === 'pricing' || raw === 'plans' || raw === 'upgrade') return 'pricing';
+    if (raw === 'login' || raw === 'signin') {
+      setTimeout(() => openAuthModal('signin'), 50);
+      return 'dashboard';
+    }
+    if (raw === 'signup' || raw === 'register') {
+      setTimeout(() => openAuthModal('signup'), 50);
+      return 'dashboard';
+    }
+    if (raw === 'forgot-password' || raw === 'forgot') {
+      setTimeout(() => openAuthModal('forgot'), 50);
+      return 'dashboard';
+    }
     if (raw === 'payment-success' || raw === 'success') return 'payment-success';
     if (raw === 'payment-failed' || raw === 'failed') return 'payment-failed';
     if (raw === 'legal' || raw === 'privacy' || raw === 'terms') return 'legal';
@@ -1858,10 +1872,28 @@ ${p.email || ''} · ${p.phone || ''}`;
       if (alertBox) alertBox.style.display = 'none';
     };
 
-    const openAuth = () => {
+    openAuthModal = (mode = 'signin') => {
       hideAlert();
+      if (mode === 'signup') {
+        $('#modal-signin-form').style.display = 'none';
+        $('#modal-signup-form').style.display = 'flex';
+        $('#modal-forgot-form').style.display = 'none';
+        $('#auth-modal-title').textContent = 'Create an Account';
+      } else if (mode === 'forgot') {
+        $('#modal-signin-form').style.display = 'none';
+        $('#modal-signup-form').style.display = 'none';
+        $('#modal-forgot-form').style.display = 'flex';
+        $('#auth-modal-title').textContent = 'Reset Password';
+      } else {
+        $('#modal-signin-form').style.display = 'flex';
+        $('#modal-signup-form').style.display = 'none';
+        $('#modal-forgot-form').style.display = 'none';
+        $('#auth-modal-title').textContent = 'Sign in to KnowYourResume';
+      }
       if (authModal) authModal.style.display = 'flex';
     };
+
+    const openAuth = () => openAuthModal('signin');
     authTriggerBtn?.addEventListener('click', openAuth);
     settingsAuthBtn?.addEventListener('click', openAuth);
     $('#dash-auth-btn')?.addEventListener('click', openAuth);
@@ -2942,6 +2974,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       e.preventDefault();
       try {
         localStorage.setItem('kyr_pro_tier', 'true');
+        updateSettingsTierDisplay();
       } catch {}
       if (checkoutModal) checkoutModal.style.display = 'none';
       switchRoute('payment-success');
@@ -2960,6 +2993,60 @@ ${p.email || ''} · ${p.phone || ''}`;
     // Print Receipt
     $('#receipt-print-btn')?.addEventListener('click', () => {
       window.print();
+    });
+
+    // Wire global upgrade checkout trigger
+    openUpgradeCheckout = openCheckout;
+
+    // Update Settings Tier Card & Sync state
+    const updateSettingsTierDisplay = () => {
+      const isPro = localStorage.getItem('kyr_pro_tier') === 'true';
+      const tierBadge = $('#settings-tier-badge');
+      const freeBox = $('#settings-tier-free-box');
+      const proBox = $('#settings-tier-pro-box');
+      if (tierBadge) {
+        tierBadge.textContent = isPro ? '✦ Pro Acceleration Active' : 'Starter Tier (Free)';
+        tierBadge.style.color = isPro ? '#34d399' : 'var(--gold-start)';
+        tierBadge.style.borderColor = isPro ? 'rgba(52, 211, 153, 0.4)' : 'rgba(255, 214, 0, 0.4)';
+      }
+      if (freeBox) freeBox.style.display = isPro ? 'none' : 'block';
+      if (proBox) proBox.style.display = isPro ? 'block' : 'none';
+    };
+
+    updateSettingsTierDisplay();
+
+    $('#settings-upgrade-btn')?.addEventListener('click', () => openCheckout());
+
+    // GDPR Article 20 Data Portability Export
+    $('#settings-export-data-btn')?.addEventListener('click', () => {
+      try {
+        const payload = {
+          exportDate: new Date().toISOString(),
+          application: 'KnowYourResume',
+          gdprArticle: 'Article 20 — Right to Data Portability',
+          version: '6.1',
+          resume: state.resume,
+          versions: state.versions,
+          applications: state.applications,
+          analyses: state.analyses
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `knowyourresume_data_export_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        notify('Complete career data archive exported successfully (GDPR Article 20).', 'success');
+      } catch (err) {
+        notify('Failed to generate export file. Please try again.', 'error');
+      }
+    });
+
+    $('#settings-cookie-prefs-btn')?.addEventListener('click', () => {
+      $('#cookie-customize-btn')?.click() || $('#footer-cookie-prefs-btn')?.click();
     });
   }
 
