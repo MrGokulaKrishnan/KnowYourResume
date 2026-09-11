@@ -1070,7 +1070,10 @@ button {
 
 
 .pill {
-  padding: 7px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
   border-radius: var(--radius-pill);
   background: var(--glass-bg-card);
   border: 1px solid var(--glass-border);
@@ -1082,10 +1085,21 @@ button {
   transition: all var(--transition-fast);
 }
 
+.pill-svg {
+  flex-shrink: 0;
+  color: currentColor;
+  opacity: 0.8;
+  transition: all var(--transition-fast);
+}
+
 .pill:hover {
   color: var(--text-pure);
   border-color: var(--glass-border-hover);
   background: var(--glass-bg-raised);
+}
+
+.pill:hover .pill-svg {
+  opacity: 1;
 }
 
 .pill.active {
@@ -1093,6 +1107,12 @@ button {
   border-color: rgba(255, 214, 0, 0.5);
   color: var(--gold-start);
   box-shadow: 0 0 16px rgba(255, 214, 0, 0.2);
+}
+
+.pill.active .pill-svg {
+  opacity: 1;
+  color: var(--gold-start);
+  filter: drop-shadow(0 0 4px rgba(255, 214, 0, 0.5));
 }
 
 .editor-form {
@@ -1126,7 +1146,21 @@ button {
 }
 
 .legend-icon {
-  font-size: 22px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg-card);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-start);
+  flex-shrink: 0;
+  box-shadow: 0 0 16px rgba(255, 214, 0, 0.12);
+}
+
+.legend-icon svg {
+  display: block;
 }
 
 .card-legend h3 {
@@ -2007,6 +2041,9 @@ button {
   font-size: 40px;
   color: var(--text-muted);
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .empty-state h3 {
@@ -2218,6 +2255,12 @@ button {
   align-items: center;
   justify-content: center;
   font-size: 22px;
+  color: var(--gold-start);
+  box-shadow: 0 0 16px rgba(255, 214, 0, 0.12);
+}
+
+.tool-icon-wrap svg {
+  display: block;
 }
 
 .ai-tool-card h3 {
@@ -2884,27 +2927,22 @@ button {
     grid-template-columns: 1fr;
   }
   .builder-layout {
-    grid-template-columns: 1fr;
-    height: auto;
-    overflow: visible;
+    grid-template-columns: minmax(350px, 1fr) minmax(380px, 1fr);
+    height: calc(100vh - 66px);
+    overflow: hidden;
   }
   .builder-editor-wrap {
-    border-right: none;
-    border-bottom: 1px solid var(--glass-border-subtle);
-    height: auto;
-    overflow: visible;
-    padding: 24px 20px 48px;
+    padding: 20px 20px 80px;
+    overflow-y: auto;
   }
   .section-nav-bar {
     position: sticky;
-    top: 66px;
+    top: 0;
     z-index: 25;
-    margin-bottom: 20px;
   }
   .builder-preview-wrap {
-    height: auto;
-    min-height: 740px;
-    overflow: visible;
+    height: 100%;
+    overflow: hidden;
   }
   .preview-header {
     position: relative;

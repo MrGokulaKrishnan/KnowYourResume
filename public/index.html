@@ -6,7 +6,7 @@
   <title>KnowYourResume — AI Career Operating System</title>
   <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=5.6" />
+  <link rel="stylesheet" href="/styles.css?v=5.7" />
 </head>
 <body>
   <!-- Ambient background glow for liquid depth -->
@@ -167,28 +167,36 @@
       <!-- 4 High-Impact Metric Cards -->
       <div class="dashboard-stats-grid">
         <div class="stat-card">
-          <div class="stat-icon-wrap">▤</div>
+          <div class="stat-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
           <div class="stat-info">
             <span class="stat-label">Active Resume Drafts</span>
             <span class="stat-value" id="stat-resumes">1 Active</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon-wrap">◎</div>
+          <div class="stat-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="m12 12 7-7"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
           <div class="stat-info">
             <span class="stat-label">ATS Scans Completed</span>
             <span class="stat-value" id="stat-scans">0</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon-wrap">★</div>
+          <div class="stat-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
           <div class="stat-info">
             <span class="stat-label">Average Match Score</span>
             <span class="stat-value" id="stat-avg-score">—</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon-wrap">▣</div>
+          <div class="stat-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
           <div class="stat-info">
             <span class="stat-label">Tracked Opportunities</span>
             <span class="stat-value" id="stat-applications">0</span>
@@ -248,15 +256,42 @@
           <!-- Sticky Section Navigator Bar with Autosave Status -->
           <div class="section-nav-bar">
             <nav class="section-nav-pills" aria-label="Resume Sections">
-              <a href="#sec-personal" class="pill active">👤 Personal</a>
-              <a href="#sec-summary" class="pill">📝 Summary</a>
-              <a href="#sec-experience" class="pill">💼 Experience</a>
-              <a href="#sec-education" class="pill">🎓 Education</a>
-              <a href="#sec-skills" class="pill">⚡ Skills</a>
-              <a href="#sec-projects" class="pill">🚀 Projects</a>
-              <a href="#sec-certs" class="pill">📜 Certs</a>
-              <a href="#sec-languages" class="pill">🌐 Languages</a>
-              <a href="#sec-custom" class="pill">＋ Custom</a>
+              <a href="#sec-personal" class="pill active">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Personal</span>
+              </a>
+              <a href="#sec-summary" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Summary</span>
+              </a>
+              <a href="#sec-experience" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>Experience</span>
+              </a>
+              <a href="#sec-education" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <span>Education</span>
+              </a>
+              <a href="#sec-skills" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Skills</span>
+              </a>
+              <a href="#sec-projects" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+                <span>Projects</span>
+              </a>
+              <a href="#sec-certs" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                <span>Certs</span>
+              </a>
+              <a href="#sec-languages" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>Languages</span>
+              </a>
+              <a href="#sec-custom" class="pill">
+                <svg class="pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Custom</span>
+              </a>
             </nav>
             <span class="save-status" id="save-status">
               <i></i> Saved
@@ -267,7 +302,7 @@
             <!-- Personal Information -->
             <fieldset class="form-card" id="sec-personal">
               <legend class="card-legend">
-                <span class="legend-icon">👤</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
                 <div>
                   <h3>Personal Information</h3>
                   <p>Contact details and portfolio links</p>
@@ -312,7 +347,7 @@
             <!-- Professional Summary -->
             <fieldset class="form-card" id="sec-summary">
               <legend class="card-legend">
-                <span class="legend-icon">📝</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
                 <div>
                   <h3>Professional Summary</h3>
                   <p>High-impact executive overview</p>
@@ -332,7 +367,7 @@
             <!-- Work Experience -->
             <fieldset class="form-card" id="sec-experience">
               <legend class="card-legend">
-                <span class="legend-icon">💼</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
                 <div>
                   <h3>Work Experience</h3>
                   <p>Quantifiable achievements and roles</p>
@@ -349,7 +384,7 @@
             <!-- Education -->
             <fieldset class="form-card" id="sec-education">
               <legend class="card-legend">
-                <span class="legend-icon">🎓</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
                 <div>
                   <h3>Education</h3>
                   <p>Degrees and academic credentials</p>
@@ -366,7 +401,7 @@
             <!-- Skills & Competencies -->
             <fieldset class="form-card" id="sec-skills">
               <legend class="card-legend">
-                <span class="legend-icon">⚡</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                 <div>
                   <h3>Skills &amp; Competencies</h3>
                   <p>ATS keywords, tools, and frameworks</p>
@@ -384,7 +419,7 @@
             <!-- Projects & Open Source -->
             <fieldset class="form-card" id="sec-projects">
               <legend class="card-legend">
-                <span class="legend-icon">🚀</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg></span>
                 <div>
                   <h3>Projects &amp; Open Source</h3>
                   <p>Key technical builds and repositories</p>
@@ -401,7 +436,7 @@
             <!-- Certifications -->
             <fieldset class="form-card" id="sec-certs">
               <legend class="card-legend">
-                <span class="legend-icon">📜</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>
                 <div>
                   <h3>Certifications &amp; Licenses</h3>
                   <p>Industry qualifications and cloud credentials</p>
@@ -418,7 +453,7 @@
             <!-- Languages -->
             <fieldset class="form-card" id="sec-languages">
               <legend class="card-legend">
-                <span class="legend-icon">🌐</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
                 <div>
                   <h3>Languages</h3>
                   <p>Spoken languages and proficiencies</p>
@@ -435,7 +470,7 @@
             <!-- Custom Sections -->
             <fieldset class="form-card" id="sec-custom">
               <legend class="card-legend">
-                <span class="legend-icon">＋</span>
+                <span class="legend-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
                 <div>
                   <h3>Custom Sections</h3>
                   <p>Publications, patents, volunteering, awards</p>
@@ -452,7 +487,8 @@
 
           <div class="mobile-editor-footer-action">
             <button type="button" class="btn btn-primary btn-full" id="mobile-to-preview-btn">
-              <span>👁️ View Live Resume Preview →</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>View Live Resume Preview →</span>
             </button>
           </div>
         </div>
@@ -535,7 +571,14 @@
             <div class="ats-source-toggle">
               <label class="source-radio-pill active" id="source-pill-builder">
                 <input type="radio" name="ats-resume-source" value="builder" checked style="display:none;" />
-                <span class="pill-icon-inline">▤</span>
+                <span class="pill-icon-inline unique-pill-svg-wrap">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                </span>
                 <span>Active Builder Resume</span>
               </label>
               <label class="source-radio-pill" id="source-pill-upload">
@@ -596,7 +639,8 @@
 
             <div class="ats-input-actions">
               <label class="btn btn-secondary btn-sm" style="cursor: pointer;">
-                <span>📁 Upload JD File</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Upload JD File</span>
                 <input type="file" id="job-file-input" accept=".pdf,.docx,.txt" style="display: none;" />
               </label>
               <span class="file-status" id="job-file-status">No JD file uploaded</span>
@@ -613,7 +657,9 @@
         <!-- Right: Interactive Results Launchpad -->
         <div class="ats-results-card" id="ats-results-container">
           <div class="empty-state">
-            <div class="empty-icon">◎</div>
+            <div class="empty-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="m12 12 7-7"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
             <h3>Ready for Compatibility Scan</h3>
             <p>Paste a job description on the left and click "Calculate Compatibility" to compute your 6-category weighted ATS match score.</p>
           </div>
@@ -650,42 +696,54 @@
 
       <div class="ai-cards-grid">
         <div class="ai-tool-card" data-ai-action="summary">
-          <div class="tool-icon-wrap">📝</div>
+          <div class="tool-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
           <h3>Executive Summary Synthesizer</h3>
           <p>Generate a punchy, 3-sentence summary tailored to your strongest accomplishments and target role.</p>
           <button type="button" class="btn btn-ai btn-sm">✦ Synthesize Summary</button>
         </div>
 
         <div class="ai-tool-card" data-ai-action="bullet">
-          <div class="tool-icon-wrap">⚡</div>
+          <div class="tool-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
           <h3>Bullet Point Quantifier &amp; Optimizer</h3>
           <p>Enhance weak job bullet points with action verbs, metric-driven frameworks, and high-impact phrasing.</p>
           <button type="button" class="btn btn-ai btn-sm">✦ Optimize Bullets</button>
         </div>
 
         <div class="ai-tool-card" data-ai-action="optimize">
-          <div class="tool-icon-wrap">🎯</div>
+          <div class="tool-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="m12 12 7-7"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
           <h3>Full Role Tailoring Engine</h3>
           <p>Perform an end-to-end alignment comparison against your target job description and generate an interactive diff.</p>
           <button type="button" class="btn btn-ai btn-sm">✦ Tailor Full Resume</button>
         </div>
 
         <div class="ai-tool-card" data-ai-action="cover">
-          <div class="tool-icon-wrap">✉️</div>
+          <div class="tool-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </div>
           <h3>Contextual Cover Letter Architect</h3>
           <p>Generate an executive, role-specific cover letter connecting your real achievements to the hiring team's requirements.</p>
           <button type="button" class="btn btn-ai btn-sm">✦ Draft Cover Letter</button>
         </div>
 
         <div class="ai-tool-card" data-ai-action="interview">
-          <div class="tool-icon-wrap">🎤</div>
+          <div class="tool-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </div>
           <h3>STAR Behavioral Interview Simulator</h3>
           <p>Generate role-specific behavioral and technical interview questions with STAR answer guidance.</p>
           <button type="button" class="btn btn-ai btn-sm">✦ Practice Questions</button>
         </div>
 
         <div class="ai-tool-card" data-ai-action="gap">
-          <div class="tool-icon-wrap">📈</div>
+          <div class="tool-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </div>
           <h3>Career Skill Gap &amp; Learning Advisor</h3>
           <p>Pinpoint missing domain requirements and receive recommended learning pathways to level up.</p>
           <button type="button" class="btn btn-ai btn-sm">✦ Analyze Skill Gaps</button>
@@ -851,7 +909,9 @@
           <div class="account-guest-box" id="settings-account-guest-box">
             <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 20px;">
               <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                <span style="font-size: 16px;">💾</span>
+                <span class="legend-icon" style="width: 30px; height: 30px; border-radius: var(--radius-sm); margin-right: 2px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                </span>
                 <strong style="color: var(--text-pure); font-size: 14px;">Local Storage Active (Guest Mode)</strong>
               </div>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px;">
@@ -1061,6 +1121,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=5.6"></script>
+  <script type="module" src="/app.js?v=5.7"></script>
 </body>
 </html>

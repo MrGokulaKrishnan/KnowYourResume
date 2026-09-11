@@ -802,7 +802,9 @@ import {
     if (container) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">⏳</div>
+          <div class="empty-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: aiSpin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </div>
           <h3>Computing Intelligence Breakdown</h3>
           <p>Evaluating exact keyword occurrences, categorized skill coverage, completeness, and recruiter readability...</p>
         </div>`;
@@ -839,7 +841,9 @@ import {
       if (container) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon">⚠️</div>
+            <div class="empty-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
             <h3>Analysis Failed</h3>
             <p>${esc(err.message)}</p>
           </div>`;
@@ -1393,7 +1397,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       letterText = clientAiCoverLetter(state.resume);
     }
 
-    openAiModal('✉️ Tailored Cover Letter', `
+    openAiModal('✦ Tailored Cover Letter', `
       <div class="ai-diff-box" id="cover-letter-text">${text(letterText)}</div>
       <div class="form-actions end">
         <button type="button" class="btn btn-secondary" id="copy-cover-letter-btn">
@@ -1445,7 +1449,7 @@ ${p.email || ''} · ${p.phone || ''}`;
         <p style="font-size: 12.5px; color: var(--text-high); margin-top: 3px;">${esc(q)}</p>
       </div>`).join('');
 
-    openAiModal('🎤 STAR Interview Preparation', `
+    openAiModal('✦ STAR Interview Preparation', `
       <div class="ai-diff-box">
         <div style="padding: 10px 14px; background: rgba(255, 214, 0, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(255, 214, 0, 0.25); margin-bottom: 16px; font-size: 12px; color: var(--gold-start);">
           <b>Guidance:</b> ${esc(data.starGuidance || 'Use Situation, Task, Action, and Result framework.')}
@@ -1505,7 +1509,7 @@ ${p.email || ''} · ${p.phone || ''}`;
       const gaps = (data.gaps || []).map((s) => `<span class="kw-tag missing">✕ ${esc(s)}</span>`).join('');
       const guidance = (data.guidance || []).map((g) => `<li style="font-size: 12.5px; color: var(--text-medium); margin-bottom: 6px;">${esc(g)}</li>`).join('');
 
-      openAiModal('📈 Career Skill Gap Analysis', `
+      openAiModal('✦ Career Skill Gap Analysis', `
         <div class="ai-diff-box">
           <h4 style="font-size: 13px; font-weight: 700; color: #4ade80; margin-bottom: 8px;">✓ Verified Matching Competencies:</h4>
           <div class="keyword-tags-row" style="margin-bottom: 16px;">${matched || '<span style="color: var(--text-muted); font-size: 11px;">No exact skill matches identified.</span>'}</div>
