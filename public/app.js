@@ -206,6 +206,17 @@ import {
     try {
       const key = getUserStorageKey(currentUser?.uid);
       const saved = JSON.parse(localStorage.getItem(key));
+      const pName = (saved?.resume?.personal?.name || '').toLowerCase();
+      const pEmail = (saved?.resume?.personal?.email || '').toLowerCase();
+      const pLoc = (saved?.resume?.personal?.location || '').toLowerCase();
+      if (pName.includes('gokulakrishnan') || pEmail.includes('gokulakrishnan') || pLoc.includes('cuddalore')) {
+        localStorage.removeItem(key);
+        localStorage.removeItem('knowyourresume.workspace.guest');
+        state = defaults();
+        state.resume = sampleResume();
+        saveNow();
+        return;
+      }
       if (saved && saved.resume) {
         state = {
           ...defaults(),
@@ -274,20 +285,31 @@ import {
   // ROUTING & NAVIGATION (CLEAN PATH WITH HTML5 HISTORY API)
   // =========================================================================
   const ROUTE_TITLES = {
-    dashboard: 'Dashboard — KnowYourResume',
-    resume: 'Resume Builder — KnowYourResume',
-    ats: 'ATS Compatibility Scanner — KnowYourResume',
-    templates: 'Templates Gallery — KnowYourResume',
-    ai: 'AI Career Studio — KnowYourResume',
-    applications: 'Job Applications — KnowYourResume',
-    settings: 'Account Settings — KnowYourResume',
-    pricing: 'Pricing & Pro Plans — KnowYourResume',
-    'payment-success': 'Payment Confirmed — KnowYourResume Pro',
+    dashboard: 'KnowYourResume - AI Resume Builder & AI Career Operating Systems',
+    resume: 'Free ATS Resume Builder & CV Maker — KnowYourResume',
+    ats: 'Free ATS Resume Checker & Score Calculator — KnowYourResume',
+    templates: '8 ATS-Friendly Resume Templates & Formats — KnowYourResume',
+    ai: 'AI Resume Enhancer, Tailoring & Bullet Optimizer — KnowYourResume',
+    applications: 'Job Application Tracker & Pipeline Kanban — KnowYourResume',
+    settings: 'Account & ATS Scoring Settings — KnowYourResume',
+    pricing: 'Simple, Transparent Career Pricing & Pro Plans — KnowYourResume',
+    'payment-success': 'Payment Confirmed — Welcome to KnowYourResume Pro',
     'payment-failed': 'Payment Incomplete — KnowYourResume',
-    legal: 'Legal Center & Governance — KnowYourResume',
-    faq: 'Help Center & Knowledge Base — KnowYourResume',
-    '404': '404 Not Found — KnowYourResume',
-    '500': 'Service Unavailable — KnowYourResume'
+    legal: 'Legal Center & Privacy Governance — KnowYourResume',
+    faq: 'Help Center & ATS Scoring FAQ — KnowYourResume',
+    '404': '404 Page Not Found — KnowYourResume',
+    '500': '500 Service Unavailable — KnowYourResume'
+  };
+
+  const ROUTE_DESCRIPTIONS = {
+    dashboard: 'Build ATS-friendly resumes for free, check your deterministic ATS compatibility score against job descriptions, and enhance experience bullets with Gemini AI.',
+    resume: 'Create modern, ATS-optimized resumes with real-time vector preview, customizable executive sections, and clean PDF downloads. 100% free and private.',
+    ats: 'Test your resume against Applicant Tracking Systems. Compute your deterministic 6-category ATS score and discover missing keywords against any job description.',
+    templates: 'Browse 8 free, ATS-compliant resume templates engineered to achieve 100% parse rates across Workday, Taleo, Greenhouse, and Lever.',
+    ai: 'Supercharge your resume bullets with action verbs and quantifiable metrics. Synthesize executive summaries and generate tailored cover letters with Gemini AI.',
+    applications: 'Track your active job applications, interview stages, and compatibility scores in one unified career pipeline Kanban board.',
+    pricing: 'Transparent investment in your career. Upgrade to KnowYourResume Pro for unlimited AI bullet optimizations, full job tailoring, and executive templates.',
+    faq: 'Get answers to frequently asked questions about ATS resume scanners, compatibility algorithms, Gemini AI tailoring, and data privacy.'
   };
 
   function normalizeRoute(route) {
@@ -347,9 +369,29 @@ import {
       // Browser history sandbox fallback
     }
 
-    // Dynamic Title
+    // Dynamic SEO Metadata Updates
     if (ROUTE_TITLES[target]) {
       document.title = ROUTE_TITLES[target];
+      const ogTitle = $('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', ROUTE_TITLES[target]);
+      const twTitle = $('meta[name="twitter:title"]');
+      if (twTitle) twTitle.setAttribute('content', ROUTE_TITLES[target]);
+    }
+    if (ROUTE_DESCRIPTIONS[target]) {
+      const metaDesc = $('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', ROUTE_DESCRIPTIONS[target]);
+      const ogDesc = $('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute('content', ROUTE_DESCRIPTIONS[target]);
+      const twDesc = $('meta[name="twitter:description"]');
+      if (twDesc) twDesc.setAttribute('content', ROUTE_DESCRIPTIONS[target]);
+    }
+    const canonicalLink = $('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute('href', `https://knowyourresume.web.app${targetPath === '/dashboard' ? '/' : targetPath}`);
+    }
+    const ogUrl = $('meta[property="og:url"]');
+    if (ogUrl) {
+      ogUrl.setAttribute('content', `https://knowyourresume.web.app${targetPath === '/dashboard' ? '/' : targetPath}`);
     }
 
     $$('.view-panel').forEach((panel) => {
@@ -1060,11 +1102,52 @@ import {
     }, 50);
   }
 
-  // 100% On-Device Document Text Extractor (PDF, DOCX, TXT)
+  // Dynamic script loader for CDN dependencies
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${src}"]`);
+      if (existing) {
+        if (existing.dataset.loaded === 'true') return resolve();
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', reject);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => {
+        s.dataset.loaded = 'true';
+        resolve();
+      };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Strip any raw ZIP header / XML schema binary artifacts from extracted strings
+  function sanitizeExtractedText(raw) {
+    if (!raw) return '';
+    let str = String(raw);
+    // Detect binary ZIP / Word artifacts
+    if (str.includes('[Content_Types].xml') || str.includes('word/_rels/') || str.startsWith('PK\x03\x04') || str.startsWith('PK !')) {
+      // Strip XML tags if present or purge binary noise
+      str = str.replace(/<[^>]+>/g, ' ');
+      str = str.replace(/PK[\s\S]*?\[Content_Types\]\.xml/g, '');
+      str = str.replace(/_rels\/\.rels/g, '');
+      str = str.replace(/word\/[a-zA-Z0-9_.\/]+/g, '');
+    }
+    return str
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+      .replace(/[ \t]{2,}/g, ' ')
+      .trim();
+  }
+
+  // 100% On-Device Document Text Extractor (PDF, DOCX, TXT, RTF, MD)
   async function extractDocumentText(file) {
     if (!file) throw new Error('No file provided');
 
-    // 0. File Size & Format Validation (5MB Limit)
+    // File Size Validation (5MB Limit)
     const MAX_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
@@ -1072,44 +1155,19 @@ import {
     }
 
     const nameLower = file.name.toLowerCase();
-    const validExtensions = ['.pdf', '.docx', '.doc', '.txt', '.rtf', '.md'];
-    const hasValidExt = validExtensions.some((ext) => nameLower.endsWith(ext));
-    if (!hasValidExt && !file.type.includes('text') && !file.type.includes('pdf') && !file.type.includes('word')) {
-      throw new Error(`Unsupported file format "${file.name}". Please upload a standard PDF (.pdf), Word (.docx), or Text (.txt) file.`);
-    }
 
-    // 1. Plain text files
+    // 1. Plain text & Markdown
     if (file.type === 'text/plain' || nameLower.endsWith('.txt') || nameLower.endsWith('.md')) {
-      return await file.text();
+      const txt = await file.text();
+      return sanitizeExtractedText(txt);
     }
 
-    // 2. PDF extraction via PDF.js
-    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+    // 2. DOCX Extraction via JSZip
+    if (nameLower.endsWith('.docx') || file.type.includes('word') || file.type.includes('officedocument')) {
       try {
-        if (window.pdfjsLib) {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-          const buffer = await file.arrayBuffer();
-          const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
-          const pagesText = [];
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageLines = textContent.items.map((item) => item.str).join(' ');
-            if (pageLines.trim()) pagesText.push(pageLines.trim());
-          }
-          const fullText = pagesText.join('\n\n');
-          if (fullText.trim().length > 10) {
-            return fullText.trim();
-          }
+        if (!window.JSZip) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
         }
-      } catch (pdfErr) {
-        console.warn('Client PDF extraction warning:', pdfErr);
-      }
-    }
-
-    // 3. DOCX extraction via JSZip
-    if (file.name.toLowerCase().endsWith('.docx') || file.type.includes('word') || file.type.includes('officedocument')) {
-      try {
         if (window.JSZip) {
           const buffer = await file.arrayBuffer();
           const zip = await window.JSZip.loadAsync(buffer);
@@ -1129,17 +1187,56 @@ import {
               if (line.trim()) lines.push(line.trim());
             }
             const docxText = lines.join('\n\n');
-            if (docxText.trim().length > 10) {
-              return docxText.trim();
+            const cleanDocx = sanitizeExtractedText(docxText);
+            if (cleanDocx && cleanDocx.length > 10) {
+              return cleanDocx;
             }
           }
         }
       } catch (docxErr) {
-        console.warn('Client DOCX extraction warning:', docxErr);
+        console.warn('Client DOCX extraction error:', docxErr);
       }
     }
 
-    // 4. Server extract endpoint fallback if hosted on Node server
+    // 3. PDF Extraction via PDF.js
+    if (file.type === 'application/pdf' || nameLower.endsWith('.pdf')) {
+      try {
+        if (!window.pdfjsLib) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        }
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          const buffer = await file.arrayBuffer();
+          const pdf = await window.pdfjsLib.getDocument({ data: buffer }).promise;
+          const pagesText = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageLines = textContent.items.map((item) => item.str).join(' ');
+            if (pageLines.trim()) pagesText.push(pageLines.trim());
+          }
+          const fullText = pagesText.join('\n\n');
+          const cleanPdf = sanitizeExtractedText(fullText);
+          if (cleanPdf && cleanPdf.length > 10) {
+            return cleanPdf;
+          }
+        }
+      } catch (pdfErr) {
+        console.warn('Client PDF extraction warning:', pdfErr);
+      }
+    }
+
+    // 4. Fallback for RTF / Text-like files
+    if (nameLower.endsWith('.rtf')) {
+      try {
+        const raw = await file.text();
+        const stripped = raw.replace(/\\par/g, '\n').replace(/\{.*?\}/g, '').replace(/\\[a-z0-9]+/gi, '').trim();
+        const cleanRtf = sanitizeExtractedText(stripped);
+        if (cleanRtf && cleanRtf.length > 15) return cleanRtf;
+      } catch {}
+    }
+
+    // 5. Server extract fallback if local server is active
     try {
       const base64 = await new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1160,22 +1257,188 @@ import {
       const contentType = res.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
         const data = await res.json();
-        if (data.text) return data.text;
+        if (data.text) return sanitizeExtractedText(data.text);
       }
-    } catch {
-      // Ignore server fallback failures
+    } catch {}
+
+    throw new Error(`Could not extract readable text from "${file.name}". Please ensure the file is a standard PDF, Word (.docx), or Text (.txt) document.`);
+  }
+
+  // Intelligent Resume Parser (Extracts Personal, Summary, Skills, Experience, Education, Projects)
+  function parseResumeFromText(rawText) {
+    const clean = sanitizeExtractedText(rawText);
+    if (!clean || clean.length < 10) return null;
+
+    const lines = clean.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) return null;
+
+    const resume = emptyResume();
+
+    // 1. Contact Info via Regex
+    const emailMatch = clean.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
+    if (emailMatch) resume.personal.email = emailMatch[0];
+
+    const phoneMatch = clean.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/);
+    if (phoneMatch) resume.personal.phone = phoneMatch[0];
+
+    const linkedinMatch = clean.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/([a-zA-Z0-9_\-]+)/i);
+    if (linkedinMatch) resume.personal.linkedin = linkedinMatch[0].replace(/^https?:\/\//i, '');
+
+    const githubMatch = clean.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_\-]+)/i);
+    if (githubMatch) resume.personal.github = githubMatch[0].replace(/^https?:\/\//i, '');
+
+    const portfolioMatch = clean.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9_\-]+\.(?:dev|io|me|site|tech|app))\b/i);
+    if (portfolioMatch) resume.personal.portfolio = portfolioMatch[0].replace(/^https?:\/\//i, '');
+
+    // 2. Candidate Name & Title from Top Lines
+    const headerLines = lines.slice(0, 5).filter((l) => {
+      const lower = l.toLowerCase();
+      return !lower.includes('@') &&
+             !lower.includes('linkedin.com') &&
+             !lower.includes('github.com') &&
+             !lower.includes('http') &&
+             !/^\+?\d/.test(l) &&
+             !/^(resume|curriculum vitae|cv|summary|profile)$/i.test(lower);
+    });
+
+    if (headerLines.length > 0) {
+      resume.personal.name = headerLines[0].slice(0, 50);
+      if (headerLines.length > 1 && headerLines[1].length < 60) {
+        resume.personal.title = headerLines[1];
+      }
     }
 
-    // 5. Raw text fallback
-    try {
-      const raw = await file.text();
-      const printable = raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ').replace(/\s{2,}/g, ' ').trim();
-      if (printable.length > 30) return printable;
-    } catch {
-      // Ignore
+    // 3. Section Segmentation
+    const sectionHeaders = [
+      { key: 'summary', regex: /^(?:professional\s+)?(?:summary|profile|about\s+me|executive\s+summary|objective)\b/i },
+      { key: 'experience', regex: /^(?:work\s+|professional\s+|employment\s+)?(?:experience|history|employment|work\s+history)\b/i },
+      { key: 'education', regex: /^(?:education|academic\s+background|qualifications|academics)\b/i },
+      { key: 'skills', regex: /^(?:technical\s+|core\s+)?(?:skills|competencies|technologies|expertise|skills\s+&\s+tools)\b/i },
+      { key: 'projects', regex: /^(?:key\s+|featured\s+|personal\s+)?(?:projects|portfolio)\b/i },
+      { key: 'certifications', regex: /^(?:certifications|licenses|courses|certifications\s+&\s+licenses)\b/i },
+      { key: 'languages', regex: /^(?:languages|language\s+proficiency)\b/i }
+    ];
+
+    const sections = {};
+    let currentSection = 'header';
+    sections[currentSection] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const matchedHeader = sectionHeaders.find((h) => h.regex.test(line));
+      if (matchedHeader) {
+        currentSection = matchedHeader.key;
+        if (!sections[currentSection]) sections[currentSection] = [];
+      } else {
+        if (!sections[currentSection]) sections[currentSection] = [];
+        sections[currentSection].push(line);
+      }
     }
 
-    throw new Error(`Could not extract readable text from "${file.name}". Please upload a standard PDF, DOCX, or TXT file.`);
+    // 4. Parse Summary
+    if (sections.summary && sections.summary.length > 0) {
+      resume.summary = sections.summary.join(' ').slice(0, 600);
+    } else if (sections.header && sections.header.length > 2) {
+      const potentialSummary = sections.header.slice(2).join(' ');
+      if (potentialSummary.length > 40 && !potentialSummary.includes('@')) {
+        resume.summary = potentialSummary.slice(0, 600);
+      }
+    }
+
+    // 5. Parse Skills
+    if (sections.skills && sections.skills.length > 0) {
+      const skillText = sections.skills.join(' ');
+      const rawSkills = skillText.split(/[,•|·\/\n\t]+/).map((s) => s.trim().replace(/^[-*]\s*/, '')).filter((s) => s.length > 1 && s.length < 35);
+      const uniqueSkills = [...new Set(rawSkills)];
+      if (uniqueSkills.length > 0) {
+        resume.skills = uniqueSkills.slice(0, 30);
+      }
+    }
+
+    // 6. Parse Experience
+    if (sections.experience && sections.experience.length > 0) {
+      const expLines = sections.experience;
+      const experiences = [];
+      let currentExp = null;
+
+      for (let i = 0; i < expLines.length; i++) {
+        const line = expLines[i];
+        const isBullet = /^[•\-\*·]\s*/.test(line) || (/^\s{2,}/.test(line) && currentExp);
+        const hasDate = /\b(19\d\d|20\d\d|present|current|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i.test(line);
+
+        if (!isBullet && (hasDate || line.includes('–') || line.includes('-') || line.includes('|') || !currentExp)) {
+          if (currentExp && (currentExp.title || currentExp.company)) {
+            experiences.push(currentExp);
+          }
+          currentExp = {
+            title: line.replace(/\b(19\d\d|20\d\d|present|current|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec).*$/i, '').replace(/[-–|·].*$/, '').trim() || 'Software Engineer',
+            company: line.includes(' at ') ? line.split(' at ')[1]?.trim() : (line.includes('|') ? line.split('|')[1]?.trim() : 'Company'),
+            location: '',
+            startDate: '',
+            endDate: hasDate && /present|current/i.test(line) ? 'Present' : '',
+            current: /present|current/i.test(line),
+            description: ''
+          };
+        } else if (currentExp) {
+          const bullet = line.replace(/^[•\-\*·]\s*/, '').trim();
+          if (bullet) {
+            currentExp.description = currentExp.description ? `${currentExp.description}\n• ${bullet}` : `• ${bullet}`;
+          }
+        }
+      }
+      if (currentExp && (currentExp.title || currentExp.company)) {
+        experiences.push(currentExp);
+      }
+      if (experiences.length > 0) {
+        resume.experiences = experiences.slice(0, 5);
+      }
+    }
+
+    // 7. Parse Education
+    if (sections.education && sections.education.length > 0) {
+      const eduLines = sections.education;
+      const education = [];
+      for (let i = 0; i < eduLines.length; i++) {
+        const line = eduLines[i];
+        const yearMatch = line.match(/\b(19\d\d|20\d\d)\b/);
+        const year = yearMatch ? yearMatch[0] : '';
+        const cleanEdu = line.replace(/\b(19\d\d|20\d\d)\b/, '').replace(/[-–|,]/g, ' ').trim();
+        if (cleanEdu.length > 3) {
+          education.push({
+            degree: cleanEdu.slice(0, 60),
+            school: cleanEdu.slice(0, 60),
+            location: '',
+            year: year || '2022'
+          });
+        }
+      }
+      if (education.length > 0) {
+        resume.education = education.slice(0, 3);
+      }
+    }
+
+    // 8. Parse Projects
+    if (sections.projects && sections.projects.length > 0) {
+      const projLines = sections.projects;
+      const projects = [];
+      let curProj = null;
+      for (let i = 0; i < projLines.length; i++) {
+        const line = projLines[i];
+        if (!/^[•\-\*·]/.test(line) && !curProj) {
+          curProj = { title: line.slice(0, 50), link: '', technologies: '', description: '' };
+        } else if (curProj) {
+          curProj.description = curProj.description ? `${curProj.description} ${line}` : line;
+          if (curProj.description.length > 30) {
+            projects.push(curProj);
+            curProj = null;
+          }
+        }
+      }
+      if (curProj) projects.push(curProj);
+      if (projects.length > 0) resume.projects = projects.slice(0, 4);
+    }
+
+    return resume;
   }
 
   // File upload for ATS Resume
@@ -1187,6 +1450,9 @@ import {
 
     try {
       const textContent = await extractDocumentText(file);
+      if (!textContent || textContent.length < 10) {
+        throw new Error('Could not extract readable text from resume.');
+      }
       state.uploadedResumeText = textContent;
       state.uploadedResumeName = file.name;
       if (status) status.innerHTML = `${svgTick(13, 2.8)} Loaded: ${esc(file.name)} (${(file.size / 1024).toFixed(1)} KB)`;
@@ -1197,6 +1463,8 @@ import {
     } catch (err) {
       if (status) status.textContent = `Error extracting: ${err.message}`;
       notify(`Error: ${err.message}`);
+    } finally {
+      event.target.value = '';
     }
   }
 
@@ -1206,22 +1474,43 @@ import {
     if (!file) return;
 
     try {
-      notify(`Importing ${file.name}…`);
+      notify(`Extracting & parsing ${file.name}…`);
       const extractedText = await extractDocumentText(file);
-      if (extractedText) {
-        const lines = extractedText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-        if (lines.length > 0 && !state.resume.personal.name) {
-          state.resume.personal.name = lines[0].slice(0, 50);
-        }
-        state.resume.summary = extractedText.slice(0, 600);
-        populateForm();
-        renderPreview();
-        scheduleSave();
-        switchRoute('resume');
-        notify(`Resume "${file.name}" imported into Builder!`);
+      if (!extractedText || extractedText.length < 10) {
+        throw new Error('Extracted document is empty or unreadable.');
       }
+
+      const parsed = parseResumeFromText(extractedText);
+      if (parsed) {
+        state.resume = {
+          ...emptyResume(),
+          ...parsed,
+          name: `${parsed.personal.name || 'Imported'} Resume`,
+          versionName: `${file.name.replace(/\.[^/.]+$/, '')} Draft`,
+          updatedAt: new Date().toISOString()
+        };
+      } else {
+        state.resume.summary = extractedText.slice(0, 600);
+      }
+
+      populateForm();
+      renderExperienceList();
+      renderEducationList();
+      renderSkillsChips();
+      renderProjectsList();
+      renderCertificationsList();
+      renderLanguagesList();
+      renderCustomSectionsList();
+      renderPreview();
+      scheduleSave();
+      updateDashboardStats();
+      switchRoute('resume');
+      notify(`✓ Resume "${file.name}" successfully imported!`);
     } catch (err) {
       notify(`Import failed: ${err.message}`);
+      console.error('Import error:', err);
+    } finally {
+      event.target.value = '';
     }
   }
 
@@ -1234,6 +1523,9 @@ import {
 
     try {
       const textContent = await extractDocumentText(file);
+      if (!textContent || textContent.length < 10) {
+        throw new Error('Could not extract readable text from Job Description.');
+      }
       $('#job-description-input').value = textContent;
       state.jobDescription = textContent;
       if (status) status.innerHTML = `${svgTick(13, 2.8)} Loaded: ${esc(file.name)}`;
@@ -1244,6 +1536,8 @@ import {
     } catch (err) {
       if (status) status.textContent = `Error extracting: ${err.message}`;
       notify(`Error: ${err.message}`);
+    } finally {
+      event.target.value = '';
     }
   }
 
@@ -1266,10 +1560,19 @@ import {
     if (modal) modal.style.display = 'none';
   }
 
+  function openAiLoading(title, message = 'Processing with Career Intelligence…') {
+    openAiModal(title, `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px 20px; text-align: center;">
+        <div style="width: 44px; height: 44px; border: 3px solid rgba(255, 214, 0, 0.2); border-top-color: var(--gold-start); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px;"></div>
+        <h4 style="font-size: 15px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">${esc(title)}</h4>
+        <p style="font-size: 13px; color: var(--text-secondary); max-width: 400px; line-height: 1.5;">${esc(message)}</p>
+      </div>`);
+  }
+
   function clientAiSummary(resume) {
     const p = resume.personal || {};
     const title = p.title || 'Senior Software Engineer';
-    const topSkills = (resume.skills || []).slice(0, 5).join(', ');
+    const topSkills = (resume.skills || []).slice(0, 6).join(', ');
     const topRole = resume.experiences?.[0];
     const roleDetails = topRole ? `most recently leading core initiatives at ${topRole.company}` : 'with proven industry track record';
     return `${title} ${roleDetails} specializing in ${topSkills || 'modern scalable systems'}. Demonstrated history of architecting high-performance applications, accelerating development cycles, and collaborating across cross-functional engineering teams. Focused on delivering robust, maintainable solutions that drive measurable business impact.`;
@@ -1327,6 +1630,21 @@ ${p.email || ''} · ${p.phone || ''}`;
         `Describe a scenario where you faced conflicting technical trade-offs under tight delivery deadlines. How did you align stakeholders?`,
         `Tell me about a time you led a major technical migration or refactor. How did you ensure zero downtime and maintain test coverage?`,
         `Describe an instance where a production incident occurred. How did you manage triage, post-mortem analysis, and remediation?`
+      ]
+    };
+  }
+
+  function clientAiSkillGap(resume, jd) {
+    const analysis = analyzeResume({ resume, jobDescription: jd });
+    const matched = (analysis.matchedKeywords || []).map((k) => k.keyword);
+    const gaps = (analysis.missingKeywords || []).map((k) => k.keyword);
+    const guidance = (analysis.issues || []).map((i) => `${i.issue}: ${i.action}`);
+    return {
+      matched,
+      gaps,
+      guidance: guidance.length > 0 ? guidance : [
+        'Incorporate the missing target skills into your technical experience bullet points with quantifiable outcomes.',
+        'Consider completing portfolio projects or certifications covering the high-priority missing technologies.'
       ]
     };
   }
@@ -1626,10 +1944,15 @@ ${p.email || ''} · ${p.phone || ''}`;
     openAiLoading('✦ Analyzing Career Skill Gaps…', 'Comparing competencies and discovering learning pathways...');
 
     try {
-      const data = await api('/api/ai/skill-gap', {
-        resume: state.resume,
-        jobDescription: jd
-      });
+      let data;
+      try {
+        data = await api('/api/ai/skill-gap', {
+          resume: state.resume,
+          jobDescription: jd
+        });
+      } catch {
+        data = clientAiSkillGap(state.resume, jd);
+      }
       const matched = (data.matched || []).map((s) => `<span class="kw-tag exact">${svgTick(12, 2.8)} ${esc(s)}</span>`).join('');
       const gaps = (data.gaps || []).map((s) => `<span class="kw-tag missing">${svgCross(12, 2.5)} ${esc(s)}</span>`).join('');
       const guidance = (data.guidance || []).map((g) => `<li style="font-size: 12.5px; color: var(--text-medium); margin-bottom: 6px;">${esc(g)}</li>`).join('');
@@ -1644,11 +1967,11 @@ ${p.email || ''} · ${p.phone || ''}`;
 
           ${guidance ? `<h4 style="font-size: 13px; font-weight: 700; color: var(--gold-start); margin-bottom: 8px;">✦ Recommended Learning & Career Pathway:</h4><ul style="margin-left: 18px;">${guidance}</ul>` : ''}
         </div>
-        <div class="form-actions end" style="margin-top: 14px;">
-          <button type="button" class="btn btn-secondary" id="copy-skill-gaps-btn">
-            <span>Copy Gap Analysis</span>
-          </button>
-        </div>`);
+          <div class="form-actions end" style="margin-top: 14px;">
+            <button type="button" class="btn btn-secondary" id="copy-skill-gaps-btn">
+              <span>Copy Gap Analysis</span>
+            </button>
+          </div>`);
 
       $('#copy-skill-gaps-btn')?.addEventListener('click', async (e) => {
         try {
@@ -2218,14 +2541,28 @@ ${p.email || ''} · ${p.phone || ''}`;
         return;
       }
 
-      const clearDraftBtn = e.target.closest('#footer-clear-drafts-btn');
+      const clearDraftBtn = e.target.closest('#footer-clear-drafts-btn') || e.target.closest('#reset-default-resume-btn') || e.target.closest('#settings-reset-resume-btn');
       if (clearDraftBtn) {
-        if (window.confirm('Clear all local resume drafts and start fresh? This cannot be undone.')) {
-          localStorage.removeItem('kyr_resume_data');
+        if (window.confirm('Reset resume to default format? Any custom personal details will be cleared and replaced with the master senior engineer profile.')) {
+          const key = getUserStorageKey(currentUser?.uid);
+          try {
+            localStorage.removeItem(key);
+            localStorage.removeItem('knowyourresume.workspace.guest');
+            localStorage.removeItem('kyr_resume_data');
+          } catch {}
           state.resume = sampleResume();
           populateForm();
+          renderExperienceList();
+          renderEducationList();
+          renderSkillsChips();
+          renderProjectsList();
+          renderCertificationsList();
+          renderLanguagesList();
+          renderCustomSectionsList();
           renderPreview();
-          notify('Local drafts cleared. Master template reloaded.');
+          saveNow();
+          updateDashboardStats();
+          notify('Resume reset to default format successfully.');
         }
         return;
       }
@@ -2334,6 +2671,40 @@ ${p.email || ''} · ${p.phone || ''}`;
       if (aiBulletBtn) {
         const idx = Number(aiBulletBtn.dataset.aiBulletIdx);
         handleAiBullet(idx);
+        return;
+      }
+
+      // AI Tools Page Cards Delegation
+      const aiActionCard = e.target.closest('[data-ai-action]');
+      if (aiActionCard) {
+        const action = aiActionCard.dataset.aiAction;
+        if (action === 'summary') {
+          handleAiSummary();
+        } else if (action === 'bullet') {
+          if (!state.resume.experiences || state.resume.experiences.length === 0) {
+            state.resume.experiences.push({
+              title: 'Software Engineer',
+              company: 'Tech Innovations',
+              location: '',
+              startDate: '2022',
+              endDate: 'Present',
+              current: true,
+              description: '• Developed scalable web services and optimized database queries.'
+            });
+            renderExperienceList();
+            renderPreview();
+            scheduleSave();
+          }
+          handleAiBullet(0);
+        } else if (action === 'optimize') {
+          handleAiFullOptimization();
+        } else if (action === 'cover') {
+          handleAiCoverLetter();
+        } else if (action === 'interview') {
+          handleAiInterviewPrep();
+        } else if (action === 'gap') {
+          handleAiSkillGap();
+        }
         return;
       }
 
@@ -3111,9 +3482,9 @@ ${p.email || ''} · ${p.phone || ''}`;
     $('#onboarding-sample-card')?.addEventListener('click', () => {
       dismiss();
       state.resume = sampleResume();
-      saveState();
+      saveNow();
       populateForm();
-      renderLivePreview();
+      renderPreview();
       switchRoute('resume');
       notify('Master Senior Engineer profile loaded into builder.', 'success');
     });

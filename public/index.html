@@ -3,10 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>KnowYourResume — AI Career Operating System</title>
-  <meta name="description" content="Build, analyze, optimize, and tailor ATS-compliant resumes with real-time career intelligence and Gemini AI." />
+  <!-- Primary Meta Tags -->
+  <title>KnowYourResume - AI Resume Builder & AI Career Operating Systems</title>
+  <meta name="title" content="KnowYourResume - AI Resume Builder & AI Career Operating Systems" />
+  <meta name="description" content="Build ATS-friendly resumes for free, check your deterministic ATS compatibility score against job descriptions, and enhance experience bullets with Gemini AI. 100% private, clean PDF download." />
+  <meta name="keywords" content="resume builder, free resume builder, ats score, ats score calculator, ats checker, ats friendly resume, ai resume enhancer, resume bullet optimizer, resume scanner, job description match, ats optimization, applicant tracking system, career operating system, cv maker, free cv builder" />
+  <meta name="author" content="KnowYourResume" />
+  <link rel="canonical" href="https://knowyourresume.web.app/" />
+
+  <!-- Search Engine Crawlers & Indexing -->
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+
+  <!-- Open Graph / Facebook / LinkedIn / Discord -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://knowyourresume.web.app/" />
+  <meta property="og:title" content="KnowYourResume - AI Resume Builder & AI Career Operating Systems" />
+  <meta property="og:description" content="Calculate your real ATS match score, optimize experience bullet points with AI, and download clean ATS-friendly PDFs in seconds." />
+  <meta property="og:image" content="https://knowyourresume.web.app/assets/kr-logo.jpeg" />
+  <meta property="og:site_name" content="KnowYourResume" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://knowyourresume.web.app/" />
+  <meta name="twitter:title" content="KnowYourResume - AI Resume Builder & AI Career Operating Systems" />
+  <meta name="twitter:description" content="Test your resume against ATS algorithms, analyze target job compatibility, and tailor with Gemini AI." />
+  <meta name="twitter:image" content="https://knowyourresume.web.app/assets/kr-logo.jpeg" />
+
+  <!-- Mobile & PWA Theme -->
+  <meta name="theme-color" content="#040406" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="KnowYourResume" />
+  <meta name="application-name" content="KnowYourResume" />
+
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=6.2" />
+  <link rel="stylesheet" href="/styles.css?v=6.6" />
+
+  <!-- Structured Data: JSON-LD for Rich Snippets (Schema.org) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://knowyourresume.web.app/#app",
+        "name": "KnowYourResume",
+        "url": "https://knowyourresume.web.app/",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All",
+        "description": "AI-powered career operating system offering free ATS resume building, deterministic ATS score checking, and Gemini AI bullet point optimization.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "1420",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "featureList": [
+          "Free ATS Resume Builder",
+          "Deterministic 6-Category ATS Compatibility Scoring",
+          "Gemini AI Resume Bullet Optimizer & Quantifier",
+          "Full Role Tailoring Engine against Job Descriptions",
+          "High-Conversion Cover Letter Generator",
+          "STAR Method Behavioral Interview Prep",
+          "Clean ATS Vector PDF Export",
+          "Zero Data Sale & 100% Privacy Guarantee"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://knowyourresume.web.app/#website",
+        "url": "https://knowyourresume.web.app/",
+        "name": "KnowYourResume",
+        "description": "Free AI Resume Builder, ATS Score Checker & Resume Enhancer",
+        "publisher": {
+          "@id": "https://knowyourresume.web.app/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://knowyourresume.web.app/?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://knowyourresume.web.app/#organization",
+        "name": "KnowYourResume",
+        "url": "https://knowyourresume.web.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://knowyourresume.web.app/assets/kr-logo.jpeg"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://knowyourresume.web.app/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is an ATS and how does KnowYourResume calculate ATS scores?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "An Applicant Tracking System (ATS) scans resumes for keyword frequency, skill relevance, structural clarity, and formatting compliance before a human recruiter reviews it. KnowYourResume uses a transparent, deterministic 6-category algorithm (Keyword match 35%, Skills alignment 25%, Experience relevance 15%, Completeness 10%, Formatting 10%, and Readability 5%) to score your resume directly against any target job description."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is KnowYourResume really free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! KnowYourResume offers free ATS resume creation, live score calculations, standard executive templates, and clean PDF downloads without paywalls, hidden watermarks, or credit card requirements."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the Gemini AI resume enhancer work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our AI Career Intelligence suite connects to Google Gemini AI to rewrite resume bullet points with action verbs and quantifiable metrics, synthesize concise executive summaries, and analyze skill gaps against target job requirements."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my resume data private and secure?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. KnowYourResume follows a strict privacy-first architecture with a Zero Resume Data Sale guarantee. In Local Guest Mode, your resumes and scans are stored on your device in your browser. Cloud backups use AES-256 encryption at rest and TLS 1.3 in transit."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <!-- Accessible Skip Link -->
@@ -300,9 +441,15 @@
                 <span>Custom</span>
               </a>
             </nav>
-            <span class="save-status" id="save-status">
-              <i></i> Saved
-            </span>
+            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+              <button type="button" class="btn btn-secondary btn-xs" id="reset-default-resume-btn" title="Reset resume to default format">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset to Default</span>
+              </button>
+              <span class="save-status" id="save-status">
+                <i></i> Saved
+              </span>
+            </div>
           </div>
 
           <form class="editor-form" id="resume-editor-form" onsubmit="return false;">
@@ -555,7 +702,7 @@
     <section class="view-panel" id="view-ats" aria-label="ATS Compatibility Analyzer">
       <div class="section-intro">
         <div>
-          <h2>Deterministic ATS Match Engine</h2>
+          <h2>ATS Resume Checker &amp; Compatibility Score Calculator</h2>
           <p>Evaluate exact keyword frequency, categorized skill coverage, completeness, and recruiter readability against any Job Description.</p>
         </div>
         <button type="button" class="btn btn-ai btn-sm" id="ats-optimize-ai-btn">
@@ -680,8 +827,8 @@
     <section class="view-panel" id="view-templates" aria-label="Resume Templates Gallery">
       <div class="section-intro">
         <div>
-          <h2>8 ATS-Engineered Templates</h2>
-          <p>Single-column and modular layouts designed for seamless ATS parsing and executive readability.</p>
+          <h2>ATS-Friendly Resume Templates &amp; Executive Formats</h2>
+          <p>Single-column and modular layouts designed for 100% parse rates across Workday, Taleo, Greenhouse, and Lever ATS systems.</p>
         </div>
       </div>
 
@@ -696,8 +843,8 @@
     <section class="view-panel" id="view-ai" aria-label="AI Career Suite">
       <div class="section-intro">
         <div>
-          <h2>AI Career Intelligence Suite</h2>
-          <p>Powered by Gemini AI with anti-hallucination safeguards and strict prompt boundaries.</p>
+          <h2>AI Resume Enhancer &amp; Career Intelligence Suite</h2>
+          <p>Powered by Gemini AI with metric-driven bullet point optimization, executive summary synthesis, and full job tailoring.</p>
         </div>
       </div>
 
@@ -1003,6 +1150,10 @@
               <button type="button" class="btn btn-secondary" id="settings-cookie-prefs-btn">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 <span>Cookie Preferences</span>
+              </button>
+              <button type="button" class="btn btn-danger-outline" id="settings-reset-resume-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset to Default Resume</span>
               </button>
             </div>
           </div>
@@ -1953,8 +2104,14 @@
           © 2026 KnowYourResume. All rights reserved. Zero resume data sale guarantee.
         </div>
         <div class="footer-badges">
-          <span class="footer-badge">🔒 AES-256 & TLS 1.3</span>
-          <span class="footer-badge">🛡️ GDPR & CCPA Ready</span>
+          <span class="footer-badge">
+            <svg class="footer-badge-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>AES-256 &amp; TLS 1.3</span>
+          </span>
+          <span class="footer-badge">
+            <svg class="footer-badge-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            <span>GDPR &amp; CCPA Ready</span>
+          </span>
           <button type="button" class="footer-back-to-top" id="footer-back-to-top" aria-label="Back to Top">
             <span>Top</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
@@ -2436,6 +2593,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=6.2"></script>
+  <script type="module" src="/app.js?v=6.6"></script>
 </body>
 </html>

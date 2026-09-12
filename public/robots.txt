@@ -1,0 +1,27 @@
+# KnowYourResume Robots.txt
+# https://knowyourresume.web.app
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Canonical XML Sitemap
+Sitemap: https://knowyourresume.web.app/sitemap.xml
