@@ -40,7 +40,7 @@
   <meta name="application-name" content="KnowYourResume" />
 
   <link rel="icon" type="image/jpeg" href="/assets/kr-logo.jpeg" />
-  <link rel="stylesheet" href="/styles.css?v=6.7" />
+  <link rel="stylesheet" href="/styles.css?v=6.8" />
 
   <!-- Structured Data: JSON-LD for Rich Snippets (Schema.org) -->
   <script type="application/ld+json">
@@ -281,11 +281,11 @@
       <div class="dashboard-hero-section">
         <div class="dashboard-greeting-card">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
-            <span class="eyebrow-badge"><i></i> Career Operating System</span>
+            <span class="eyebrow-badge"><i></i> AI Career Operating Systems</span>
             <span class="eyebrow-badge" id="dash-workspace-badge" style="font-size: 11px;">◌ Local Guest Workspace</span>
           </div>
           <h1 style="margin-top: 10px;" id="dashboard-greeting-title">Good morning.<br>Ready to improve your next application?</h1>
-          <p>Build ATS-optimized resumes, analyze target job compatibility with deterministic scoring, and tailor your background using Gemini AI.</p>
+          <p>Build ATS-optimized resumes with high-impact resume keywords, analyze target job compatibility with deterministic scoring, and tailor your background using Gemini AI.</p>
           <div class="dash-actions-row">
             <button type="button" class="btn btn-primary btn-lg" data-route="resume">
               <svg class="btn-action-svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
@@ -714,8 +714,8 @@
     <section class="view-panel" id="view-ats" aria-label="ATS Compatibility Analyzer">
       <div class="section-intro">
         <div>
-          <h2>ATS Resume Checker &amp; Compatibility Score Calculator</h2>
-          <p>Evaluate exact keyword frequency, categorized skill coverage, completeness, and recruiter readability against any Job Description.</p>
+          <h2>Resume Keywords &amp; ATS Score Checker</h2>
+          <p>Scan resume keywords against target job descriptions, discover missing ATS keywords, and compute your deterministic match score.</p>
         </div>
         <button type="button" class="btn btn-ai btn-sm" id="ats-optimize-ai-btn">
           <span>✦ AI Full Tailoring Plan</span>
@@ -855,8 +855,8 @@
     <section class="view-panel" id="view-ai" aria-label="AI Career Suite">
       <div class="section-intro">
         <div>
-          <h2>AI Resume Enhancer &amp; Career Intelligence Suite</h2>
-          <p>Powered by Gemini AI with metric-driven bullet point optimization, executive summary synthesis, and full job tailoring.</p>
+          <h2>AI Resume Enhancer &amp; Resume Keywords Optimizer</h2>
+          <p>Powered by Gemini AI with metric-driven bullet point optimization, resume keyword tailoring, and executive summary synthesis.</p>
         </div>
       </div>
 
@@ -2263,8 +2263,38 @@
 
       <div class="auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
 
+      <!-- Passwordless vs Password Selector -->
+      <div class="auth-mode-selector" id="auth-mode-selector" role="tablist" aria-label="Authentication Method">
+        <button type="button" class="auth-mode-tab active" id="tab-auth-passwordless" role="tab" aria-selected="true" aria-controls="modal-passwordless-form">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+          <span>Passwordless Magic Link</span>
+        </button>
+        <button type="button" class="auth-mode-tab" id="tab-auth-password" role="tab" aria-selected="false" aria-controls="modal-signin-form">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Password</span>
+        </button>
+      </div>
+
+      <div class="alert-box success" id="auth-success-msg" style="display: none;"></div>
+
+      <!-- Passwordless Magic Link Form -->
+      <form class="auth-form" id="modal-passwordless-form" role="tabpanel" aria-labelledby="tab-auth-passwordless">
+        <div class="passwordless-hint-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold-start)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <span>No passwords to remember. Enter your email for a secure 1-click sign-in link.</span>
+        </div>
+        <label class="form-field">
+          <span>Email Address</span>
+          <input type="email" id="modal-passwordless-email" placeholder="alex@example.com" required autocomplete="email" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-full" id="modal-passwordless-submit-btn">
+          <span>✦ Send Magic Link / Sign In Passwordless</span>
+        </button>
+        <p class="auth-switch-text">Prefer password? <a href="#" id="to-password-link">Sign in with password</a></p>
+      </form>
+
       <!-- Sign In Form -->
-      <form class="auth-form" id="modal-signin-form">
+      <form class="auth-form" id="modal-signin-form" style="display: none;" role="tabpanel" aria-labelledby="tab-auth-password">
         <label class="form-field">
           <span>Email Address</span>
           <input type="email" id="modal-login-email" required autocomplete="username" />
@@ -2277,6 +2307,7 @@
           <input type="password" id="modal-login-password" required autocomplete="current-password" />
         </label>
         <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+        <p class="auth-switch-text"><a href="#" id="to-passwordless-link">✦ Use Passwordless Magic Link instead</a></p>
         <p class="auth-switch-text">Don't have an account? <a href="#" id="to-signup-link">Create Account</a></p>
       </form>
 
@@ -2299,7 +2330,8 @@
           <input type="password" id="modal-signup-confirm" required minlength="6" autocomplete="new-password" />
         </label>
         <button type="submit" class="btn btn-primary btn-full">Create Free Account</button>
-        <p class="auth-switch-text">Already have an account? <a href="#" id="to-signin-link">Sign In</a></p>
+        <p class="auth-switch-text">Already have an account? <a href="#" id="to-signin-link">Sign In with Password</a></p>
+        <p class="auth-switch-text"><a href="#" id="signup-to-passwordless-link">✦ Or Sign In with Passwordless Magic Link</a></p>
       </form>
 
       <!-- Forgot Password Form -->
@@ -2605,6 +2637,6 @@
   <!-- Client-side PDF and DOCX parsers for 100% On-Device Document Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script type="module" src="/app.js?v=6.7"></script>
+  <script type="module" src="/app.js?v=6.8"></script>
 </body>
 </html>

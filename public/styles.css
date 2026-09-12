@@ -2586,6 +2586,68 @@ button {
   border: 1px solid var(--ruby-border);
 }
 
+.alert-box.success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.auth-mode-selector {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  gap: 4px;
+  margin-bottom: 16px;
+  border: 1px solid var(--glass-border-subtle);
+}
+
+.auth-mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-sm) - 2px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.auth-mode-tab:hover {
+  color: var(--text-primary);
+}
+
+.auth-mode-tab.active {
+  background: var(--bg-surface-l2);
+  color: var(--gold-start);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.passwordless-hint-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 242, 0, 0.06);
+  border: 1px solid rgba(255, 242, 0, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.passwordless-hint-box svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
 .badge-ai {
   font-size: 11.5px;
   font-weight: 750;
@@ -2677,140 +2739,6 @@ button {
 .mobile-dock-btn.active {
   color: var(--gold-start);
 }
-
-/* ==========================================================================
-   PRINT SPECIFICATION FOR HIGH-QUALITY CLEAN PDF EXPORT
-   ========================================================================== */
-@media print {
-  /* Reset all background and shadow artifacts */
-  *, *::before, *::after {
-    background: transparent !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-
-  html, body {
-    background: #ffffff !important;
-    color: #0f172a !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 100% !important;
-    overflow: visible !important;
-    font-size: 10.5pt;
-  }
-
-  /* Force hide all navigation, editors, sidebars, modals, floating docks, glows, and other view panels */
-  header,
-  nav,
-  footer,
-  .navbar,
-  .nav-left,
-  .nav-links,
-  .nav-right,
-  .mobile-menu-btn,
-  .mobile-drawer-overlay,
-  .mobile-bottom-dock,
-  .ambient-bg-glow,
-  .ambient-bg-secondary,
-  .modal-overlay,
-  .toast,
-  #toast,
-  .builder-editor-wrap,
-  .section-nav-bar,
-  .section-nav-pills,
-  .editor-form,
-  .preview-header,
-  .preview-controls-left,
-  .preview-controls-right,
-  .btn,
-  .seg-btn-group,
-  .template-select,
-  #view-dashboard,
-  #view-ats,
-  #view-templates,
-  #view-ai,
-  #view-applications,
-  #view-settings {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* Make sure the resume view and paper preview are visible and full width */
-  #view-resume {
-    display: block !important;
-    visibility: visible !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  .builder-layout {
-    display: block !important;
-    grid-template-columns: 1fr !important;
-    height: auto !important;
-    overflow: visible !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  .builder-preview-wrap {
-    display: block !important;
-    background: #ffffff !important;
-    height: auto !important;
-    overflow: visible !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  .preview-viewport {
-    display: block !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: #ffffff !important;
-    overflow: visible !important;
-    height: auto !important;
-  }
-
-  .paper-stage {
-    display: block !important;
-    transform: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-  }
-
-  .resume-paper {
-    display: block !important;
-    visibility: visible !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  .resume-paper * {
-    visibility: visible !important;
-  }
-
-  @page {
-    size: auto;
-    margin: 10mm 12mm;
-  }
-}
-
 
 /* Mobile Hamburger Toggle Button */
 .mobile-menu-btn {
@@ -2926,7 +2854,7 @@ button {
 /* ==========================================================================
    RESPONSIVE DESIGN BREAKPOINTS
    ========================================================================== */
-@media (max-width: 1200px) {
+@media screen and (max-width: 1200px) {
   .navbar {
     padding: 0 16px;
     gap: 12px;
@@ -2946,7 +2874,7 @@ button {
   }
 }
 
-@media (max-width: 1100px) {
+@media screen and (max-width: 1100px) {
   .dashboard-hero-section {
     grid-template-columns: 1fr;
   }
@@ -2984,7 +2912,7 @@ button {
   }
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   /* 1. Mobile Topbar Header */
   .navbar {
     padding: 0 12px;
@@ -3588,7 +3516,7 @@ button {
 }
 
 /* 15. Extra Compact Phones (<= 400px, e.g. iPhone SE, 360px Androids) */
-@media (max-width: 400px) {
+@media screen and (max-width: 400px) {
   .brand-text b {
     display: inline;
   }
@@ -4161,7 +4089,7 @@ button {
 }
 
 /* Mobile Media Queries for Footer & Legal */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .legal-layout {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -4447,7 +4375,7 @@ button {
   margin: 14px auto 16px;
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .faq-layout {
     grid-template-columns: 1fr;
     gap: 24px;
@@ -5178,7 +5106,7 @@ button {
 }
 
 /* Responsive Overrides */
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
   .pricing-cards-grid {
     grid-template-columns: 1fr;
     max-width: 480px;
@@ -5198,5 +5126,173 @@ button {
 
   .onboarding-cards-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   FINAL MASTER PRINT STYLESHEET (STRICT ISOLATION & 100% CLEAN VECTOR RESUME)
+   ========================================================================== */
+@media print {
+  /* Reset page backgrounds & shadows */
+  *, *::before, *::after {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    font-size: 10.5pt !important;
+  }
+
+  /* Completely suppress all navigation, bars, buttons, and mobile tabs */
+  header,
+  nav,
+  footer,
+  .navbar,
+  .nav-left,
+  .nav-links,
+  .nav-right,
+  .mobile-header-btn,
+  .mobile-menu-btn,
+  .mobile-drawer-overlay,
+  .mobile-bottom-dock,
+  .mobile-builder-tabs-bar,
+  .mobile-builder-segmented,
+  .mobile-builder-tab,
+  .mobile-builder-quick-pdf,
+  .mobile-editor-footer-action,
+  .mobile-back-to-edit-btn,
+  #mobile-to-preview-btn,
+  #mobile-back-to-edit-btn,
+  .builder-editor-wrap,
+  .section-nav-bar,
+  .section-nav-pills,
+  .editor-form,
+  .preview-header,
+  .preview-controls-left,
+  .preview-controls-right,
+  .seg-btn-group,
+  .template-select,
+  .zoom-btn,
+  .zoom-text,
+  .save-status,
+  .auth-mode-selector,
+  .ambient-bg-glow,
+  .ambient-bg-secondary,
+  .modal-overlay,
+  .toast,
+  #toast,
+  .cookie-consent-bar,
+  #cookie-consent-banner,
+  button,
+  .btn,
+  #view-dashboard,
+  #view-ats,
+  #view-templates,
+  #view-ai,
+  #view-applications,
+  #view-settings,
+  #view-pricing,
+  #view-payment-success,
+  #view-payment-failed,
+  #view-legal,
+  #view-faq,
+  #view-404,
+  #view-500 {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Force display of the resume document container and clean paper preview */
+  #view-resume {
+    display: block !important;
+    visibility: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .builder-layout {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .builder-preview-wrap {
+    display: block !important;
+    visibility: visible !important;
+    background: #ffffff !important;
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .preview-viewport {
+    display: block !important;
+    visibility: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  .paper-stage {
+    display: block !important;
+    visibility: visible !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .resume-paper {
+    display: block !important;
+    visibility: visible !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+  }
+
+  .resume-paper * {
+    visibility: visible !important;
+  }
+
+  @page {
+    size: auto;
+    margin: 10mm 12mm;
   }
 }

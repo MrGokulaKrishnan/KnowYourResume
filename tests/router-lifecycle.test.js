@@ -136,3 +136,32 @@ test('SEO Assets: robots.txt and sitemap.xml exist and declare canonical endpoin
   assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/templates<\/loc>/);
   assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/ai<\/loc>/);
 });
+
+test('Passwordless Auth Markup: public/index.html includes passwordless magic link form & tabs', async () => {
+  const fs = await import('node:fs');
+  const html = fs.readFileSync('public/index.html', 'utf8');
+
+  assert.match(html, /id="tab-auth-passwordless"/);
+  assert.match(html, /id="modal-passwordless-form"/);
+  assert.match(html, /id="modal-passwordless-email"/);
+  assert.match(html, /id="modal-passwordless-submit-btn"/);
+  assert.match(html, /id="auth-success-msg"/);
+});
+
+test('Print Isolation & Clean PDF Export: public/styles.css suppresses mobile builder tabs and controls in @media print', async () => {
+  const fs = await import('node:fs');
+  const css = fs.readFileSync('public/styles.css', 'utf8');
+
+  // Must have final @media print block
+  assert.ok(css.includes('@media print {'), 'Must declare @media print block');
+  
+  // Must hide mobile builder tabs bar and editor controls
+  assert.match(css, /\.mobile-builder-tabs-bar/);
+  assert.match(css, /\.mobile-builder-tab/);
+  assert.match(css, /\.mobile-editor-footer-action/);
+  
+  // Responsive breakpoints must specify screen and to avoid contaminating print output
+  assert.ok(css.includes('@media screen and (max-width: 768px)'));
+  assert.ok(css.includes('@media screen and (max-width: 900px)'));
+  assert.ok(css.includes('@media screen and (max-width: 1200px)'));
+});

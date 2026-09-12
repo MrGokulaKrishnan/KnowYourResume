@@ -21,4 +21,27 @@ test('mapAuthError maps validation error codes accurately', async () => {
   assert.equal(mapAuthError({ code: 'auth/missing-or-invalid-nonce' }), 'Sign-in session refreshed. Please click Continue with Google once more.');
   assert.equal(mapAuthError({ code: 'auth/cancelled-popup-request' }), 'Previous sign-in request was cancelled. Please try again.');
   assert.equal(mapAuthError({ code: 'auth/network-request-failed' }), 'Network connection failed. Please check your internet connection.');
+  assert.equal(mapAuthError({ code: 'auth/invalid-action-code' }), 'The sign-in link is invalid or has expired. Please request a new magic link.');
+  assert.equal(mapAuthError({ code: 'auth/expired-action-code' }), 'This sign-in link has expired. Please request a new magic link.');
+});
+
+test('Passwordless Auth: sendPasswordlessLink validates email format strictly', async () => {
+  const { sendPasswordlessLink } = await import('../public/lib/firebase-auth.js');
+  await assert.rejects(
+    async () => sendPasswordlessLink(''),
+    { message: 'Please enter a valid email address.' }
+  );
+  await assert.rejects(
+    async () => sendPasswordlessLink('not-an-email'),
+    { message: 'Please enter a valid email address.' }
+  );
+});
+
+test('Passwordless Auth: signInPasswordlessInstant creates user session without password', async () => {
+  const { signInPasswordlessInstant, getCurrentUser } = await import('../public/lib/firebase-auth.js');
+  const user = await signInPasswordlessInstant('candidate@test.com');
+  assert.ok(user, 'User should be returned');
+  assert.equal(user.email, 'candidate@test.com');
+  assert.ok(user.uid.startsWith('usr_'));
+  assert.equal(getCurrentUser()?.email, 'candidate@test.com');
 });

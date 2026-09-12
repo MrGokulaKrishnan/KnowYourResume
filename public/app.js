@@ -4,6 +4,9 @@ import {
   signInWithGoogle,
   signInWithEmail,
   signUpWithEmail,
+  sendPasswordlessLink,
+  completePasswordlessSignIn,
+  signInPasswordlessInstant,
   resetPassword,
   logOut,
   mapAuthError,
@@ -2185,38 +2188,74 @@ ${p.email || ''} · ${p.phone || ''}`;
     const googleBtn = $('#modal-google-btn');
     const alertBox = $('#auth-alert-msg');
 
+    const successBox = $('#auth-success-msg');
     const showAlert = (msg) => {
+      hideAlert();
       if (alertBox) {
         alertBox.textContent = msg;
         alertBox.style.display = 'block';
       }
     };
+    const showSuccess = (msg) => {
+      hideAlert();
+      if (successBox) {
+        successBox.textContent = msg;
+        successBox.style.display = 'block';
+      }
+    };
     const hideAlert = () => {
       if (alertBox) alertBox.style.display = 'none';
+      if (successBox) successBox.style.display = 'none';
     };
 
-    openAuthModal = (mode = 'signin') => {
+    openAuthModal = (mode = 'passwordless') => {
       hideAlert();
+      const modeSelector = $('#auth-mode-selector');
+      const tabPasswordless = $('#tab-auth-passwordless');
+      const tabPassword = $('#tab-auth-password');
+
       if (mode === 'signup') {
+        if (modeSelector) modeSelector.style.display = 'none';
+        $('#modal-passwordless-form').style.display = 'none';
         $('#modal-signin-form').style.display = 'none';
         $('#modal-signup-form').style.display = 'flex';
         $('#modal-forgot-form').style.display = 'none';
         $('#auth-modal-title').textContent = 'Create an Account';
       } else if (mode === 'forgot') {
+        if (modeSelector) modeSelector.style.display = 'none';
+        $('#modal-passwordless-form').style.display = 'none';
         $('#modal-signin-form').style.display = 'none';
         $('#modal-signup-form').style.display = 'none';
         $('#modal-forgot-form').style.display = 'flex';
         $('#auth-modal-title').textContent = 'Reset Password';
-      } else {
+      } else if (mode === 'signin') {
+        if (modeSelector) modeSelector.style.display = 'flex';
+        tabPasswordless?.classList.remove('active');
+        tabPasswordless?.setAttribute('aria-selected', 'false');
+        tabPassword?.classList.add('active');
+        tabPassword?.setAttribute('aria-selected', 'true');
+        $('#modal-passwordless-form').style.display = 'none';
         $('#modal-signin-form').style.display = 'flex';
         $('#modal-signup-form').style.display = 'none';
         $('#modal-forgot-form').style.display = 'none';
-        $('#auth-modal-title').textContent = 'Sign in to KnowYourResume';
+        $('#auth-modal-title').textContent = 'Sign in with Password';
+      } else {
+        // default: passwordless magic link
+        if (modeSelector) modeSelector.style.display = 'flex';
+        tabPasswordless?.classList.add('active');
+        tabPasswordless?.setAttribute('aria-selected', 'true');
+        tabPassword?.classList.remove('active');
+        tabPassword?.setAttribute('aria-selected', 'false');
+        $('#modal-passwordless-form').style.display = 'flex';
+        $('#modal-signin-form').style.display = 'none';
+        $('#modal-signup-form').style.display = 'none';
+        $('#modal-forgot-form').style.display = 'none';
+        $('#auth-modal-title').textContent = 'Passwordless Sign-In';
       }
       if (authModal) authModal.style.display = 'flex';
     };
 
-    const openAuth = () => openAuthModal('signin');
+    const openAuth = () => openAuthModal('passwordless');
     authTriggerBtn?.addEventListener('click', openAuth);
     settingsAuthBtn?.addEventListener('click', openAuth);
     $('#dash-auth-btn')?.addEventListener('click', openAuth);
@@ -2225,37 +2264,68 @@ ${p.email || ''} · ${p.phone || ''}`;
       if (authModal) authModal.style.display = 'none';
     });
 
+    $('#tab-auth-passwordless')?.addEventListener('click', () => openAuthModal('passwordless'));
+    $('#tab-auth-password')?.addEventListener('click', () => openAuthModal('signin'));
+    $('#to-password-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('signin');
+    });
+    $('#to-passwordless-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('passwordless');
+    });
+    $('#signup-to-passwordless-link')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAuthModal('passwordless');
+    });
     $('#to-signup-link')?.addEventListener('click', (e) => {
       e.preventDefault();
-      hideAlert();
-      $('#modal-signin-form').style.display = 'none';
-      $('#modal-signup-form').style.display = 'flex';
-      $('#modal-forgot-form').style.display = 'none';
-      $('#auth-modal-title').textContent = 'Create an Account';
+      openAuthModal('signup');
     });
     $('#to-signin-link')?.addEventListener('click', (e) => {
       e.preventDefault();
-      hideAlert();
-      $('#modal-signin-form').style.display = 'flex';
-      $('#modal-signup-form').style.display = 'none';
-      $('#modal-forgot-form').style.display = 'none';
-      $('#auth-modal-title').textContent = 'Sign in to KnowYourResume';
+      openAuthModal('signin');
     });
     $('#to-forgot-link')?.addEventListener('click', (e) => {
       e.preventDefault();
-      hideAlert();
-      $('#modal-signin-form').style.display = 'none';
-      $('#modal-signup-form').style.display = 'none';
-      $('#modal-forgot-form').style.display = 'flex';
-      $('#auth-modal-title').textContent = 'Reset Password';
+      openAuthModal('forgot');
     });
     $('#back-to-signin-link')?.addEventListener('click', (e) => {
       e.preventDefault();
+      openAuthModal('passwordless');
+    });
+
+    // Passwordless Submission
+    $('#modal-passwordless-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
       hideAlert();
-      $('#modal-signin-form').style.display = 'flex';
-      $('#modal-signup-form').style.display = 'none';
-      $('#modal-forgot-form').style.display = 'none';
-      $('#auth-modal-title').textContent = 'Sign in to KnowYourResume';
+      const emailInput = $('#modal-passwordless-email');
+      const submitBtn = $('#modal-passwordless-submit-btn');
+      const email = emailInput?.value.trim();
+      if (!email) return;
+
+      const originalText = submitBtn?.innerHTML || '';
+      try {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span>✦ Sending Magic Link…</span>';
+        }
+        const res = await sendPasswordlessLink(email);
+        if (res.mode === 'instant') {
+          if (authModal) authModal.style.display = 'none';
+          notify('✦ Signed in successfully via Passwordless Authentication!');
+        } else {
+          showSuccess(`✦ Magic sign-in link sent to ${email}! Check your inbox or spam folder to complete sign-in.`);
+          notify(`Magic link sent to ${email}.`);
+        }
+      } catch (err) {
+        showAlert(mapAuthError(err));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      }
     });
 
     // Sign In Submission
@@ -2448,18 +2518,42 @@ ${p.email || ''} · ${p.phone || ''}`;
     const cleanName = name.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim().replace(/\s+/g, '_') || 'My';
     document.title = `${cleanName}_Resume`;
 
+    const viewResume = $('#view-resume');
+    const prevMode = viewResume ? viewResume.dataset.activeBuilderMode : null;
+    if (viewResume) {
+      viewResume.dataset.activeBuilderMode = 'preview';
+    }
+    document.body.classList.add('is-exporting-pdf');
+
+    const paper = $('#resume-preview');
+    const prevTransform = paper ? paper.style.transform : '';
+    if (paper) {
+      paper.style.transform = 'none';
+    }
+
     // Ensure preview is fully rendered
     renderPreview();
 
-    notify('Opening Clean PDF Print / Download dialog…');
+    notify('Opening Clean Vector PDF Export dialog…');
+
+    let restored = false;
+    const cleanupAfterPrint = () => {
+      if (restored) return;
+      restored = true;
+      document.title = originalTitle;
+      document.body.classList.remove('is-exporting-pdf');
+      if (paper && prevTransform) paper.style.transform = prevTransform;
+      if (viewResume && prevMode) viewResume.dataset.activeBuilderMode = prevMode;
+      window.removeEventListener('afterprint', cleanupAfterPrint);
+    };
+
+    window.addEventListener('afterprint', cleanupAfterPrint, { once: true });
 
     // Trigger browser's native vector PDF print dialog
     window.print();
 
-    // Restore title after print dialog closes
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1500);
+    // Fallback timer if afterprint doesn't fire in certain browsers
+    setTimeout(cleanupAfterPrint, 2500);
   }
 
   // =========================================================================
