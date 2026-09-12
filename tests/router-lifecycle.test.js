@@ -1,4 +1,4 @@
-﻿import test from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 
 function normalizeRoute(route) {
@@ -90,4 +90,49 @@ test('Customer Lifecycle: promo code CAREERPRO applies 20% discount on Annual an
   assert.equal(invalid.valid, false);
   assert.equal(invalid.discount, 0);
   assert.equal(invalid.total, 96.00);
+});
+
+test('SEO & Metadata: public/index.html includes exact title and resume builder/keywords optimization', async () => {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const htmlPath = path.resolve('public/index.html');
+  const html = fs.readFileSync(htmlPath, 'utf8');
+
+  // Exact Requested Title
+  assert.match(html, /<title>KnowYourResume - AI Resume Builder &amp; AI Career Operating Systems<\/title>/i);
+  assert.match(html, /<meta name="title" content="KnowYourResume - AI Resume Builder &amp; AI Career Operating Systems" \/>/i);
+
+  // Resume builder and resume keywords in description and keywords
+  assert.match(html, /name="description"[^>]*resume builder/i);
+  assert.match(html, /name="description"[^>]*resume keywords/i);
+  assert.match(html, /name="keywords"[^>]*resume builder/i);
+  assert.match(html, /name="keywords"[^>]*resume keywords/i);
+
+  // Social tags
+  assert.match(html, /property="og:title" content="KnowYourResume - AI Resume Builder &amp; AI Career Operating Systems"/i);
+  assert.match(html, /name="twitter:title" content="KnowYourResume - AI Resume Builder &amp; AI Career Operating Systems"/i);
+
+  // Schema.org JSON-LD parses and validates
+  const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(jsonLdMatch, 'JSON-LD script block must exist');
+  const jsonLd = JSON.parse(jsonLdMatch[1]);
+  assert.equal(jsonLd['@context'], 'https://schema.org');
+  const webApp = jsonLd['@graph'].find((item) => item['@type'] === 'WebApplication');
+  assert.ok(webApp, 'WebApplication graph entity must exist');
+  assert.equal(webApp.name, 'KnowYourResume - AI Resume Builder & AI Career Operating Systems');
+  assert.ok(webApp.keywords.includes('resume builder'));
+  assert.ok(webApp.keywords.includes('resume keywords'));
+});
+
+test('SEO Assets: robots.txt and sitemap.xml exist and declare canonical endpoints', async () => {
+  const fs = await import('node:fs');
+  const robots = fs.readFileSync('public/robots.txt', 'utf8');
+  assert.match(robots, /Sitemap: https:\/\/knowyourresume\.web\.app\/sitemap\.xml/);
+
+  const sitemap = fs.readFileSync('public/sitemap.xml', 'utf8');
+  assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/resume<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/ats<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/templates<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/knowyourresume\.web\.app\/ai<\/loc>/);
 });

@@ -287,9 +287,9 @@ import {
   const ROUTE_TITLES = {
     dashboard: 'KnowYourResume - AI Resume Builder & AI Career Operating Systems',
     resume: 'Free ATS Resume Builder & CV Maker — KnowYourResume',
-    ats: 'Free ATS Resume Checker & Score Calculator — KnowYourResume',
-    templates: '8 ATS-Friendly Resume Templates & Formats — KnowYourResume',
-    ai: 'AI Resume Enhancer, Tailoring & Bullet Optimizer — KnowYourResume',
+    ats: 'Resume Keywords & ATS Score Checker — KnowYourResume',
+    templates: '8 ATS Resume Templates & Formats — KnowYourResume Builder',
+    ai: 'AI Resume Enhancer, Tailoring & Keywords Optimizer — KnowYourResume',
     applications: 'Job Application Tracker & Pipeline Kanban — KnowYourResume',
     settings: 'Account & ATS Scoring Settings — KnowYourResume',
     pricing: 'Simple, Transparent Career Pricing & Pro Plans — KnowYourResume',
@@ -302,14 +302,14 @@ import {
   };
 
   const ROUTE_DESCRIPTIONS = {
-    dashboard: 'Build ATS-friendly resumes for free, check your deterministic ATS compatibility score against job descriptions, and enhance experience bullets with Gemini AI.',
-    resume: 'Create modern, ATS-optimized resumes with real-time vector preview, customizable executive sections, and clean PDF downloads. 100% free and private.',
-    ats: 'Test your resume against Applicant Tracking Systems. Compute your deterministic 6-category ATS score and discover missing keywords against any job description.',
+    dashboard: 'Build ATS-friendly resumes for free with KnowYourResume — the AI Resume Builder and Career Operating System. Optimize resume keywords, calculate deterministic ATS scores against job descriptions, and enhance bullet points with Gemini AI.',
+    resume: 'Create modern, ATS-optimized resumes with real-time vector preview, customizable executive sections, and clean PDF downloads. The ultimate free AI resume builder.',
+    ats: 'Scan your resume against Applicant Tracking Systems. Optimize resume keywords, calculate deterministic ATS match scores, and discover missing target keywords against any job description.',
     templates: 'Browse 8 free, ATS-compliant resume templates engineered to achieve 100% parse rates across Workday, Taleo, Greenhouse, and Lever.',
-    ai: 'Supercharge your resume bullets with action verbs and quantifiable metrics. Synthesize executive summaries and generate tailored cover letters with Gemini AI.',
-    applications: 'Track your active job applications, interview stages, and compatibility scores in one unified career pipeline Kanban board.',
+    ai: 'Supercharge your resume bullets with action verbs, quantifiable metrics, and targeted resume keywords. Synthesize executive summaries and generate tailored cover letters with Gemini AI.',
+    applications: 'Track your active job applications, interview stages, and keyword compatibility scores in one unified career pipeline Kanban board.',
     pricing: 'Transparent investment in your career. Upgrade to KnowYourResume Pro for unlimited AI bullet optimizations, full job tailoring, and executive templates.',
-    faq: 'Get answers to frequently asked questions about ATS resume scanners, compatibility algorithms, Gemini AI tailoring, and data privacy.'
+    faq: 'Get answers to frequently asked questions about ATS resume scanners, resume keywords optimization, compatibility algorithms, and data privacy.'
   };
 
   function normalizeRoute(route) {
